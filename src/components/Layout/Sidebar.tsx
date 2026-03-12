@@ -20,18 +20,18 @@ interface SidebarItem {
 }
 
 const items: SidebarItem[] = [
-  { id: 'slash-commands', icon: <Slash size={16} /> },
-  { id: 'cli-flags', icon: <Terminal size={16} /> },
-  { id: 'shortcuts', icon: <Keyboard size={16} /> },
-  { id: 'skills', icon: <Zap size={16} /> },
-  { id: 'modes', icon: <Layers size={16} /> },
-  { id: 'settings', icon: <Settings size={16} /> },
-  { id: 'env-vars', icon: <Variable size={16} /> },
+  { id: 'slash-commands', icon: <Slash size={18} /> },
+  { id: 'cli-flags', icon: <Terminal size={18} /> },
+  { id: 'shortcuts', icon: <Keyboard size={18} /> },
+  { id: 'skills', icon: <Zap size={18} /> },
+  { id: 'modes', icon: <Layers size={18} /> },
+  { id: 'settings', icon: <Settings size={18} /> },
+  { id: 'env-vars', icon: <Variable size={18} /> },
 ];
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   clsx(
-    'flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm transition-colors',
+    'flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-base transition-colors',
     isActive
       ? 'bg-indigo-50 text-indigo-700 font-semibold dark:bg-indigo-900/30 dark:text-indigo-300'
       : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800/50 dark:hover:text-slate-200'
@@ -41,10 +41,10 @@ export function Sidebar() {
   const { t } = useLanguage();
 
   return (
-    <nav className="w-52 shrink-0 hidden md:flex flex-col gap-0.5 py-4 pr-2 border-r border-slate-100 dark:border-slate-800">
+    <nav className="w-56 shrink-0 hidden md:flex flex-col gap-0.5 py-4 pr-2 border-r border-slate-100 dark:border-slate-800">
       {/* Scenarios link */}
       <NavLink to="/scenarios" className={navLinkClass}>
-        <span className="opacity-70"><BookOpen size={16} /></span>
+        <span className="opacity-70"><BookOpen size={18} /></span>
         <span className="truncate">{t.sections['scenarios']}</span>
         <span className="ml-auto text-xs text-slate-400 dark:text-slate-500">
           {scenarios.length}

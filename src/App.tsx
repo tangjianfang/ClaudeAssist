@@ -69,7 +69,7 @@ function AppInner() {
 
       <div className="flex flex-1 overflow-hidden max-w-screen-2xl mx-auto w-full">
         {/* Sidebar */}
-        <div className="shrink-0 w-52 hidden md:block overflow-y-auto pl-4">
+        <div className="shrink-0 w-56 hidden md:block overflow-y-auto pl-4">
           <Sidebar />
         </div>
 
