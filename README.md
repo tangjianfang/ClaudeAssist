@@ -4,7 +4,22 @@
 
 A fast, elegant, bilingual (EN/中文) reference for every Claude Code slash command, CLI flag, keyboard shortcut, setting, and mode — curated for both beginners and power users.
 
-🌐 **Live site**: [https://your-username.github.io/ClaudeAssist/](https://your-username.github.io/ClaudeAssist/)
+🌐 **Live site**: [https://tangjianfang.github.io/ClaudeAssist/](https://tangjianfang.github.io/ClaudeAssist/)
+
+---
+
+## 快速访问 / Quick Access
+
+| 页面 | 链接 | 说明 |
+|------|------|------|
+| 🏠 首页 | [/](https://tangjianfang.github.io/ClaudeAssist/) | 命令总览与入门推荐 |
+| 🗺️ 应用场景 | [/#/scenarios](https://tangjianfang.github.io/ClaudeAssist/#/scenarios) | 真实工作流指南（Demo / 项目 / CI 等） |
+| ⚡ 速查表 | [/#/cheatsheet](https://tangjianfang.github.io/ClaudeAssist/#/cheatsheet) | 可打印的核心命令一页纸 |
+| `/` 斜杠命令 | [/#/slash-commands](https://tangjianfang.github.io/ClaudeAssist/#/slash-commands) | /init · /compact · /review … |
+| 🏳️ CLI 参数 | [/#/cli-flags](https://tangjianfang.github.io/ClaudeAssist/#/cli-flags) | --print · --model · --add-dir … |
+| ⌨️ 快捷键 | [/#/shortcuts](https://tangjianfang.github.io/ClaudeAssist/#/shortcuts) | Ctrl+C · Esc · Ctrl+R … |
+| ⚙️ 配置项 | [/#/settings](https://tangjianfang.github.io/ClaudeAssist/#/settings) | settings.json 全量选项 |
+| 🔧 环境变量 | [/#/env-vars](https://tangjianfang.github.io/ClaudeAssist/#/env-vars) | ANTHROPIC_API_KEY 等 |
 
 ---
 
