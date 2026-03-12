@@ -1,6 +1,8 @@
-import { Search, Moon, Sun, Github, FileText, Languages } from 'lucide-react';
+import { Search, Moon, Sun, Github, FileText, Languages, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../../i18n';
 import type { Language } from '../../data/types';
+import { useState, useRef, useEffect } from 'react';
+import { clsx } from 'clsx';
 
 const LANG_OPTIONS: Array<{ value: Language; label: string; short: string }> = [
   { value: 'en',    label: 'English',              short: 'EN' },
@@ -27,6 +29,21 @@ interface TopBarProps {
 
 export function TopBar({ query, onQueryChange, darkMode, onToggleDark }: TopBarProps) {
   const { lang, setLang, t } = useLanguage();
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    function handler(e: MouseEvent) {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setLangOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const currentLabel = LANG_OPTIONS.find((o) => o.value === lang)?.short ?? 'EN';
 
   return (
     <header className="sticky top-0 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-200 dark:border-slate-800">
@@ -65,19 +82,36 @@ export function TopBar({ query, onQueryChange, darkMode, onToggleDark }: TopBarP
 
         {/* Right controls */}
         <div className="flex items-center gap-1 shrink-0">
-          {/* Language selector */}
-          <div className="relative flex items-center">
-            <Languages size={14} className="absolute left-2 text-slate-400 pointer-events-none" />
-            <select
-              value={lang}
-              onChange={(e) => setLang(e.target.value as Language)}
-              className="appearance-none rounded-md pl-6 pr-2 py-1.5 text-xs font-semibold bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer border-0 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          {/* Language selector — custom dropdown for dark mode support */}
+          <div ref={langRef} className="relative">
+            <button
+              onClick={() => setLangOpen((o) => !o)}
+              className="flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               title="Switch language"
             >
-              {LANG_OPTIONS.map(({ value, label }) => (
-                <option key={value} value={value}>{label}</option>
-              ))}
-            </select>
+              <Languages size={13} className="opacity-70" />
+              <span>{currentLabel}</span>
+              <ChevronDown size={11} className={clsx('opacity-60 transition-transform', langOpen && 'rotate-180')} />
+            </button>
+
+            {langOpen && (
+              <div className="absolute right-0 top-full mt-1 z-50 w-40 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg py-1 max-h-72 overflow-y-auto">
+                {LANG_OPTIONS.map(({ value, label }) => (
+                  <button
+                    key={value}
+                    onClick={() => { setLang(value); setLangOpen(false); }}
+                    className={clsx(
+                      'w-full text-left px-3 py-1.5 text-sm transition-colors',
+                      value === lang
+                        ? 'bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 font-semibold'
+                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Dark mode toggle */}
