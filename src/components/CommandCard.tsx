@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, AlertTriangle, Share2 } from 'lucide-react';
+import { ChevronDown, ChevronUp, AlertTriangle, Share2, Star } from 'lucide-react';
 import { CopyButton } from './ui/CopyButton';
 import { ComplexityBadge } from './ui/ComplexityBadge';
 import { TagChip } from './ui/TagChip';
 import { useLanguage } from '../i18n';
+import { useFavoritesContext } from '../context/FavoritesContext';
 import type { CommandEntry } from '../data/types';
 
 interface CommandCardProps {
@@ -14,9 +15,11 @@ interface CommandCardProps {
 
 export function CommandCard({ entry, activeTag, onTagClick }: CommandCardProps) {
   const { lang, t } = useLanguage();
+  const { isFavorite, toggle } = useFavoritesContext();
   const [expanded, setExpanded] = useState(false);
   // Command descriptions only exist for en / zh-CN; fall back to en for all others
   const content = entry.i18n[lang === 'zh-CN' ? 'zh-CN' : 'en'];
+  const starred = isFavorite(entry.id);
 
   function handleShare() {
     const url = new URL(window.location.href);
@@ -55,6 +58,18 @@ export function CommandCard({ entry, activeTag, onTagClick }: CommandCardProps) 
 
         {/* Share + Copy buttons */}
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+          {/* Favorite toggle — always rendered (keeps layout stable) */}
+          <button
+            onClick={() => toggle(entry.id)}
+            title={starred ? t.removeFromFavorites : t.addToFavorites}
+            className={`inline-flex items-center rounded px-2 py-0.5 text-xs transition-colors ${
+              starred
+                ? 'text-amber-400 opacity-100'
+                : 'text-slate-400 hover:text-amber-400'
+            }`}
+          >
+            <Star size={13} fill={starred ? 'currentColor' : 'none'} />
+          </button>
           <CopyButton text={entry.syntax} />
           <button
             onClick={handleShare}

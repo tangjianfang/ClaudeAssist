@@ -1,8 +1,11 @@
-import { Search, Moon, Sun, Github, FileText, Languages, ChevronDown } from 'lucide-react';
+import { Search, Moon, Sun, Github, FileText, Languages, ChevronDown, QrCode, Menu } from 'lucide-react';
 import { useLanguage } from '../../i18n';
 import type { Language } from '../../data/types';
 import { useState, useRef, useEffect } from 'react';
 import { clsx } from 'clsx';
+import { QRCodeSVG } from 'qrcode.react';
+
+const SITE_URL = 'https://tangjianfang.github.io/ClaudeAssist/';
 
 const LANG_OPTIONS: Array<{ value: Language; label: string; short: string }> = [
   { value: 'en',    label: 'English',              short: 'EN' },
@@ -25,18 +28,24 @@ interface TopBarProps {
   onQueryChange: (q: string) => void;
   darkMode: boolean;
   onToggleDark: () => void;
+  onMenuOpen: () => void;
 }
 
-export function TopBar({ query, onQueryChange, darkMode, onToggleDark }: TopBarProps) {
+export function TopBar({ query, onQueryChange, darkMode, onToggleDark, onMenuOpen }: TopBarProps) {
   const { lang, setLang, t } = useLanguage();
   const [langOpen, setLangOpen] = useState(false);
+  const [qrOpen, setQrOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
+  const qrRef = useRef<HTMLDivElement>(null);
 
-  // Close on outside click
+  // Close dropdowns on outside click
   useEffect(() => {
     function handler(e: MouseEvent) {
       if (langRef.current && !langRef.current.contains(e.target as Node)) {
         setLangOpen(false);
+      }
+      if (qrRef.current && !qrRef.current.contains(e.target as Node)) {
+        setQrOpen(false);
       }
     }
     document.addEventListener('mousedown', handler);
@@ -56,6 +65,15 @@ export function TopBar({ query, onQueryChange, darkMode, onToggleDark }: TopBarP
           <span className="text-lg">🤖</span>
           <span className="hidden sm:block text-sm font-semibold">ClaudeAssist</span>
         </a>
+
+        {/* Hamburger (mobile only) */}
+        <button
+          onClick={onMenuOpen}
+          className="md:hidden rounded-md p-1.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          title="Menu"
+        >
+          <Menu size={20} />
+        </button>
 
         {/* Search bar */}
         <div className="flex-1 relative max-w-xl">
@@ -142,6 +160,45 @@ export function TopBar({ query, onQueryChange, darkMode, onToggleDark }: TopBarP
           >
             <Github size={16} />
           </a>
+
+          {/* QR Code popover */}
+          <div ref={qrRef} className="relative">
+            <button
+              onClick={() => setQrOpen((o) => !o)}
+              title="Scan QR code to open on mobile"
+              className={clsx(
+                'rounded-md p-1.5 transition-colors',
+                qrOpen
+                  ? 'bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400'
+                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800',
+              )}
+            >
+              <QrCode size={16} />
+            </button>
+
+            {qrOpen && (
+              <div className="absolute right-0 top-full mt-2 z-50 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-xl p-4 flex flex-col items-center gap-3 w-52">
+                {/* QR SVG on white bg for reliable scanning */}
+                <div className="rounded-lg bg-white p-2">
+                  <QRCodeSVG
+                    value={SITE_URL}
+                    size={172}
+                    bgColor="#ffffff"
+                    fgColor="#1e1b4b"
+                    level="M"
+                    includeMargin={false}
+                  />
+                </div>
+                <p className="text-center text-xs text-slate-500 dark:text-slate-400 leading-snug">
+                  扫码用手机访问
+                  <br />
+                  <span className="font-mono text-slate-400 dark:text-slate-500 text-[10px] break-all">
+                    {SITE_URL}
+                  </span>
+                </p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>

@@ -33,6 +33,8 @@ export const tr: UIStrings = {
     'settings': 'settings.json',
     'env-vars': 'Ortam Değişkenleri',
     'scenarios': 'Kullanım Senaryoları',
+    'favorites': 'Favoriler',
+    'features': 'Yenilikler',
   },
   sectionDescriptions: {
     'slash-commands': 'Bu yerleşik komutlara erişmek için Claude Code isteminde / yazın.',
@@ -43,6 +45,8 @@ export const tr: UIStrings = {
     'settings': '.claude/settings.json ve ~/.claude/settings.json seçenekleri.',
     'env-vars': 'Claude Code davranışını global olarak yapılandıran ortam değişkenleri.',
     'scenarios': 'Gerçek kullanım kılavuzları — her iş akışı için doğru komutlar.',
+    'favorites': 'Hızlı erişim için yıldızladığınız komutlar.',
+    'features': "Claude Code'un en yeni özellikleri, entegrasyonları ve güncellemeleri.",
   },
   scenarios: {
     pageTitle: 'Kullanım Senaryoları',
@@ -75,5 +79,16 @@ export const tr: UIStrings = {
   cheatsheetTitle: 'Claude Code Hızlı Başvuru',
   cheatsheetSubtitle: 'Günlük kullanım için en önemli komutlar',
   printBtn: 'Yazdır / PDF olarak kaydet',
+  favoritesEmpty: 'Henüz favori yok',
+  favoritesEmptyHint: 'Buraya kaydetmek için herhangi bir kartın ★ simgesine tıklayın.',
+  addToFavorites: 'Favorilere ekle',
+  removeFromFavorites: 'Favorilerden çıkar',
+  features: {
+    pageTitle: "Claude Code'da Yenilikler",
+    pageSubtitle: 'En yeni özellikler, entegrasyonlar ve güncellemeler.',
+    learnMore: 'Daha fazla bilgi',
+    category: 'Kategori',
+    filterAll: 'Tümü',
+  },
   footer: 'Açık kaynak · Apache 2.0 · Resmi belgelerle doğrulandı',
 };

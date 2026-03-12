@@ -33,6 +33,8 @@ export const de: UIStrings = {
     'settings': 'settings.json',
     'env-vars': 'Umgebungsvariablen',
     'scenarios': 'Anwendungsszenarien',
+    'favorites': 'Favoriten',
+    'features': 'Neuigkeiten',
   },
   sectionDescriptions: {
     'slash-commands': 'Tippe / in die Claude Code Eingabe, um auf diese integrierten Befehle zuzugreifen.',
@@ -43,6 +45,8 @@ export const de: UIStrings = {
     'settings': 'Optionen für .claude/settings.json und ~/.claude/settings.json.',
     'env-vars': 'Umgebungsvariablen, die das globale Verhalten von Claude Code konfigurieren.',
     'scenarios': 'Praxisnahe Nutzungsanleitungen — die richtigen Befehle für jeden Arbeitsablauf.',
+    'favorites': 'Markierte Befehle für schnellen Zugriff.',
+    'features': 'Neueste Funktionen, Integrationen und Updates von Claude Code.',
   },
   scenarios: {
     pageTitle: 'Anwendungsszenarien',
@@ -75,5 +79,16 @@ export const de: UIStrings = {
   cheatsheetTitle: 'Claude Code Spickzettel',
   cheatsheetSubtitle: 'Die wichtigsten Befehle für den täglichen Einsatz',
   printBtn: 'Drucken / Als PDF speichern',
+  favoritesEmpty: 'Noch keine Favoriten',
+  favoritesEmptyHint: 'Klicke auf das ★-Symbol einer Karte, um sie hier zu speichern.',
+  addToFavorites: 'Zu Favoriten hinzufügen',
+  removeFromFavorites: 'Aus Favoriten entfernen',
+  features: {
+    pageTitle: 'Neuigkeiten in Claude Code',
+    pageSubtitle: 'Die neuesten Funktionen, Integrationen und Updates.',
+    learnMore: 'Mehr erfahren',
+    category: 'Kategorie',
+    filterAll: 'Alle',
+  },
   footer: 'Open Source · Apache 2.0 · Gegen offizielle Docs verifiziert',
 };

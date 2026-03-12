@@ -33,6 +33,8 @@ export const ru: UIStrings = {
     'settings': 'settings.json',
     'env-vars': 'Переменные окружения',
     'scenarios': 'Сценарии использования',
+    'favorites': 'Избранное',
+    'features': 'Что нового',
   },
   sectionDescriptions: {
     'slash-commands': 'Введите / в строке ввода Claude Code для доступа к встроенным командам.',
@@ -43,6 +45,8 @@ export const ru: UIStrings = {
     'settings': 'Параметры для .claude/settings.json и ~/.claude/settings.json.',
     'env-vars': 'Переменные окружения для глобальной настройки Claude Code.',
     'scenarios': 'Практические руководства — правильные команды для каждого рабочего процесса.',
+    'favorites': 'Команды и флаги, отмеченные звёздочкой для быстрого доступа.',
+    'features': 'Последние возможности, интеграции и обновления Claude Code.',
   },
   scenarios: {
     pageTitle: 'Сценарии использования',
@@ -75,5 +79,16 @@ export const ru: UIStrings = {
   cheatsheetTitle: 'Шпаргалка Claude Code',
   cheatsheetSubtitle: 'Самые важные команды для ежедневного использования',
   printBtn: 'Печать / Сохранить как PDF',
+  favoritesEmpty: 'Нет избранного',
+  favoritesEmptyHint: 'Нажмите ★ на карточке команды, чтобы сохранить её здесь.',
+  addToFavorites: 'Добавить в избранное',
+  removeFromFavorites: 'Убрать из избранного',
+  features: {
+    pageTitle: 'Что нового в Claude Code',
+    pageSubtitle: 'Последние возможности, интеграции и обновления — всё в одном месте.',
+    learnMore: 'Подробнее',
+    category: 'Категория',
+    filterAll: 'Все',
+  },
   footer: 'Открытый исходный код · Apache 2.0 · Проверено по официальной документации',
 };

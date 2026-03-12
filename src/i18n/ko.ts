@@ -33,6 +33,8 @@ export const ko: UIStrings = {
     'settings': 'settings.json',
     'env-vars': '환경 변수',
     'scenarios': '활용 시나리오',
+    'favorites': '즐겨찾기',
+    'features': '새로운 기능',
   },
   sectionDescriptions: {
     'slash-commands': 'Claude Code 프롬프트에서 /를 입력하면 사용할 수 있는 내장 명령어입니다.',
@@ -43,6 +45,8 @@ export const ko: UIStrings = {
     'settings': '.claude/settings.json 및 ~/.claude/settings.json 옵션입니다.',
     'env-vars': 'Claude Code 동작을 전역으로 설정하는 환경 변수입니다.',
     'scenarios': '실제 사용 워크플로 가이드 — 각 상황에 맞는 명령어 조합을 소개합니다.',
+    'favorites': '별표 표시한 명령어를 빠르게 접근합니다.',
+    'features': 'Claude Code의 최신 기능, 통합 및 업데이트.',
   },
   scenarios: {
     pageTitle: '활용 시나리오',
@@ -75,5 +79,16 @@ export const ko: UIStrings = {
   cheatsheetTitle: 'Claude Code 치트 시트',
   cheatsheetSubtitle: '일상에서 꼭 필요한 핵심 명령어',
   printBtn: '인쇄 / PDF 저장',
+  favoritesEmpty: '즐겨찾기 없음',
+  favoritesEmptyHint: '명령어 카드의 ★ 아이콘을 클릭하여 저장하세요.',
+  addToFavorites: '즐겨찾기 추가',
+  removeFromFavorites: '즐겨찾기 제거',
+  features: {
+    pageTitle: 'Claude Code 새로운 기능',
+    pageSubtitle: '최신 기능, 통합 및 업데이트를 한눈에.',
+    learnMore: '자세히 보기',
+    category: '카테고리',
+    filterAll: '전체',
+  },
   footer: '오픈소스 · Apache 2.0 · 공식 문서 기준 검증됨',
 };

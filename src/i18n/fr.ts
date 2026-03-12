@@ -33,6 +33,8 @@ export const fr: UIStrings = {
     'settings': 'settings.json',
     'env-vars': 'Variables d\'environnement',
     'scenarios': 'Scénarios d\'utilisation',
+    'favorites': 'Favoris',
+    'features': 'Nouveautés',
   },
   sectionDescriptions: {
     'slash-commands': 'Tapez / dans l\'invite Claude Code pour accéder à ces commandes intégrées.',
@@ -43,6 +45,8 @@ export const fr: UIStrings = {
     'settings': 'Options pour .claude/settings.json et ~/.claude/settings.json.',
     'env-vars': 'Variables d\'environnement qui configurent le comportement global de Claude Code.',
     'scenarios': 'Guides d\'utilisation réels — les bonnes commandes pour chaque flux de travail.',
+    'favorites': 'Commandes et options que vous avez marquées pour un accès rapide.',
+    'features': 'Dernières fonctionnalités, intégrations et mises à jour de Claude Code.',
   },
   scenarios: {
     pageTitle: 'Scénarios d\'utilisation',
@@ -75,5 +79,16 @@ export const fr: UIStrings = {
   cheatsheetTitle: 'Aide-mémoire Claude Code',
   cheatsheetSubtitle: 'Les commandes les plus importantes pour un usage quotidien',
   printBtn: 'Imprimer / Enregistrer en PDF',
+  favoritesEmpty: 'Aucun favori',
+  favoritesEmptyHint: 'Cliquez sur l\'icône ★ d\'une commande pour la sauvegarder ici.',
+  addToFavorites: 'Ajouter aux favoris',
+  removeFromFavorites: 'Retirer des favoris',
+  features: {
+    pageTitle: 'Nouveautés de Claude Code',
+    pageSubtitle: 'Les dernières fonctionnalités, intégrations et mises à jour.',
+    learnMore: 'En savoir plus',
+    category: 'Catégorie',
+    filterAll: 'Tout',
+  },
   footer: 'Open source · Apache 2.0 · Vérifié par rapport à la documentation officielle',
 };

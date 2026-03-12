@@ -33,6 +33,8 @@ export const nl: UIStrings = {
     'settings': 'settings.json',
     'env-vars': 'Omgevingsvariabelen',
     'scenarios': 'Gebruiksscenario\'s',
+    'favorites': 'Favorieten',
+    'features': 'Nieuw',
   },
   sectionDescriptions: {
     'slash-commands': 'Typ / in de Claude Code prompt voor toegang tot deze ingebouwde opdrachten.',
@@ -43,6 +45,8 @@ export const nl: UIStrings = {
     'settings': 'Opties voor .claude/settings.json en ~/.claude/settings.json.',
     'env-vars': 'Omgevingsvariabelen die het globale gedrag van Claude Code configureren.',
     'scenarios': 'Praktische gebruikshandleidingen — de juiste opdrachten voor elke workflow.',
+    'favorites': 'Gemarkeerde opdrachten voor snelle toegang.',
+    'features': 'Nieuwste functies, integraties en updates van Claude Code.',
   },
   scenarios: {
     pageTitle: 'Gebruiksscenario\'s',
@@ -75,5 +79,16 @@ export const nl: UIStrings = {
   cheatsheetTitle: 'Claude Code spiekbriefje',
   cheatsheetSubtitle: 'De belangrijkste opdrachten voor dagelijks gebruik',
   printBtn: 'Afdrukken / Opslaan als PDF',
+  favoritesEmpty: 'Nog geen favorieten',
+  favoritesEmptyHint: 'Klik op het ★-icoon van een kaart om het hier op te slaan.',
+  addToFavorites: 'Toevoegen aan favorieten',
+  removeFromFavorites: 'Verwijderen uit favorieten',
+  features: {
+    pageTitle: 'Nieuw in Claude Code',
+    pageSubtitle: 'De nieuwste functies, integraties en updates.',
+    learnMore: 'Meer informatie',
+    category: 'Categorie',
+    filterAll: 'Alles',
+  },
   footer: 'Open source · Apache 2.0 · Geverifieerd met officiële documentatie',
 };

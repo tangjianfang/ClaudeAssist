@@ -31,6 +31,8 @@ export const en = {
     'settings': 'settings.json',
     'env-vars': 'Env Variables',
     'scenarios': 'Scenarios',
+    'favorites': 'Favorites',
+    'features': "What's New",
   },
   sectionDescriptions: {
     'slash-commands': 'Type / in the Claude Code prompt to access these built-in commands.',
@@ -41,6 +43,8 @@ export const en = {
     'settings': 'Options for .claude/settings.json and ~/.claude/settings.json.',
     'env-vars': 'Environment variables that configure Claude Code behavior globally.',
     'scenarios': 'Real-world usage guides — the right commands for every workflow.',
+    'favorites': 'Commands and flags you have starred for quick access.',
+    'features': 'Latest capabilities, integrations, and updates to Claude Code.',
   },
   scenarios: {
     pageTitle: 'Usage Scenarios',
@@ -73,6 +77,17 @@ export const en = {
   cheatsheetTitle: 'Claude Code Cheat Sheet',
   cheatsheetSubtitle: 'The most important commands for daily use',
   printBtn: 'Print / Save as PDF',
+  favoritesEmpty: 'No favorites yet',
+  favoritesEmptyHint: 'Click the ★ star icon on any command card to save it here.',
+  addToFavorites: 'Add to favorites',
+  removeFromFavorites: 'Remove from favorites',
+  features: {
+    pageTitle: "What's New in Claude Code",
+    pageSubtitle: 'The latest capabilities, integrations, and updates — all in one place.',
+    learnMore: 'Learn more',
+    category: 'Category',
+    filterAll: 'All',
+  },
   footer: 'Open source · Apache 2.0 · Verified against official docs',
 };
 

@@ -33,6 +33,8 @@ export const zhCN: UIStrings = {
     'settings': 'settings.json',
     'env-vars': '环境变量',
     'scenarios': '应用场景',
+    'favorites': '收藏夹',
+    'features': '最新特性',
   },
   sectionDescriptions: {
     'slash-commands': '在 Claude Code 提示框中输入 / 可访问这些内置命令。',
@@ -43,6 +45,8 @@ export const zhCN: UIStrings = {
     'settings': '.claude/settings.json 和 ~/.claude/settings.json 的配置选项。',
     'env-vars': '全局配置 Claude Code 行为的环境变量。',
     'scenarios': '真实使用场景指南 — 每种工作流选择最合适的命令组合。',
+    'favorites': '你已加星标的命令和参数，方便快速访问。',
+    'features': 'Claude Code 最新功能、集成和更新一览。',
   },
   scenarios: {
     pageTitle: '应用场景',
@@ -75,5 +79,16 @@ export const zhCN: UIStrings = {
   cheatsheetTitle: 'Claude Code 速查表',
   cheatsheetSubtitle: '日常使用最重要的命令',
   printBtn: '打印 / 保存为 PDF',
+  favoritesEmpty: '暂无收藏',
+  favoritesEmptyHint: '点击任意命令卡片上的 ★ 星标图标，即可收藏到这里。',
+  addToFavorites: '添加到收藏',
+  removeFromFavorites: '取消收藏',
+  features: {
+    pageTitle: 'Claude Code 最新特性',
+    pageSubtitle: '最新能力、集成与更新，一网打尽。',
+    learnMore: '了解更多',
+    category: '类别',
+    filterAll: '全部',
+  },
   footer: '开源项目 · Apache 2.0 · 已对照官方文档验证',
 };

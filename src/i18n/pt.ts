@@ -33,6 +33,8 @@ export const pt: UIStrings = {
     'settings': 'settings.json',
     'env-vars': 'Variáveis de ambiente',
     'scenarios': 'Cenários de uso',
+    'favorites': 'Favoritos',
+    'features': 'Novidades',
   },
   sectionDescriptions: {
     'slash-commands': 'Digite / no prompt do Claude Code para acessar esses comandos integrados.',
@@ -43,6 +45,8 @@ export const pt: UIStrings = {
     'settings': 'Opções para .claude/settings.json e ~/.claude/settings.json.',
     'env-vars': 'Variáveis de ambiente que configuram o comportamento global do Claude Code.',
     'scenarios': 'Guias de uso reais — os comandos certos para cada fluxo de trabalho.',
+    'favorites': 'Comandos marcados com estrela para acesso rápido.',
+    'features': 'Últimas funcionalidades, integrações e atualizações do Claude Code.',
   },
   scenarios: {
     pageTitle: 'Cenários de uso',
@@ -75,5 +79,16 @@ export const pt: UIStrings = {
   cheatsheetTitle: 'Folha de referência Claude Code',
   cheatsheetSubtitle: 'Os comandos mais importantes para uso diário',
   printBtn: 'Imprimir / Salvar como PDF',
+  favoritesEmpty: 'Sem favoritos ainda',
+  favoritesEmptyHint: 'Clique no ★ de qualquer cartão para salvá-lo aqui.',
+  addToFavorites: 'Adicionar aos favoritos',
+  removeFromFavorites: 'Remover dos favoritos',
+  features: {
+    pageTitle: 'Novidades no Claude Code',
+    pageSubtitle: 'As últimas funcionalidades, integrações e atualizações.',
+    learnMore: 'Saiba mais',
+    category: 'Categoria',
+    filterAll: 'Tudo',
+  },
   footer: 'Código aberto · Apache 2.0 · Verificado contra a documentação oficial',
 };

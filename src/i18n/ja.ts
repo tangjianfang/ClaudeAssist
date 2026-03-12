@@ -33,6 +33,8 @@ export const ja: UIStrings = {
     'settings': 'settings.json',
     'env-vars': '環境変数',
     'scenarios': '利用シナリオ',
+    'favorites': 'お気に入り',
+    'features': '新着情報',
   },
   sectionDescriptions: {
     'slash-commands': 'Claude Code のプロンプトで / を入力するとアクセスできる組み込みコマンドです。',
@@ -43,6 +45,8 @@ export const ja: UIStrings = {
     'settings': '.claude/settings.json および ~/.claude/settings.json のオプションです。',
     'env-vars': 'Claude Code の動作をグローバルに設定する環境変数です。',
     'scenarios': '実際のワークフローガイド — 各場面で使うべきコマンドを紹介します。',
+    'favorites': 'スターを付けたコマンドとフラグを素早く参照。',
+    'features': 'Claude Code の最新機能・統合・アップデート。',
   },
   scenarios: {
     pageTitle: '利用シナリオ',
@@ -75,5 +79,16 @@ export const ja: UIStrings = {
   cheatsheetTitle: 'Claude Code チートシート',
   cheatsheetSubtitle: '日常使いに欠かせない最重要コマンド',
   printBtn: '印刷 / PDF 保存',
+  favoritesEmpty: 'お気に入りはまだありません',
+  favoritesEmptyHint: 'コマンドカードの ★ アイコンをクリックしてここに保存。',
+  addToFavorites: 'お気に入りに追加',
+  removeFromFavorites: 'お気に入りから削除',
+  features: {
+    pageTitle: 'Claude Code の新機能',
+    pageSubtitle: '最新の機能・統合・アップデートを一覧。',
+    learnMore: '詳しく見る',
+    category: 'カテゴリ',
+    filterAll: 'すべて',
+  },
   footer: 'オープンソース · Apache 2.0 · 公式ドキュメント確認済み',
 };

@@ -7,13 +7,17 @@ import { SectionPage } from './pages/Section';
 import { CheatsheetPage } from './pages/Cheatsheet';
 import { SearchResults } from './pages/SearchResults';
 import { ScenariosPage } from './pages/Scenarios';
+import { FavoritesPage } from './pages/Favorites';
+import { FeaturesPage } from './pages/Features';
 import { LanguageProvider } from './i18n';
+import { FavoritesProvider } from './context/FavoritesContext';
 import { useSearch } from './hooks/useSearch';
 import { useLanguage } from './i18n';
 
 function AppInner() {
   const { lang } = useLanguage();
   const [query, setQuery] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
     const stored = localStorage.getItem('ca-dark');
     if (stored !== null) return stored === '1';
@@ -65,13 +69,27 @@ function AppInner() {
         onQueryChange={handleQueryChange}
         darkMode={darkMode}
         onToggleDark={toggleDark}
+        onMenuOpen={() => setMobileMenuOpen(true)}
       />
 
       <div className="flex flex-1 overflow-hidden max-w-screen-2xl mx-auto w-full">
-        {/* Sidebar */}
-        <div className="shrink-0 w-56 hidden md:block overflow-y-auto pl-4">
+        {/* Desktop Sidebar */}
+        <div className="shrink-0 w-56 hidden md:flex overflow-y-auto pl-4">
           <Sidebar />
         </div>
+
+        {/* Mobile sidebar drawer */}
+        {mobileMenuOpen && (
+          <>
+            <div
+              className="fixed inset-0 z-30 bg-black/40 md:hidden"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <div className="fixed inset-y-0 left-0 z-40 w-64 bg-white dark:bg-slate-900 overflow-y-auto md:hidden shadow-xl pl-4">
+              <Sidebar onClose={() => setMobileMenuOpen(false)} />
+            </div>
+          </>
+        )}
 
         {/* Main content */}
         <main className="flex-1 overflow-y-auto">
@@ -80,6 +98,8 @@ function AppInner() {
             <Route path="/search" element={<SearchResults results={searchResults} query={query} />} />
             <Route path="/cheatsheet" element={<CheatsheetPage />} />
             <Route path="/scenarios" element={<ScenariosPage />} />
+            <Route path="/favorites" element={<FavoritesPage />} />
+            <Route path="/features" element={<FeaturesPage />} />
             <Route path="/:sectionId" element={<SectionPage globalQuery={query} />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
@@ -104,7 +124,9 @@ export default function App() {
   return (
     <HashRouter>
       <LanguageProvider>
-        <AppInner />
+        <FavoritesProvider>
+          <AppInner />
+        </FavoritesProvider>
       </LanguageProvider>
     </HashRouter>
   );
