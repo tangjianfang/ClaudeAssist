@@ -32,4 +32,20 @@ export interface CommandEntry {
   addedIn?: string;
 }
 
-export type Language = 'en' | 'zh-CN';
+export type Language =
+  | 'en'
+  | 'zh-CN'
+  | 'zh-TW'
+  | 'ja'
+  | 'ko'
+  | 'fr'
+  | 'de'
+  | 'es'
+  | 'pt'
+  | 'ru'
+  | 'it'
+  | 'nl'
+  | 'tr';
+
+/** Languages that have command-level i18n descriptions */
+export type CommandLang = 'en' | 'zh-CN';

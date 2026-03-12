@@ -1,5 +1,22 @@
-import { Search, Moon, Sun, Github, FileText } from 'lucide-react';
+import { Search, Moon, Sun, Github, FileText, Languages } from 'lucide-react';
 import { useLanguage } from '../../i18n';
+import type { Language } from '../../data/types';
+
+const LANG_OPTIONS: Array<{ value: Language; label: string; short: string }> = [
+  { value: 'en',    label: 'English',              short: 'EN' },
+  { value: 'zh-CN', label: '简体中文',              short: '简中' },
+  { value: 'zh-TW', label: '繁體中文',              short: '繁中' },
+  { value: 'ja',    label: '日本語',                short: '日本語' },
+  { value: 'ko',    label: '한국어',                short: '한국어' },
+  { value: 'fr',    label: 'Français',              short: 'FR' },
+  { value: 'de',    label: 'Deutsch',               short: 'DE' },
+  { value: 'es',    label: 'Español',               short: 'ES' },
+  { value: 'pt',    label: 'Português',             short: 'PT' },
+  { value: 'ru',    label: 'Русский',               short: 'RU' },
+  { value: 'it',    label: 'Italiano',              short: 'IT' },
+  { value: 'nl',    label: 'Nederlands',            short: 'NL' },
+  { value: 'tr',    label: 'Türkçe',               short: 'TR' },
+];
 
 interface TopBarProps {
   query: string;
@@ -48,14 +65,20 @@ export function TopBar({ query, onQueryChange, darkMode, onToggleDark }: TopBarP
 
         {/* Right controls */}
         <div className="flex items-center gap-1 shrink-0">
-          {/* Language toggle */}
-          <button
-            onClick={() => setLang(lang === 'en' ? 'zh-CN' : 'en')}
-            className="rounded-md px-2.5 py-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            title="Switch language / 切换语言"
-          >
-            {lang === 'en' ? '中文' : 'EN'}
-          </button>
+          {/* Language selector */}
+          <div className="relative flex items-center">
+            <Languages size={14} className="absolute left-2 text-slate-400 pointer-events-none" />
+            <select
+              value={lang}
+              onChange={(e) => setLang(e.target.value as Language)}
+              className="appearance-none rounded-md pl-6 pr-2 py-1.5 text-xs font-semibold bg-transparent text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer border-0 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              title="Switch language"
+            >
+              {LANG_OPTIONS.map(({ value, label }) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </div>
 
           {/* Dark mode toggle */}
           <button

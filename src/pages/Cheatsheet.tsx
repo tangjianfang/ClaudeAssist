@@ -67,7 +67,7 @@ export function CheatsheetPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-slate-600 dark:text-slate-300">
-                      {entry.i18n[lang].description}
+                      {(entry.i18n[lang === 'zh-CN' ? 'zh-CN' : 'en']).description}
                     </p>
                     {entry.examples[0] && (
                       <div className="flex items-center gap-2 mt-1.5">

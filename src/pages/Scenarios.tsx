@@ -13,6 +13,7 @@ import { clsx } from 'clsx';
 import { useLanguage } from '../i18n';
 import { scenarios, scenarioCategories, allEntries } from '../data';
 import type { Scenario, ScenarioTip, ScenarioDifficulty } from '../data/scenario-types';
+import { bi } from '../data/scenario-types';
 import { ComplexityBadge } from '../components/ui/ComplexityBadge';
 import { CopyButton } from '../components/ui/CopyButton';
 
@@ -39,7 +40,7 @@ function DifficultyPill({ difficulty }: { difficulty: ScenarioDifficulty }) {
   };
   return (
     <span className={clsx('text-xs font-medium px-2 py-0.5 rounded-full', DIFF_COLORS[difficulty])}>
-      {label[difficulty][lang]}
+      {bi(label[difficulty], lang)}
     </span>
   );
 }
@@ -67,7 +68,7 @@ function TipRow({ tip }: { tip: ScenarioTip }) {
       {icons[tip.type]}
       <div>
         <span className="font-semibold mr-1">{labels[tip.type]}:</span>
-        {tip.text[lang]}
+        {bi(tip.text, lang)}
       </div>
     </div>
   );
@@ -95,12 +96,12 @@ function ScenarioCard({ scenario }: { scenario: Scenario }) {
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <h3 className="font-semibold text-base text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-              {scenario.title[lang]}
+              {bi(scenario.title, lang)}
             </h3>
             <DifficultyPill difficulty={scenario.difficulty} />
           </div>
           <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-2">
-            {scenario.description[lang]}
+            {bi(scenario.description, lang)}
           </p>
         </div>
         <span className="shrink-0 mt-1 text-slate-400 group-hover:text-indigo-500 transition-colors">
@@ -125,7 +126,7 @@ function ScenarioCard({ scenario }: { scenario: Scenario }) {
                   </span>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm text-slate-800 dark:text-slate-200">
-                      {step.title[lang]}
+                      {bi(step.title, lang)}
                     </p>
                     {step.command && (
                       <div className="mt-1 flex items-center gap-2">
@@ -137,7 +138,7 @@ function ScenarioCard({ scenario }: { scenario: Scenario }) {
                       </div>
                     )}
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                      {step.description[lang]}
+                      {bi(step.description, lang)}
                     </p>
                   </div>
                 </li>
@@ -243,7 +244,7 @@ export function ScenariosPage() {
                 onClick={() => setActiveCategory(id)}
                 className={pillClass(activeCategory === id)}
               >
-                {label[lang]}
+                {bi(label, lang)}
               </button>
             ))}
           </div>
@@ -261,7 +262,7 @@ export function ScenariosPage() {
                 onClick={() => setActiveDiff(id)}
                 className={pillClass(activeDiff === id)}
               >
-                {label[lang]}
+                {bi(label, lang)}
               </button>
             ))}
           </div>

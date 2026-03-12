@@ -15,7 +15,8 @@ interface CommandCardProps {
 export function CommandCard({ entry, activeTag, onTagClick }: CommandCardProps) {
   const { lang, t } = useLanguage();
   const [expanded, setExpanded] = useState(false);
-  const content = entry.i18n[lang];
+  // Command descriptions only exist for en / zh-CN; fall back to en for all others
+  const content = entry.i18n[lang === 'zh-CN' ? 'zh-CN' : 'en'];
 
   function handleShare() {
     const url = new URL(window.location.href);

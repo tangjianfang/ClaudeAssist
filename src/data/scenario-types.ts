@@ -1,3 +1,5 @@
+import type { Language } from './types';
+
 export type ScenarioDifficulty = 'beginner' | 'intermediate' | 'advanced';
 
 export type ScenarioCategory =
@@ -6,6 +8,13 @@ export type ScenarioCategory =
   | 'maintenance'
   | 'teamwork'
   | 'learning';
+
+/** Scenario content is bilingual (EN/ZH-CN); all other langs fall back to EN */
+export type BiText = { en: string; 'zh-CN': string };
+
+export function bi(text: BiText, lang: Language): string {
+  return text[lang === 'zh-CN' ? 'zh-CN' : 'en'];
+}
 
 export interface ScenarioStep {
   /** Short title for this step */
