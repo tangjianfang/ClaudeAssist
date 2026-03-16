@@ -10,6 +10,7 @@ import {
   BookOpen,
   Star,
   Sparkles,
+  Puzzle,
   X,
 } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -75,6 +76,12 @@ export function Sidebar({ onClose }: SidebarProps) {
       <NavLink to="/features" className={navLinkClass} onClick={onClose}>
         <span className="opacity-70"><Sparkles size={18} /></span>
         <span className="truncate">{t.sections['features']}</span>
+      </NavLink>
+
+      {/* Plugins */}
+      <NavLink to="/plugins" className={navLinkClass} onClick={onClose}>
+        <span className="opacity-70"><Puzzle size={18} /></span>
+        <span className="truncate">{t.sections['plugins']}</span>
       </NavLink>
 
       {/* Favorites */}
