@@ -12,6 +12,7 @@ import {
   Sparkles,
   Puzzle,
   X,
+  Code,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useLanguage } from '../../i18n';
@@ -82,6 +83,12 @@ export function Sidebar({ onClose }: SidebarProps) {
       <NavLink to="/plugins" className={navLinkClass} onClick={onClose}>
         <span className="opacity-70"><Puzzle size={18} /></span>
         <span className="truncate">{t.sections['plugins']}</span>
+      </NavLink>
+
+      {/* ClawCode */}
+      <NavLink to="/clawcode" className={navLinkClass} onClick={onClose}>
+        <span className="opacity-70"><Code size={18} /></span>
+        <span className="truncate">{t.clawcode.pageTitle}</span>
       </NavLink>
 
       {/* Favorites */}
