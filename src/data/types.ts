@@ -30,6 +30,7 @@ export interface CommandEntry {
     'zh-CN': I18nContent;
   };
   addedIn?: string;
+  highlight?: boolean;
 }
 
 export type Language =
