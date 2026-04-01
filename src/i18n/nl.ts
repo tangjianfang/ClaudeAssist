@@ -71,6 +71,7 @@ export const nl: UIStrings = {
     beginnerGuide: 'Nieuw bij Claude Code?',
     beginnerGuideDesc: 'Begin met deze essentiële opdrachten om snel op gang te komen.',
     stats: (count: number) => `${count} opdrachten en flags gedocumenteerd`,
+    versionInfo: (version: string, date: string) => `v${version} · Bijgewerkt ${date}`,
   },
   filter: {
     complexity: 'Moeilijkheidsgraad',

@@ -69,6 +69,7 @@ export const pt: UIStrings = {
     beginnerGuide: 'Novo no Claude Code?',
     beginnerGuideDesc: 'Comece com esses comandos essenciais para iniciar rapidamente.',
     stats: (count: number) => `${count} comandos e flags documentados`,
+    versionInfo: (version: string, date: string) => `v${version} · Atualizado ${date}`,
   },
   filter: {
     complexity: 'Complexidade',

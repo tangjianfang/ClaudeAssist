@@ -71,6 +71,7 @@ export const zhCN: UIStrings = {
     beginnerGuide: '初次使用 Claude Code？',
     beginnerGuideDesc: '从这些核心命令开始，快速上手。',
     stats: (count: number) => `已收录 ${count} 个命令和参数`,
+    versionInfo: (version: string, date: string) => `版本 ${version} · 更新于 ${date}`,
   },
   filter: {
     complexity: '难度',

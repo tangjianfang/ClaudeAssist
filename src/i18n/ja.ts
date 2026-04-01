@@ -71,6 +71,7 @@ export const ja: UIStrings = {
     beginnerGuide: 'Claude Code 初めての方へ',
     beginnerGuideDesc: 'まずはこれらの基本コマンドから始めましょう。',
     stats: (count: number) => `${count} 件のコマンドとフラグを収録`,
+    versionInfo: (version: string, date: string) => `v${version} · ${date} 更新`,
   },
   filter: {
     complexity: '難易度',

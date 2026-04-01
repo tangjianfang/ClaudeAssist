@@ -71,6 +71,7 @@ export const zhTW: UIStrings = {
     beginnerGuide: '初次使用 Claude Code？',
     beginnerGuideDesc: '從這些核心指令開始，快速上手。',
     stats: (count: number) => `已收錄 ${count} 個指令和旗標`,
+    versionInfo: (version: string, date: string) => `版本 ${version} · 更新於 ${date}`,
   },
   filter: {
     complexity: '難度',

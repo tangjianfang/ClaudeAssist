@@ -71,6 +71,7 @@ export const de: UIStrings = {
     beginnerGuide: 'Neu bei Claude Code?',
     beginnerGuideDesc: 'Starte mit diesen wesentlichen Befehlen für einen schnellen Einstieg.',
     stats: (count: number) => `${count} Befehle und Flags dokumentiert`,
+    versionInfo: (version: string, date: string) => `v${version} · Aktualisiert ${date}`,
   },
   filter: {
     complexity: 'Schwierigkeit',

@@ -71,6 +71,7 @@ export const tr: UIStrings = {
     beginnerGuide: 'Claude Code\'a yeni misiniz?',
     beginnerGuideDesc: 'Hızlı başlamak için bu temel komutlarla başlayın.',
     stats: (count: number) => `${count} komut ve bayrak belgelendi`,
+    versionInfo: (version: string, date: string) => `v${version} · ${date} güncellendi`,
   },
   filter: {
     complexity: 'Zorluk',

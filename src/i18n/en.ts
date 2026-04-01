@@ -69,6 +69,7 @@ export const en = {
     beginnerGuide: 'New to Claude Code?',
     beginnerGuideDesc: 'Start with these essential commands to get up and running fast.',
     stats: (count: number) => `${count} commands & flags documented`,
+    versionInfo: (version: string, date: string) => `v${version} · Updated ${date}`,
   },
   filter: {
     complexity: 'Complexity',

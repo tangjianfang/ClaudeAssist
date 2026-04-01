@@ -71,6 +71,7 @@ export const ru: UIStrings = {
     beginnerGuide: 'Впервые используете Claude Code?',
     beginnerGuideDesc: 'Начните с этих основных команд для быстрого старта.',
     stats: (count: number) => `Задокументировано ${count} команд и флагов`,
+    versionInfo: (version: string, date: string) => `v${version} · Обновлено ${date}`,
   },
   filter: {
     complexity: 'Сложность',

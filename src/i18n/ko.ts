@@ -71,6 +71,7 @@ export const ko: UIStrings = {
     beginnerGuide: 'Claude Code가 처음이신가요?',
     beginnerGuideDesc: '이 핵심 명령어들로 빠르게 시작해 보세요.',
     stats: (count: number) => `명령어 및 플래그 ${count}개 수록`,
+    versionInfo: (version: string, date: string) => `v${version} · ${date} 업데이트`,
   },
   filter: {
     complexity: '난이도',
