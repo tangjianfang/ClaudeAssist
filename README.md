@@ -177,6 +177,44 @@ ClaudeAssist/
 
 ## 📝 更新日志
 
+### v2.1.0 (2026-04-13)
+
+**同步 Claude Code v2.1.101 最新特性**
+
+新增斜杠命令：
+- ✨ `/team-onboarding` (v2.1.101) — 自动生成新成员入门指南
+- ✨ `/ultraplan` (v2.1.101) — 远程规划会话云端环境自动创建
+- ✨ `/powerup` (v2.1.90) — 交互式功能课程（含动画演示）
+- ✨ `/effort` (v2.1.94) — 会话推理努力程度控制（low/medium/high/max）
+- ✨ `/reload-plugins` (v2.1.98) — 无需重启即可热重载插件
+
+更新斜杠命令：
+- 🔄 `/vim` — 已弃用（v2.1.92 移除），请改用 `/config`
+- 🔄 `/agents` — 新增选项卡布局（Running / Library）
+- 🔄 `/cost` — 新增按模型和缓存命中的明细
+- 🔄 `/release-notes` — 改为交互式版本选择器
+
+新增 CLI 参数：
+- ✨ `--name` (v2.1.101) — 为会话指定可读名称
+- ✨ `--exclude-dynamic-system-prompt-sections` (v2.1.98) — 提高跨用户提示缓存命中率
+
+新增 settings.json 配置：
+- ✨ `forceRemoteSettingsRefresh` (v2.1.92) — 企业托管环境故障关闭
+- ✨ `disableSkillShellExecution` (v2.1.91) — 禁用技能内联 Shell 执行
+- ✨ `statusLine.refreshInterval` (v2.1.97) — 状态栏实时刷新间隔
+
+新增环境变量：
+- ✨ `CLAUDE_CODE_NO_FLICKER` (v2.1.89) — 无闪烁渲染模式
+- ✨ `CLAUDE_CODE_PERFORCE_MODE` (v2.1.98) — Perforce 只读文件保护
+- ✨ `MCP_CONNECTION_NONBLOCKING` (v2.1.89) — 跳过 MCP 连接等待
+
+新增最新特性：
+- ✨ 无闪烁模式与焦点视图（Ctrl+O）
+- ✨ PreToolUse 钩子延迟权限决策（`defer`）
+- ✨ Monitor 工具 — 后台脚本事件流
+- ✨ /powerup 交互式功能课程
+- ✨ /team-onboarding 团队入门指南
+
 ### v2.0.0 (2026-04-01)
 
 **最新特性更新**
