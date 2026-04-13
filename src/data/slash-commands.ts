@@ -91,7 +91,7 @@ export const slashCommands: CommandEntry[] = [
     highlight: true,
   },
   {
-    id: 'compact',
+    id: 'compact-auto',
     name: '/compact',
     syntax: '/compact [instructions]',
     section: 'slash-commands',
@@ -218,8 +218,8 @@ export const slashCommands: CommandEntry[] = [
     tags: ['tokens', 'usage'],
     examples: ['/cost'],
     i18n: {
-      en: { description: 'Display token usage statistics for the current session.' },
-      'zh-CN': { description: '显示当前会话的 token 使用统计信息。' },
+      en: { description: 'Display token usage statistics for the current session, including per-model and cache-hit breakdown for subscription users.' },
+      'zh-CN': { description: '显示当前会话的 token 使用统计信息，订阅用户还可查看按模型和缓存命中的明细。' },
     },
   },
   {
@@ -289,10 +289,27 @@ export const slashCommands: CommandEntry[] = [
     subCategory: 'Config & Settings',
     complexity: 'intermediate',
     tags: ['editor', 'config'],
+    deprecated: true,
     examples: ['/vim'],
     i18n: {
-      en: { description: 'Toggle Vim keybinding mode for the prompt editor.' },
-      'zh-CN': { description: '切换提示编辑器的 Vim 键位绑定模式。' },
+      en: { description: 'DEPRECATED — toggle Vim keybinding mode via /config → Editor mode instead.', notes: 'Removed in v2.1.92. Use /config to enable Vim mode.' },
+      'zh-CN': { description: '已弃用 — 请改用 /config → Editor mode 切换 Vim 键位绑定模式。', notes: '已在 v2.1.92 移除，请使用 /config 启用 Vim 模式。' },
+    },
+  },
+  {
+    id: 'effort',
+    name: '/effort',
+    syntax: '/effort [low|medium|high|max]',
+    section: 'slash-commands',
+    subCategory: 'Config & Settings',
+    complexity: 'intermediate',
+    tags: ['model', 'performance', 'config'],
+    examples: ['/effort', '/effort high', '/effort max', '/effort low'],
+    addedIn: 'v2.1.94',
+    highlight: true,
+    i18n: {
+      en: { description: 'Control the effort level for the current session. Higher effort means more thorough reasoning (and higher token usage). Default is high for API/Team/Enterprise users.', notes: 'Levels: low, medium, high, max' },
+      'zh-CN': { description: '控制当前会话的努力程度。更高的努力意味着更深入的推理（以及更高的 token 用量）。API/Team/Enterprise 用户默认为 high。', notes: '档次：low、medium、high、max' },
     },
   },
   {
@@ -336,6 +353,22 @@ export const slashCommands: CommandEntry[] = [
     i18n: {
       en: { description: 'View and update tool permissions — control which tools Claude can use and which require explicit approval.', notes: 'Alias: /allowed-tools' },
       'zh-CN': { description: '查看和更新工具权限 — 控制 Claude 可以使用哪些工具，以及哪些工具需要明确批准。', notes: '别名：/allowed-tools' },
+    },
+  },
+  {
+    id: 'reload-plugins',
+    name: '/reload-plugins',
+    syntax: '/reload-plugins',
+    section: 'slash-commands',
+    subCategory: 'Config & Settings',
+    complexity: 'intermediate',
+    tags: ['plugin', 'config'],
+    examples: ['/reload-plugins'],
+    addedIn: 'v2.1.98',
+    highlight: true,
+    i18n: {
+      en: { description: 'Reload all plugins (including plugin-provided skills) mid-session without restarting Claude Code.' },
+      'zh-CN': { description: '在会话中途重新加载所有插件（包括插件提供的技能），无需重启 Claude Code。' },
     },
   },
 
@@ -394,6 +427,38 @@ export const slashCommands: CommandEntry[] = [
     i18n: {
       en: { description: 'Toggle sandbox mode, which isolates bash commands from the filesystem and network (supported on macOS, Linux, WSL2).' },
       'zh-CN': { description: '切换沙盒模式，将 bash 命令与文件系统和网络隔离（支持 macOS、Linux、WSL2）。' },
+    },
+  },
+  {
+    id: 'powerup',
+    name: '/powerup',
+    syntax: '/powerup',
+    section: 'slash-commands',
+    subCategory: 'Modes & Tasks',
+    complexity: 'beginner',
+    tags: ['learning', 'onboarding', 'tutorial'],
+    examples: ['/powerup'],
+    addedIn: 'v2.1.90',
+    highlight: true,
+    i18n: {
+      en: { description: 'Launch interactive lessons that teach Claude Code features with animated demos. Great for discovering power-user tips.' },
+      'zh-CN': { description: '启动交互式课程，通过动画演示教授 Claude Code 功能。非常适合发现高级用户技巧。' },
+    },
+  },
+  {
+    id: 'ultraplan',
+    name: '/ultraplan',
+    syntax: '/ultraplan',
+    section: 'slash-commands',
+    subCategory: 'Modes & Tasks',
+    complexity: 'advanced',
+    tags: ['remote', 'planning', 'cloud'],
+    examples: ['/ultraplan'],
+    addedIn: 'v2.1.101',
+    highlight: true,
+    i18n: {
+      en: { description: 'Auto-create a cloud environment for remote planning sessions on claude.ai. Sets up a default cloud environment if one does not exist.' },
+      'zh-CN': { description: '在 claude.ai 自动创建远程规划会话的云端环境。如果云环境不存在则自动创建默认环境。' },
     },
   },
 
@@ -492,8 +557,8 @@ export const slashCommands: CommandEntry[] = [
     tags: ['info', 'updates'],
     examples: ['/release-notes'],
     i18n: {
-      en: { description: 'View the full changelog and release notes.' },
-      'zh-CN': { description: '查看完整的更新日志和发布说明。' },
+      en: { description: 'View the full changelog and release notes. Opens an interactive version picker to browse changes by version.' },
+      'zh-CN': { description: '查看完整的更新日志和发布说明。打开交互式版本选择器，按版本浏览更改。' },
     },
   },
 
@@ -722,8 +787,8 @@ export const slashCommands: CommandEntry[] = [
     tags: ['agents', 'automation'],
     examples: ['/agents'],
     i18n: {
-      en: { description: 'Manage agent configurations for multi-agent workflows.' },
-      'zh-CN': { description: '管理多智能体工作流的代理配置。' },
+      en: { description: 'Manage agent configurations for multi-agent workflows. Features a tabbed layout: Running tab shows live subagents, Library tab lets you run agents and view running instances.' },
+      'zh-CN': { description: '管理多智能体工作流的代理配置。采用选项卡布局：Running 选项卡显示运行中的子代理，Library 选项卡支持运行代理并查看运行实例。' },
     },
   },
   {
@@ -739,6 +804,22 @@ export const slashCommands: CommandEntry[] = [
     i18n: {
       en: { description: 'Make the current session available for remote control from claude.ai or the mobile app.', notes: 'Alias: /rc' },
       'zh-CN': { description: '使当前会话可从 claude.ai 或移动应用远程控制。', notes: '别名：/rc' },
+    },
+  },
+  {
+    id: 'team-onboarding',
+    name: '/team-onboarding',
+    syntax: '/team-onboarding',
+    section: 'slash-commands',
+    subCategory: 'Integrations',
+    complexity: 'intermediate',
+    tags: ['team', 'onboarding', 'documentation'],
+    examples: ['/team-onboarding'],
+    addedIn: 'v2.1.101',
+    highlight: true,
+    i18n: {
+      en: { description: 'Generate a customized ramp-up guide for onboarding new team members, based on your codebase and local Claude Code usage patterns.' },
+      'zh-CN': { description: '根据你的代码库和本地 Claude Code 使用模式，生成为新团队成员定制的快速上手指南。' },
     },
   },
 

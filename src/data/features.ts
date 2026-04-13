@@ -184,4 +184,69 @@ export const features: Feature[] = [
     addedIn: '2025-Q4',
     docsUrl: 'https://docs.anthropic.com/en/docs/about-claude/models',
   },
+  {
+    id: 'no-flicker-mode',
+    title: 'No-Flicker Mode & Focus View',
+    titleZh: '无闪烁模式与焦点视图',
+    summary:
+      'Set CLAUDE_CODE_NO_FLICKER=1 to enable flicker-free alt-screen rendering with virtualized scrollback, eliminating visual noise in long sessions. Press Ctrl+O to toggle Focus View — shows only the prompt, a one-line tool summary, and the final response.',
+    summaryZh:
+      '设置 CLAUDE_CODE_NO_FLICKER=1 可启用无闪烁的替代屏幕渲染和虚拟化滚动缓冲，消除长会话中的视觉干扰。按 Ctrl+O 切换焦点视图 — 仅显示提示、单行工具摘要和最终回复。',
+    category: 'workflow',
+    addedIn: 'v2.1.89',
+    docsUrl: 'https://docs.anthropic.com/en/docs/claude-code/configuration',
+    highlight: true,
+  },
+  {
+    id: 'defer-permission-decision',
+    title: 'Defer Permission Decision in Hooks',
+    titleZh: '钩子中的延迟权限决策',
+    summary:
+      'PreToolUse hooks can now return a "defer" permission decision, allowing headless sessions to pause at a dangerous tool call and resume with `claude -p --resume` to have the hook re-evaluate. Enables safer CI/CD workflows with human-in-the-loop approval.',
+    summaryZh:
+      'PreToolUse 钩子现在可以返回 "defer" 权限决策，允许无头会话在危险工具调用处暂停，并通过 `claude -p --resume` 恢复以让钩子重新评估。实现带人工审批循环的更安全 CI/CD 工作流。',
+    category: 'security',
+    addedIn: 'v2.1.89',
+    docsUrl: 'https://docs.anthropic.com/en/docs/claude-code/hooks',
+    highlight: true,
+  },
+  {
+    id: 'powerup-interactive-lessons',
+    title: '/powerup — Interactive Feature Lessons',
+    titleZh: '/powerup — 交互式功能课程',
+    summary:
+      'New /powerup command launches guided interactive lessons that teach Claude Code features with animated demos. Ideal for onboarding new users or discovering advanced capabilities you may have missed.',
+    summaryZh:
+      '新的 /powerup 命令通过动画演示启动引导式交互课程，教授 Claude Code 功能。非常适合新用户入门或发现你可能错过的高级功能。',
+    category: 'workflow',
+    addedIn: 'v2.1.90',
+    docsUrl: 'https://docs.anthropic.com/en/docs/claude-code/slash-commands',
+    highlight: true,
+  },
+  {
+    id: 'monitor-tool',
+    title: 'Monitor Tool for Background Scripts',
+    titleZh: '后台脚本监控工具',
+    summary:
+      'New Monitor tool allows streaming events from background scripts into a Claude session, enabling real-time observability of long-running processes like build pipelines, test suites, and deployment scripts.',
+    summaryZh:
+      '新的 Monitor 工具允许将后台脚本的事件流式传输到 Claude 会话中，为构建管道、测试套件和部署脚本等长时间运行的进程提供实时可观测性。',
+    category: 'automation',
+    addedIn: 'v2.1.98',
+    docsUrl: 'https://docs.anthropic.com/en/docs/claude-code/tools',
+    highlight: true,
+  },
+  {
+    id: 'team-onboarding-command',
+    title: '/team-onboarding — Auto-Generate Ramp-Up Guides',
+    titleZh: '/team-onboarding — 自动生成入门指南',
+    summary:
+      'The new /team-onboarding command generates a customized onboarding guide for new developers based on your codebase structure and local Claude Code usage patterns. Reduces time-to-productivity for new team members.',
+    summaryZh:
+      '新的 /team-onboarding 命令根据你的代码库结构和本地 Claude Code 使用模式，为新开发者生成定制的入门指南。缩短新团队成员的生产力提升时间。',
+    category: 'workflow',
+    addedIn: 'v2.1.101',
+    docsUrl: 'https://docs.anthropic.com/en/docs/claude-code/slash-commands',
+    highlight: true,
+  },
 ];

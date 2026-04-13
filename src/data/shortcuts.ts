@@ -51,11 +51,11 @@ export const shortcuts: CommandEntry[] = [
     section: 'shortcuts',
     subCategory: 'General Controls',
     complexity: 'intermediate',
-    tags: ['verbose', 'debug'],
+    tags: ['verbose', 'debug', 'focus'],
     examples: ['Ctrl+O'],
     i18n: {
-      en: { description: 'Toggle verbose output — shows detailed tool calls and API request information.' },
-      'zh-CN': { description: '切换详细输出 — 显示工具调用和 API 请求的详细信息。' },
+      en: { description: 'Toggle verbose output (standard mode) — shows detailed tool calls and API request information. In NO_FLICKER mode, toggles Focus View: shows only the prompt, a one-line tool summary with edit diffstats, and the final response.' },
+      'zh-CN': { description: '切换详细输出（标准模式）— 显示工具调用和 API 请求的详细信息。在 NO_FLICKER 模式下，切换焦点视图：仅显示提示、带编辑差异统计的单行工具摘要和最终回复。' },
     },
   },
   {
