@@ -5,9 +5,6 @@ import { allEntries, sectionEntries } from '../data';
 import { CommandCard } from '../components/CommandCard';
 import type { SectionId } from '../data/types';
 
-const APP_VERSION = '2.0.0';
-const LAST_UPDATED = '2026-04-01';
-
 const BEGINNER_PICKS: Array<{ section: SectionId; id: string }> = [
   { section: 'slash-commands', id: 'init' },
   { section: 'slash-commands', id: 'help' },
@@ -42,7 +39,7 @@ export function HomePage() {
           {t.home.stats(allEntries.length)}
         </p>
         <p className="text-xs text-slate-400 dark:text-slate-500">
-          {t.home.versionInfo(APP_VERSION, LAST_UPDATED)}
+          {t.home.versionInfo(__APP_VERSION__, __APP_UPDATED_AT__)}
         </p>
         <div className="flex flex-wrap justify-center gap-3 pt-1">
           <Link
@@ -111,5 +108,4 @@ export function HomePage() {
     </div>
   );
 }
-
 
