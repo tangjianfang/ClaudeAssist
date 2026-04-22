@@ -249,4 +249,95 @@ export const features: Feature[] = [
     docsUrl: 'https://docs.anthropic.com/en/docs/claude-code/slash-commands',
     highlight: true,
   },
+  {
+    id: 'opus-4-7-xhigh',
+    title: 'Claude Opus 4.7 with xhigh Effort',
+    titleZh: 'Claude Opus 4.7 与 xhigh 努力档',
+    summary:
+      'Opus 4.7 introduces a new "xhigh" effort level that sits between high and max — fine-grained control over the speed/intelligence tradeoff. Available via /effort, --effort, and the model picker; other models gracefully fall back to high. Auto Mode is now also available for Max subscribers on Opus 4.7 without --enable-auto-mode.',
+    summaryZh:
+      'Opus 4.7 引入了新的 "xhigh" 努力档，介于 high 与 max 之间 — 对速度/智能权衡进行精细控制。可通过 /effort、--effort 与模型选择器使用；其他模型自动回退到 high。Max 订阅用户在 Opus 4.7 上无需 --enable-auto-mode 即可使用 Auto Mode。',
+    category: 'ai',
+    addedIn: 'v2.1.111',
+    docsUrl: 'https://docs.anthropic.com/en/docs/about-claude/models',
+    highlight: true,
+  },
+  {
+    id: 'tui-fullscreen',
+    title: '/tui Flicker-Free Fullscreen Mode',
+    titleZh: '/tui 无闪烁全屏模式',
+    summary:
+      'New /tui command and `tui` setting toggle a flicker-free alt-screen rendering mode mid-session — no restart needed. Pairs with the new /focus command (separate from Ctrl+O) and an `autoScrollEnabled` config to keep older output visible.',
+    summaryZh:
+      '新的 /tui 命令和 `tui` 设置可在会话中途切换到无闪烁的替代屏幕渲染模式 — 无需重启。可与新的 /focus 命令（与 Ctrl+O 分离）以及 `autoScrollEnabled` 配置配合使用，让较早的输出保持可见。',
+    category: 'ide',
+    addedIn: 'v2.1.110',
+    docsUrl: 'https://docs.anthropic.com/en/docs/claude-code/slash-commands',
+    highlight: true,
+  },
+  {
+    id: 'native-cli-binary',
+    title: 'Native CLI Binary Distribution',
+    titleZh: '原生 CLI 二进制分发',
+    summary:
+      'Claude Code v2.1.113 now spawns a native per-platform binary (via optional dependency) instead of bundled JavaScript, with faster startup. On macOS and Linux native builds, Glob/Grep tools are replaced by embedded `bfs`/`ugrep` invoked through Bash — faster searches without a separate tool round-trip.',
+    summaryZh:
+      'Claude Code v2.1.113 现在通过每平台可选依赖派生原生二进制，而非打包的 JavaScript，启动更快。在 macOS 和 Linux 的原生构建中，Glob/Grep 工具被通过 Bash 调用的内置 `bfs`/`ugrep` 取代 — 搜索更快且无需独立的工具往返。',
+    category: 'workflow',
+    addedIn: 'v2.1.113',
+    docsUrl: 'https://docs.anthropic.com/en/docs/claude-code',
+    highlight: true,
+  },
+  {
+    id: 'ultrareview-cloud',
+    title: '/ultrareview — Cloud Multi-Agent Code Review',
+    titleZh: '/ultrareview — 云端多智能体代码审查',
+    summary:
+      'New /ultrareview command runs comprehensive cloud-based code review using parallel multi-agent analysis and critique. Run without arguments to review the current branch, or pass a GitHub PR number to fetch and review that PR. Faster launch with parallelized checks and a diffstat in the launch dialog (v2.1.113).',
+    summaryZh:
+      '新的 /ultrareview 命令在云端运行全面的代码审查，使用并行多智能体分析与审议。不带参数审查当前分支，或传入 GitHub PR 编号以拉取并审查该 PR。v2.1.113 起通过并行化检查和启动对话框中的 diffstat 实现更快启动。',
+    category: 'automation',
+    addedIn: 'v2.1.111',
+    docsUrl: 'https://docs.anthropic.com/en/docs/claude-code/slash-commands',
+    highlight: true,
+  },
+  {
+    id: 'session-recap',
+    title: 'Session Recap on Resume',
+    titleZh: '会话恢复时的回顾摘要',
+    summary:
+      'When you return to a session, Claude Code now generates a recap that brings you back up to speed — including in environments with telemetry disabled. Trigger manually with /recap, configure in /config, or force on/off with CLAUDE_CODE_ENABLE_AWAY_SUMMARY.',
+    summaryZh:
+      '回到会话时，Claude Code 现在会生成一份回顾摘要帮你快速跟上进度 — 即使在禁用了遥测的环境中也可使用。可通过 /recap 手动触发、在 /config 中配置，或用 CLAUDE_CODE_ENABLE_AWAY_SUMMARY 强制开关。',
+    category: 'workflow',
+    addedIn: 'v2.1.108',
+    docsUrl: 'https://docs.anthropic.com/en/docs/claude-code/slash-commands',
+    highlight: true,
+  },
+  {
+    id: 'powershell-tool',
+    title: 'Native PowerShell Tool',
+    titleZh: '原生 PowerShell 工具',
+    summary:
+      'A first-class PowerShell tool is rolling out on Windows and is opt-in on Linux/macOS via CLAUDE_CODE_USE_POWERSHELL_TOOL=1 (requires `pwsh` on PATH). Lets Claude execute PowerShell scripts natively without going through Bash, with proper error semantics for cross-platform automation.',
+    summaryZh:
+      '一流的 PowerShell 工具在 Windows 上分批推出，在 Linux/macOS 上可通过 CLAUDE_CODE_USE_POWERSHELL_TOOL=1（要求 PATH 中存在 `pwsh`）启用。让 Claude 原生执行 PowerShell 脚本而无需经过 Bash，并提供适当的错误语义用于跨平台自动化。',
+    category: 'automation',
+    addedIn: 'v2.1.111',
+    docsUrl: 'https://docs.anthropic.com/en/docs/claude-code',
+    highlight: true,
+  },
+  {
+    id: 'auto-terminal-theme',
+    title: 'Auto (Match Terminal) Theme',
+    titleZh: 'Auto（匹配终端）主题',
+    summary:
+      'New "Auto (match terminal)" theme option in /theme automatically syncs Claude Code with your terminal\'s light/dark mode — eliminating the need to manually toggle themes when your system or terminal switches.',
+    summaryZh:
+      '/theme 中新增 "Auto（匹配终端）" 主题选项，自动让 Claude Code 与终端的深色/浅色模式保持一致 — 当系统或终端切换主题时无需手动切换。',
+    category: 'ide',
+    addedIn: 'v2.1.111',
+    docsUrl: 'https://docs.anthropic.com/en/docs/claude-code/slash-commands',
+    highlight: true,
+  },
 ];

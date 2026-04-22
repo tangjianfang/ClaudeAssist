@@ -4,7 +4,7 @@
 
 [![Deploy](https://img.shields.io/github/actions/workflow/status/tangjianfang/ClaudeAssist/deploy.yml?style=flat-square)](https://github.com/tangjianfang/ClaudeAssist/actions)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=flat-square)](LICENSE)
-[![Version](https://img.shields.io/badge/version-2.0.0-green.svg?style=flat-square)](https://github.com/tangjianfang/ClaudeAssist/releases)
+[![Version](https://img.shields.io/badge/version-2.2.0-green.svg?style=flat-square)](https://github.com/tangjianfang/ClaudeAssist/releases)
 
 🌐 **在线访问**: [https://tangjianfang.github.io/ClaudeAssist/](https://tangjianfang.github.io/ClaudeAssist/)
 
@@ -176,6 +176,46 @@ ClaudeAssist/
 ---
 
 ## 📝 更新日志
+
+### v2.2.0 (2026-04-22)
+
+**同步 Claude Code v2.1.117 最新特性**（自 v2.1.105 → v2.1.117 的官方更新）
+
+新增斜杠命令：
+- ✨ `/ultrareview` (v2.1.111) — 云端多智能体并行代码审查，支持当前分支或指定 GitHub PR 编号
+- ✨ `/less-permission-prompts` (v2.1.111) — 扫描转录记录，提议优先级允许列表以减少权限弹窗
+- ✨ `/tui` (v2.1.110) — 切换无闪烁全屏渲染模式，无需重启会话
+- ✨ `/focus` (v2.1.110) — 焦点视图独立切换（原 Ctrl+O 仅切换详细转录视图）
+- ✨ `/recap` (v2.1.108) — 回到会话时生成回顾摘要
+
+更新斜杠命令：
+- 🔄 `/effort` — 新增 `xhigh` 档（v2.1.111），介于 high 与 max 之间，仅 Opus 4.7 可用；不带参数时打开交互式滑块
+- 🔄 `/loop` — 新增别名 `/proactive` (v2.1.105)
+- 🔄 `/rewind` — 新增别名 `/undo` (v2.1.108)
+- 🔄 `/reload-plugins` — 自动安装缺失插件依赖（v2.1.116）
+
+新增 settings.json 配置：
+- ✨ `tui` (v2.1.110) — 终端 UI 模式持久化默认值（fullscreen / inline）
+- ✨ `autoScrollEnabled` (v2.1.110) — 全屏模式下禁用自动滚动
+- ✨ `sandbox.network.deniedDomains` (v2.1.113) — 在沙箱中精确拒绝特定域名
+
+新增环境变量：
+- ✨ `CLAUDE_CODE_FORK_SUBAGENT` (v2.1.117) — 在外部构建中启用分叉子代理
+- ✨ `CLAUDE_CODE_USE_POWERSHELL_TOOL` (v2.1.111) — 启用原生 PowerShell 工具
+- ✨ `OTEL_LOG_RAW_API_BODIES` (v2.1.111) — 将完整 API 请求/响应体作为 OpenTelemetry 日志事件发出
+- ✨ `ENABLE_PROMPT_CACHING_1H` (v2.1.108) — 启用 1 小时提示缓存 TTL（API key/Bedrock/Vertex/Foundry）
+- ✨ `FORCE_PROMPT_CACHING_5M` (v2.1.108) — 强制 5 分钟提示缓存 TTL
+- ✨ `CLAUDE_CODE_ENABLE_AWAY_SUMMARY` (v2.1.108) — 强制启用/禁用会话回顾
+- ✨ `CLAUDE_CODE_CERT_STORE` (v2.1.101) — 选择 TLS 信任库（os / bundled）
+
+新增最新特性：
+- ✨ Opus 4.7 + xhigh 努力档；Max 用户在 Opus 4.7 上自动获得 Auto Mode
+- ✨ 原生 CLI 二进制分发（v2.1.113），macOS/Linux 上 Glob/Grep 由内置 `bfs`/`ugrep` 取代
+- ✨ /tui 无闪烁全屏模式 + autoScrollEnabled 配置
+- ✨ /ultrareview 云端多智能体代码审查
+- ✨ 会话回顾（Session Recap），包括禁用遥测的环境
+- ✨ 原生 PowerShell 工具
+- ✨ "Auto（匹配终端）" 主题，自动同步终端深色/浅色模式
 
 ### v2.1.0 (2026-04-13)
 
