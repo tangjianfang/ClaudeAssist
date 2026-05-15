@@ -434,7 +434,7 @@ export const DATA_STORE: AiEcosystemDataStore = {
       category: 'coding',
       version: 'command-a',
       contextWindow: '256K tokens',
-      costTier: 'medium',
+      costTier: 'high',
       pricing: {
         currency: 'USD',
         inputPerMTokens: '$2.50',
@@ -569,9 +569,9 @@ export const DATA_STORE: AiEcosystemDataStore = {
       costTier: 'low',
       pricing: {
         currency: 'CNY',
-        inputPerMTokens: '¥1.5–¥2.0',
-        outputPerMTokens: '¥1.5–¥2.0',
-        notes: '豆包 Ark 定价按模型与能力分层，含免费额度和活动价，正式上线前请在控制台核对。',
+        inputPerMTokens: '¥1.8',
+        outputPerMTokens: '¥1.8',
+        notes: '豆包 Ark 定价按模型与能力分层，常见区间约 ¥1.5–¥2.0 / 1M tokens；正式上线前请在控制台核对。',
         officialUrl: 'https://www.volcengine.com/docs/82379',
       },
       scores: { reasoning: 8.7, coding: 8.5, toolUse: 8.6, consistency: 8.5, latency: 9.1 },
