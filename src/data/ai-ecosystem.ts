@@ -368,7 +368,7 @@ export const DATA_STORE: AiEcosystemDataStore = {
       category: 'frontier',
       version: 'grok-4.3',
       contextWindow: '256K tokens',
-      costTier: 'medium',
+      costTier: 'low',
       pricing: {
         currency: 'USD',
         inputPerMTokens: '$1.25',
@@ -571,7 +571,7 @@ export const DATA_STORE: AiEcosystemDataStore = {
         currency: 'CNY',
         inputPerMTokens: '¥1.8',
         outputPerMTokens: '¥1.8',
-        notes: '豆包 Ark 定价按模型与能力分层，常见区间约 ¥1.5–¥2.0 / 1M tokens；正式上线前请在控制台核对。',
+        notes: '当前记录值按 ¥1.8 / 1M tokens 作为基准，官方常见区间约 ¥1.5–¥2.0；正式上线前请在控制台核对。',
         officialUrl: 'https://www.volcengine.com/docs/82379',
       },
       scores: { reasoning: 8.7, coding: 8.5, toolUse: 8.6, consistency: 8.5, latency: 9.1 },
