@@ -533,7 +533,7 @@ export const DATA_STORE: AiEcosystemDataStore = {
       category: 'multimodal',
       version: 'hunyuan-standard',
       contextWindow: '256K tokens',
-      costTier: 'low',
+      costTier: 'medium',
       pricing: {
         currency: 'CNY',
         inputPerMTokens: '¥4.5',
@@ -571,7 +571,7 @@ export const DATA_STORE: AiEcosystemDataStore = {
         currency: 'CNY',
         inputPerMTokens: '¥1.8',
         outputPerMTokens: '¥1.8',
-        notes: '当前记录值按 ¥1.8 / 1M tokens 作为基准，官方常见区间约 ¥1.5–¥2.0；正式上线前请在控制台核对。',
+        notes: '当前记录值固定为常用基准价 ¥1.8 / 1M tokens；历史公开区间约 ¥1.5–¥2.0，若有波动会在变更日志同步。',
         officialUrl: 'https://www.volcengine.com/docs/82379',
       },
       scores: { reasoning: 8.7, coding: 8.5, toolUse: 8.6, consistency: 8.5, latency: 9.1 },
