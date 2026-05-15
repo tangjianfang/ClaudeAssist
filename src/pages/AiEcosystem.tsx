@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { BarChart3, ExternalLink, Filter, GitCompare, RefreshCw, ShieldCheck, X } from 'lucide-react';
+import { BarChart3, ExternalLink, Filter, GitCompare, RefreshCw, Search, ShieldCheck, X } from 'lucide-react';
 import { clsx } from 'clsx';
 import { DATA_STORE, SCORE_KEYS, SCORE_LABELS } from '../data/ai-ecosystem';
 import type { AiModel, AiModelCategory, CostTier } from '../data/ai-ecosystem';
@@ -91,6 +91,7 @@ function RadarChart({ models }: { models: AiModel[] }) {
 }
 
 export function AiEcosystemPage() {
+  const [searchQuery, setSearchQuery] = useState('');
   const [category, setCategory] = useState<AiModelCategory | 'all'>('all');
   const [chinaAvailability, setChinaAvailability] = useState<'all' | 'direct' | 'proxy' | 'local'>('all');
   const [costTier, setCostTier] = useState<CostTier | 'all'>('all');
@@ -106,7 +107,17 @@ export function AiEcosystemPage() {
 
   const filteredModels = useMemo(() => {
     const costOrder: Record<CostTier, number> = { low: 0, medium: 1, high: 2 };
+    const query = searchQuery.toLowerCase().trim();
     return DATA_STORE.models
+      .filter((model) => {
+        if (!query) return true;
+        return (
+          model.name.toLowerCase().includes(query) ||
+          model.vendor.toLowerCase().includes(query) ||
+          model.id.toLowerCase().includes(query) ||
+          model.tags.some((tag) => tag.toLowerCase().includes(query))
+        );
+      })
       .filter((model) => category === 'all' || model.category === category)
       .filter((model) => costTier === 'all' || model.costTier === costTier)
       .filter((model) => tag === 'all' || model.tags.includes(tag))
@@ -123,7 +134,7 @@ export function AiEcosystemPage() {
         if (sortBy === 'context') return contextWindowTokens(b) - contextWindowTokens(a);
         return averageScore(b) - averageScore(a);
       });
-  }, [category, chinaAvailability, costTier, minScore, sortBy, tag]);
+  }, [searchQuery, category, chinaAvailability, costTier, minScore, sortBy, tag]);
 
   const selectedModels = DATA_STORE.models.filter((model) => selectedIds.includes(model.id));
 
@@ -165,6 +176,19 @@ export function AiEcosystemPage() {
             筛选面板
           </h2>
           <div className="mt-5 space-y-5">
+            <label className="block">
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">搜索模型</span>
+              <div className="relative mt-1">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="输入模型名称或厂商..."
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-9 pr-3 py-2 text-sm placeholder:text-slate-400"
+                />
+              </div>
+            </label>
             <label className="block">
               <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">分类</span>
               <select value={category} onChange={(event) => setCategory(event.target.value as AiModelCategory | 'all')} className="mt-1 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm">

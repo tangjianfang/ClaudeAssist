@@ -14,7 +14,7 @@ import { ClawCodePage } from './pages/ClawCode';
 import { AiEcosystemPage } from './pages/AiEcosystem';
 import { LanguageProvider } from './i18n';
 import { FavoritesProvider } from './context/FavoritesContext';
-import { useSearch } from './hooks/useSearch';
+import { useSearch, useAiModelSearch } from './hooks/useSearch';
 import { useLanguage } from './i18n';
 
 function AppInner() {
@@ -64,6 +64,7 @@ function AppInner() {
   }
 
   const searchResults = useSearch(query, lang);
+  const aiSearchResults = useAiModelSearch(query);
 
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
@@ -98,7 +99,7 @@ function AppInner() {
         <main className="flex-1 overflow-y-auto">
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/search" element={<SearchResults results={searchResults} query={query} />} />
+            <Route path="/search" element={<SearchResults results={searchResults} aiResults={aiSearchResults} query={query} />} />
             <Route path="/cheatsheet" element={<CheatsheetPage />} />
             <Route path="/scenarios" element={<ScenariosPage />} />
             <Route path="/favorites" element={<FavoritesPage />} />
