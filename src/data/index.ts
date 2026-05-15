@@ -6,6 +6,8 @@ export { modes } from './modes';
 export { settings, envVars } from './settings';
 export { scenarios, scenarioCategories } from './scenarios';
 export type { Scenario, ScenarioDifficulty, ScenarioCategory, ScenarioStep, ScenarioTip } from './scenario-types';
+export { DATA_STORE as aiEcosystem } from './ai-ecosystem';
+export type { AiModel } from './ai-ecosystem';
 
 import { slashCommands } from './slash-commands';
 import { cliFlags } from './cli-flags';
