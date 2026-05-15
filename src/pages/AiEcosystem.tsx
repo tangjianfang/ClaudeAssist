@@ -28,6 +28,13 @@ function averageScore(model: AiModel) {
   return SCORE_KEYS.reduce((sum, key) => sum + model.scores[key], 0) / SCORE_KEYS.length;
 }
 
+function contextWindowTokens(model: AiModel) {
+  const match = model.contextWindow.match(/([\d.]+)\s*([MK])/i);
+  if (!match) return 0;
+  const value = Number(match[1]);
+  return match[2].toUpperCase() === 'M' ? value * 1_000_000 : value * 1_000;
+}
+
 function scorePolygon(model: AiModel, size = 180) {
   const center = size / 2;
   const radius = size * 0.38;
@@ -73,9 +80,9 @@ function RadarChart({ models }: { models: AiModel[] }) {
         <polygon
           key={model.id}
           points={scorePolygon(model)}
-          fill={colors[index]}
+          fill={colors[index % colors.length]}
           fillOpacity="0.12"
-          stroke={colors[index]}
+          stroke={colors[index % colors.length]}
           strokeWidth="2"
         />
       ))}
@@ -113,7 +120,7 @@ export function AiEcosystemPage() {
       .sort((a, b) => {
         if (sortBy === 'cost') return costOrder[a.costTier] - costOrder[b.costTier];
         if (sortBy === 'china') return Number(b.china.accessible) - Number(a.china.accessible);
-        if (sortBy === 'context') return b.contextWindow.localeCompare(a.contextWindow, undefined, { numeric: true });
+        if (sortBy === 'context') return contextWindowTokens(b) - contextWindowTokens(a);
         return averageScore(b) - averageScore(a);
       });
   }, [category, chinaAvailability, costTier, minScore, sortBy, tag]);
