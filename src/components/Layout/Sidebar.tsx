@@ -13,6 +13,7 @@ import {
   Puzzle,
   X,
   Code,
+  BrainCircuit,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useLanguage } from '../../i18n';
@@ -48,8 +49,9 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   );
 
 export function Sidebar({ onClose }: SidebarProps) {
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
   const { favorites } = useFavoritesContext();
+  const isZh = lang === 'zh-CN' || lang === 'zh-TW';
 
   return (
     <nav className="w-56 shrink-0 flex flex-col gap-0.5 py-4 pr-2 border-r border-slate-100 dark:border-slate-800">
@@ -89,6 +91,12 @@ export function Sidebar({ onClose }: SidebarProps) {
       <NavLink to="/clawcode" className={navLinkClass} onClick={onClose}>
         <span className="opacity-70"><Code size={18} /></span>
         <span className="truncate">{t.clawcode.pageTitle}</span>
+      </NavLink>
+
+      {/* AI Ecosystem */}
+      <NavLink to="/ai-ecosystem" className={navLinkClass} onClick={onClose}>
+        <span className="opacity-70"><BrainCircuit size={18} /></span>
+        <span className="truncate">{isZh ? 'AI 生态追踪' : 'AI Ecosystem'}</span>
       </NavLink>
 
       {/* Favorites */}
