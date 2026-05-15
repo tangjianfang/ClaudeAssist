@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { BarChart3, ExternalLink, Filter, GitCompare, RefreshCw, Search, ShieldCheck, X } from 'lucide-react';
+import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
+import { ChartBar, ExternalLink, Filter, GitCompare, RefreshCw, Search, ShieldCheck, X, ChevronDown, Zap } from 'lucide-react';
 import { clsx } from 'clsx';
 import { DATA_STORE, SCORE_KEYS, SCORE_LABELS } from '../data/ai-ecosystem';
 import type { AiModel, AiModelCategory, CostTier } from '../data/ai-ecosystem';
@@ -90,8 +90,197 @@ function RadarChart({ models }: { models: AiModel[] }) {
   );
 }
 
+// Mobile-friendly model card component
+function ModelCard({ 
+  model, 
+  isSelected, 
+  onToggle,
+  isDisabled
+}: { 
+  model: AiModel
+  isSelected: boolean
+  onToggle: () => void
+  isDisabled: boolean
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const score = averageScore(model);
+  
+  return (
+    <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 overflow-hidden transition-all duration-200 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-slate-900/30">
+      <div className="p-4">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <h3 className="font-bold text-slate-900 dark:text-slate-100 truncate">{model.name}</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{model.vendor}</p>
+            <div className="mt-2 flex flex-wrap gap-1">
+              <span className="inline-block rounded-full bg-indigo-100 dark:bg-indigo-900/30 px-2 py-0.5 text-[11px] text-indigo-700 dark:text-indigo-300">
+                {CATEGORY_LABELS[model.category]}
+              </span>
+              <span className={clsx(
+                'inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold',
+                model.costTier === 'low' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' :
+                model.costTier === 'medium' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' :
+                'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+              )}>
+                {COST_LABELS[model.costTier]}
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={onToggle}
+            disabled={isDisabled}
+            aria-label={isSelected ? '取消选择' : '选择对比'}
+            className={clsx(
+              'shrink-0 rounded-lg px-3 py-2 text-xs font-semibold transition-colors',
+              isSelected
+                ? 'bg-indigo-600 text-white'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600'
+            )}
+          >
+            {isSelected ? '✓' : '+'}
+          </button>
+        </div>
+
+        {/* Quick info */}
+        <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+          <div className="rounded-lg bg-slate-50 dark:bg-slate-900/40 p-2">
+            <div className="text-xs text-slate-500 dark:text-slate-400">评分</div>
+            <div className="mt-1 font-bold text-indigo-600 dark:text-indigo-300">{score.toFixed(1)}</div>
+          </div>
+          <div className="rounded-lg bg-slate-50 dark:bg-slate-900/40 p-2">
+            <div className="text-xs text-slate-500 dark:text-slate-400">上下文</div>
+            <div className="mt-1 text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">{model.contextWindow}</div>
+          </div>
+          <div className="rounded-lg bg-slate-50 dark:bg-slate-900/40 p-2">
+            <div className="text-xs text-slate-500 dark:text-slate-400">国内</div>
+            <div className={clsx(
+              'mt-1 text-xs font-bold',
+              model.china.accessible ? 'text-emerald-600 dark:text-emerald-300' : 'text-slate-500'
+            )}>
+              {model.china.accessible ? '✓' : '✗'}
+            </div>
+          </div>
+        </div>
+
+        {/* Pricing */}
+        <div className="mt-4 rounded-lg bg-slate-50 dark:bg-slate-900/40 p-3 text-xs">
+          <div className="font-semibold text-slate-700 dark:text-slate-200 mb-2">定价 / 1M tokens</div>
+          <div className="space-y-1 text-slate-600 dark:text-slate-300">
+            <div>输入：<span className="font-semibold">{model.pricing.inputPerMTokens}</span></div>
+            <div>输出：<span className="font-semibold">{model.pricing.outputPerMTokens}</span></div>
+          </div>
+        </div>
+
+        {/* Expand button */}
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="mt-3 w-full flex items-center justify-center gap-2 py-2 text-xs font-semibold text-indigo-600 dark:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 rounded-lg transition-colors"
+          aria-expanded={expanded}
+        >
+          <span>{expanded ? '隐藏' : '显示'}详情</span>
+          <ChevronDown size={14} className={clsx('transition-transform', expanded && 'rotate-180')} />
+        </button>
+      </div>
+
+      {/* Expanded content */}
+      {expanded && (
+        <div className="border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/30 p-4 space-y-4">
+          {/* Scores */}
+          <div>
+            <div className="font-semibold text-slate-700 dark:text-slate-200 mb-3 text-xs">能力评分</div>
+            <div className="space-y-2">
+              {SCORE_KEYS.map((key) => (
+                <div key={key} className="flex items-center justify-between text-xs">
+                  <span className="text-slate-600 dark:text-slate-300">{SCORE_LABELS[key]}</span>
+                  <div className="flex items-center gap-2">
+                    <div className="h-1.5 w-16 rounded-full bg-slate-200 dark:bg-slate-700">
+                      <div
+                        className="h-1.5 rounded-full bg-indigo-500"
+                        style={{ width: `${model.scores[key] * 10}%` }}
+                      />
+                    </div>
+                    <span className="w-6 font-semibold text-slate-700 dark:text-slate-200">{model.scores[key].toFixed(1)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Tags */}
+          {model.tags.length > 0 && (
+            <div>
+              <div className="font-semibold text-slate-700 dark:text-slate-200 mb-2 text-xs">标签</div>
+              <div className="flex flex-wrap gap-1">
+                {model.tags.map((tag) => (
+                  <span key={tag} className="rounded-full bg-white dark:bg-slate-800 px-2 py-0.5 text-[11px] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Pros and Cons */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <div className="font-semibold text-emerald-600 dark:text-emerald-300 mb-2 text-xs flex items-center gap-1">
+                <span>✓</span> 优点
+              </div>
+              <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-1">
+                {model.pros.slice(0, 3).map((pro) => (
+                  <li key={pro} className="line-clamp-2">• {pro}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <div className="font-semibold text-amber-600 dark:text-amber-300 mb-2 text-xs flex items-center gap-1">
+                <span>✗</span> 限制
+              </div>
+              <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-1">
+                {model.cons.slice(0, 3).map((con) => (
+                  <li key={con} className="line-clamp-2">• {con}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* Source */}
+          <div className="border-t border-slate-200 dark:border-slate-700 pt-3">
+            <a
+              href={model.source.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs font-medium text-indigo-600 dark:text-indigo-300 hover:underline"
+            >
+              <ExternalLink size={11} />
+              {model.source.label}
+            </a>
+            <div className="text-[11px] text-slate-400 mt-1">核验：{model.source.checkedAt}</div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function AiEcosystemPage() {
+  const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  
+  // Debounced search
+  useEffect(() => {
+    searchTimeoutRef.current && clearTimeout(searchTimeoutRef.current);
+    searchTimeoutRef.current = setTimeout(() => {
+      setSearchQuery(searchInput);
+    }, 300);
+    
+    return () => {
+      searchTimeoutRef.current && clearTimeout(searchTimeoutRef.current);
+    };
+  }, [searchInput]);
+
   const [category, setCategory] = useState<AiModelCategory | 'all'>('all');
   const [chinaAvailability, setChinaAvailability] = useState<'all' | 'direct' | 'proxy' | 'local'>('all');
   const [costTier, setCostTier] = useState<CostTier | 'all'>('all');
@@ -99,6 +288,8 @@ export function AiEcosystemPage() {
   const [tag, setTag] = useState('all');
   const [sortBy, setSortBy] = useState<'score' | 'cost' | 'context' | 'china'>('score');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [viewMode, setViewMode] = useState<'auto' | 'cards' | 'table'>('auto');
+  const [filterOpen, setFilterOpen] = useState(false);
 
   const allTags = useMemo(
     () => Array.from(new Set(DATA_STORE.models.flatMap((model) => model.tags))).sort(),
@@ -138,210 +329,266 @@ export function AiEcosystemPage() {
 
   const selectedModels = DATA_STORE.models.filter((model) => selectedIds.includes(model.id));
 
-  function toggleCompare(modelId: string) {
+  const toggleCompare = useCallback((modelId: string) => {
     setSelectedIds((current) => {
       if (current.includes(modelId)) return current.filter((id) => id !== modelId);
       if (current.length >= 4) return current;
       return [...current, modelId];
     });
-  }
+  }, []);
 
   return (
-    <div className="px-4 sm:px-6 py-8 max-w-screen-2xl mx-auto">
-      <div className="mb-6 rounded-3xl border border-indigo-100 dark:border-indigo-900/50 bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-950/40 dark:to-slate-900 p-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
+    <div className="px-3 sm:px-6 py-6 sm:py-8 max-w-screen-2xl mx-auto">
+      {/* Header */}
+      <div className="mb-6 rounded-2xl sm:rounded-3xl border border-indigo-100 dark:border-indigo-900/50 bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-950/40 dark:to-slate-900 p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/80 dark:bg-slate-900/80 px-3 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-300">
-              <RefreshCw size={13} />
-              DATA_STORE v{DATA_STORE.version} · {DATA_STORE.lastUpdated}
+              <Zap size={13} />
+              v{DATA_STORE.version} · {DATA_STORE.lastUpdated}
             </div>
-            <h1 className="mt-4 text-2xl sm:text-3xl font-bold text-slate-950 dark:text-white">
-              AI 生态动态追踪
+            <h1 className="mt-3 sm:mt-4 text-2xl sm:text-3xl font-bold text-slate-950 dark:text-white">
+              AI 生态追踪
             </h1>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-              面向个人开发者的本地化决策看板：按模型、工具能力、价格与国内可用性筛选，并排比较最多 4 个候选组合。事实字段保留官方来源链接；能力分是便于排序的人工校准运营评分。
+            <p className="mt-2 max-w-2xl text-sm leading-5 sm:leading-6 text-slate-600 dark:text-slate-300">
+              依据官方渠道数据，为开发者提供最新的模型定价、能力评分与国内可用性对比。
             </p>
           </div>
-          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-white dark:border-slate-700 px-4 py-3 text-xs text-slate-500 dark:text-slate-400 max-w-sm">
-            <div className="font-semibold text-slate-700 dark:text-slate-200 mb-1">更新模式</div>
-            定期仅更新 <code className="rounded bg-slate-100 dark:bg-slate-800 px-1">DATA_STORE</code> 数据块即可；UI 筛选、排序与对比逻辑无需改动。
+          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-white dark:border-slate-700 px-4 py-3 text-xs text-slate-500 dark:text-slate-400 max-w-sm h-fit">
+            <div className="font-semibold text-slate-700 dark:text-slate-200 mb-1">快速更新</div>
+            仅需更新 <code className="rounded bg-slate-100 dark:bg-slate-800 px-1 text-[11px]">DATA_STORE</code> 数据块即可同步所有模型信息。
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[18rem_1fr] gap-6">
-        <aside className="lg:sticky lg:top-20 self-start rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 p-5">
-          <h2 className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-slate-100">
-            <Filter size={16} className="text-indigo-500" />
-            筛选面板
-          </h2>
-          <div className="mt-5 space-y-5">
+      {/* Main layout - responsive grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-[16rem_1fr] gap-4 sm:gap-6">
+        {/* Sidebar - Filter Panel */}
+        <aside className={clsx(
+          'lg:sticky lg:top-20 self-start rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60',
+          'transition-all duration-300',
+          filterOpen ? 'block' : 'hidden lg:block'
+        )}>
+          <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+            <h2 className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-slate-100">
+              <Filter size={16} className="text-indigo-500" />
+              筛选
+            </h2>
+            <button
+              onClick={() => setFilterOpen(false)}
+              className="lg:hidden p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded"
+              aria-label="关闭筛选"
+            >
+              <X size={16} />
+            </button>
+          </div>
+          <div className="p-4 sm:p-5 space-y-4 sm:space-y-5">
+            {/* Search */}
             <label className="block">
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">搜索模型</span>
-              <div className="relative mt-1">
-                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="输入模型名称或厂商..."
-                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-9 pr-3 py-2 text-sm placeholder:text-slate-400"
-                />
-              </div>
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                <Search size={13} />
+                搜索模型
+              </span>
+              <input
+                type="text"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="模型名称或厂商..."
+                className="w-full mt-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 outline-none transition"
+              />
             </label>
+
+            {/* Category */}
             <label className="block">
               <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">分类</span>
-              <select value={category} onChange={(event) => setCategory(event.target.value as AiModelCategory | 'all')} className="mt-1 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm">
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value as AiModelCategory | 'all')}
+                className="w-full mt-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
+              >
                 <option value="all">全部分类</option>
-                {Object.entries(CATEGORY_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                {Object.entries(CATEGORY_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
               </select>
             </label>
+
+            {/* China Availability */}
             <label className="block">
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">国内可用性</span>
-              <select value={chinaAvailability} onChange={(event) => setChinaAvailability(event.target.value as typeof chinaAvailability)} className="mt-1 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm">
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">国内可用</span>
+              <select
+                value={chinaAvailability}
+                onChange={(e) => setChinaAvailability(e.target.value as typeof chinaAvailability)}
+                className="w-full mt-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
+              >
                 <option value="all">全部</option>
-                <option value="direct">国内直连/官方渠道</option>
-                <option value="proxy">通常需要代理/海外渠道</option>
-                <option value="local">支持本地部署路径</option>
+                <option value="direct">国内直连/官方</option>
+                <option value="proxy">需代理/海外</option>
+                <option value="local">支持本地部署</option>
               </select>
             </label>
+
+            {/* Cost */}
             <label className="block">
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">成本区间</span>
-              <select value={costTier} onChange={(event) => setCostTier(event.target.value as CostTier | 'all')} className="mt-1 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm">
+              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">成本</span>
+              <select
+                value={costTier}
+                onChange={(e) => setCostTier(e.target.value as CostTier | 'all')}
+                className="w-full mt-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
+              >
                 <option value="all">全部成本</option>
-                {Object.entries(COST_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                {Object.entries(COST_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
               </select>
             </label>
+
+            {/* Score */}
             <label className="block">
               <span className="flex justify-between text-xs font-semibold text-slate-500 dark:text-slate-400">
                 <span>能力评分下限</span>
-                <span>{minScore.toFixed(1)}</span>
+                <span className="text-indigo-600 dark:text-indigo-300">{minScore.toFixed(1)}</span>
               </span>
-              <input type="range" min="0" max="10" step="0.5" value={minScore} onChange={(event) => setMinScore(Number(event.target.value))} className="mt-2 w-full accent-indigo-600" />
+              <input
+                type="range"
+                min="0"
+                max="10"
+                step="0.5"
+                value={minScore}
+                onChange={(e) => setMinScore(Number(e.target.value))}
+                className="w-full mt-2 accent-indigo-600 cursor-pointer"
+                aria-label="最低评分过滤"
+              />
             </label>
+
+            {/* Tag */}
             <label className="block">
               <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">标签</span>
-              <select value={tag} onChange={(event) => setTag(event.target.value)} className="mt-1 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm">
+              <select
+                value={tag}
+                onChange={(e) => setTag(e.target.value)}
+                className="w-full mt-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
+              >
                 <option value="all">全部标签</option>
-                {allTags.map((tagName) => <option key={tagName} value={tagName}>{tagName}</option>)}
+                {allTags.map((tagName) => (
+                  <option key={tagName} value={tagName}>{tagName}</option>
+                ))}
               </select>
             </label>
+
+            {/* Reset filters */}
+            <button
+              onClick={() => {
+                setSearchInput('');
+                setCategory('all');
+                setChinaAvailability('all');
+                setCostTier('all');
+                setMinScore(0);
+                setTag('all');
+              }}
+              className="w-full py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+            >
+              重置筛选
+            </button>
           </div>
         </aside>
 
+        {/* Main content */}
         <section className="min-w-0 space-y-6">
-          <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 overflow-hidden">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-700 px-5 py-4">
-              <div>
-                <h2 className="flex items-center gap-2 text-base font-bold text-slate-900 dark:text-slate-100">
-                  <BarChart3 size={17} className="text-indigo-500" />
-                  主表格
-                </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400">已筛选 {filteredModels.length} / {DATA_STORE.models.length} 项 · 最多选择 4 项对比</p>
-              </div>
-              <select value={sortBy} onChange={(event) => setSortBy(event.target.value as typeof sortBy)} className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm">
-                <option value="score">按综合评分</option>
-                <option value="cost">按成本从低到高</option>
-                <option value="china">按国内可用性</option>
-                <option value="context">按上下文窗口</option>
-              </select>
+          {/* Controls */}
+          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+            <div className="flex-1 min-w-0">
+              <h2 className="flex items-center gap-2 text-base font-bold text-slate-900 dark:text-slate-100">
+                <ChartBar size={17} className="text-indigo-500 shrink-0" />
+                <span className="truncate">{filteredModels.length} / {DATA_STORE.models.length} 个模型</span>
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">最多选择 4 个进行对比</p>
             </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-100 dark:divide-slate-700 text-sm">
-                <thead className="bg-slate-50 dark:bg-slate-900/60 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  <tr>
-                    <th className="px-4 py-3 text-left">模型</th>
-                    <th className="px-4 py-3 text-left">定价 / 1M tokens</th>
-                    <th className="px-4 py-3 text-left">上下文</th>
-                    <th className="px-4 py-3 text-left">国内可用</th>
-                    <th className="px-4 py-3 text-left">评分</th>
-                    <th className="px-4 py-3 text-left">来源</th>
-                    <th className="px-4 py-3 text-center">对比</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                  {filteredModels.map((model) => (
-                    <tr key={model.id} className="hover:bg-slate-50/80 dark:hover:bg-slate-800">
-                      <td className="px-4 py-4 align-top">
-                        <div className="font-semibold text-slate-900 dark:text-slate-100">{model.name}</div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400">{model.vendor} · {CATEGORY_LABELS[model.category]}</div>
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {model.tags.slice(0, 4).map((tagName) => (
-                            <span key={tagName} className="rounded-full bg-slate-100 dark:bg-slate-700 px-2 py-0.5 text-[11px] text-slate-500 dark:text-slate-300">{tagName}</span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 align-top text-xs text-slate-600 dark:text-slate-300">
-                        <div>输入：{model.pricing.inputPerMTokens}</div>
-                        <div>输出：{model.pricing.outputPerMTokens}</div>
-                        <div className="mt-1 text-slate-400">{COST_LABELS[model.costTier]}</div>
-                      </td>
-                      <td className="px-4 py-4 align-top text-slate-600 dark:text-slate-300">{model.contextWindow}</td>
-                      <td className="px-4 py-4 align-top">
-                        <span className={clsx('rounded-full px-2 py-1 text-xs font-semibold', model.china.accessible ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300')}>
-                          {model.china.accessible ? '可用' : '受限'}
-                        </span>
-                        {model.china.needsProxy && <div className="mt-1 text-xs text-amber-600 dark:text-amber-300">需代理/海外渠道</div>}
-                      </td>
-                      <td className="px-4 py-4 align-top">
-                        <div className="font-semibold text-indigo-600 dark:text-indigo-300">{averageScore(model).toFixed(1)}</div>
-                        <div className="mt-1 h-1.5 w-20 rounded-full bg-slate-100 dark:bg-slate-700">
-                          <div className="h-1.5 rounded-full bg-indigo-500" style={{ width: `${averageScore(model) * 10}%` }} />
-                        </div>
-                      </td>
-                      <td className="px-4 py-4 align-top">
-                        <a href={model.source.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-medium text-indigo-600 dark:text-indigo-300 hover:underline">
-                          {model.source.label}
-                          <ExternalLink size={11} />
-                        </a>
-                        <div className="mt-1 text-[11px] text-slate-400">核验：{model.source.checkedAt}</div>
-                      </td>
-                      <td className="px-4 py-4 align-top text-center">
-                        <button
-                          onClick={() => toggleCompare(model.id)}
-                          disabled={!selectedIds.includes(model.id) && selectedIds.length >= 4}
-                          className={clsx(
-                            'rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors',
-                            selectedIds.includes(model.id)
-                              ? 'bg-indigo-600 text-white'
-                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-slate-700 dark:text-slate-200',
-                          )}
-                        >
-                          {selectedIds.includes(model.id) ? '已选' : '选择'}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="flex gap-2 items-center">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+                className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 sm:px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                aria-label="排序方式"
+              >
+                <option value="score">按评分</option>
+                <option value="cost">按成本</option>
+                <option value="china">按国内可用</option>
+                <option value="context">按上下文</option>
+              </select>
+              <button
+                onClick={() => setFilterOpen(!filterOpen)}
+                className="lg:hidden rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm font-semibold text-slate-600 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              >
+                <Filter size={16} />
+              </button>
             </div>
           </div>
 
+          {/* Models grid / table view */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredModels.map((model) => (
+              <ModelCard
+                key={model.id}
+                model={model}
+                isSelected={selectedIds.includes(model.id)}
+                onToggle={() => toggleCompare(model.id)}
+                isDisabled={!selectedIds.includes(model.id) && selectedIds.length >= 4}
+              />
+            ))}
+          </div>
+
+          {filteredModels.length === 0 && (
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 p-8 text-center">
+              <p className="text-slate-600 dark:text-slate-300">未找到匹配的模型。请调整筛选条件。</p>
+            </div>
+          )}
+
+          {/* Recommendations */}
           <div>
-            <h2 className="mb-3 flex items-center gap-2 text-base font-bold text-slate-900 dark:text-slate-100">
+            <h2 className="mb-4 flex items-center gap-2 text-base font-bold text-slate-900 dark:text-slate-100">
               <ShieldCheck size={17} className="text-emerald-500" />
-              推荐组合卡片
+              推荐组合
             </h2>
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {DATA_STORE.recommendations.map((rec) => (
-                <article key={rec.scene} className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 p-5">
-                  <h3 className="font-semibold text-slate-900 dark:text-slate-100">{rec.scene}</h3>
-                  <dl className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                    <div className="rounded-xl bg-slate-50 dark:bg-slate-900/40 p-3"><dt className="text-slate-400">模型</dt><dd className="mt-1 font-semibold text-slate-700 dark:text-slate-200">{rec.model}</dd></div>
-                    <div className="rounded-xl bg-slate-50 dark:bg-slate-900/40 p-3"><dt className="text-slate-400">Agent</dt><dd className="mt-1 font-semibold text-slate-700 dark:text-slate-200">{rec.agent}</dd></div>
-                    <div className="rounded-xl bg-slate-50 dark:bg-slate-900/40 p-3"><dt className="text-slate-400">工具链</dt><dd className="mt-1 font-semibold text-slate-700 dark:text-slate-200">{rec.toolchain}</dd></div>
+                <article key={rec.scene} className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 p-4 sm:p-5 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-slate-900/30 transition-shadow">
+                  <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-sm">{rec.scene}</h3>
+                  <dl className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                    <div className="rounded-lg bg-slate-50 dark:bg-slate-900/40 p-2.5">
+                      <dt className="text-slate-400 font-semibold mb-1">模型</dt>
+                      <dd className="text-slate-700 dark:text-slate-200 line-clamp-2">{rec.model}</dd>
+                    </div>
+                    <div className="rounded-lg bg-slate-50 dark:bg-slate-900/40 p-2.5">
+                      <dt className="text-slate-400 font-semibold mb-1">Agent</dt>
+                      <dd className="text-slate-700 dark:text-slate-200 line-clamp-2">{rec.agent}</dd>
+                    </div>
+                    <div className="rounded-lg bg-slate-50 dark:bg-slate-900/40 p-2.5">
+                      <dt className="text-slate-400 font-semibold mb-1">工具</dt>
+                      <dd className="text-slate-700 dark:text-slate-200 line-clamp-2">{rec.toolchain}</dd>
+                    </div>
                   </dl>
-                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
                     <div>
-                      <div className="font-semibold text-emerald-600 dark:text-emerald-300">优点</div>
-                      <ul className="mt-2 list-disc pl-4 space-y-1 text-slate-600 dark:text-slate-300">{rec.pros.map((item) => <li key={item}>{item}</li>)}</ul>
+                      <div className="font-semibold text-emerald-600 dark:text-emerald-300 mb-2">✓ 优点</div>
+                      <ul className="list-disc pl-4 space-y-0.5 text-slate-600 dark:text-slate-300">
+                        {rec.pros.slice(0, 2).map((item) => (
+                          <li key={item} className="line-clamp-2 text-[11px]">{item}</li>
+                        ))}
+                      </ul>
                     </div>
                     <div>
-                      <div className="font-semibold text-amber-600 dark:text-amber-300">限制</div>
-                      <ul className="mt-2 list-disc pl-4 space-y-1 text-slate-600 dark:text-slate-300">{rec.cons.map((item) => <li key={item}>{item}</li>)}</ul>
+                      <div className="font-semibold text-amber-600 dark:text-amber-300 mb-2">✗ 限制</div>
+                      <ul className="list-disc pl-4 space-y-0.5 text-slate-600 dark:text-slate-300">
+                        {rec.cons.slice(0, 2).map((item) => (
+                          <li key={item} className="line-clamp-2 text-[11px]">{item}</li>
+                        ))}
+                      </ul>
                     </div>
                   </div>
-                  <p className="mt-4 rounded-xl bg-red-50 dark:bg-red-950/30 px-3 py-2 text-xs text-red-700 dark:text-red-300">风险：{rec.risk}</p>
+                  <p className="mt-3 rounded-lg bg-red-50 dark:bg-red-950/30 px-3 py-2 text-xs text-red-700 dark:text-red-300 line-clamp-2">
+                    风险：{rec.risk}
+                  </p>
                 </article>
               ))}
             </div>
@@ -349,61 +596,63 @@ export function AiEcosystemPage() {
         </section>
       </div>
 
+      {/* Comparison drawer - fixed bottom */}
       {selectedModels.length > 0 && (
-        <div className="fixed inset-x-3 bottom-3 z-30 mx-auto max-w-screen-xl rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-700 px-4 py-3">
-            <h2 className="flex items-center gap-2 font-bold text-slate-900 dark:text-slate-100">
-              <GitCompare size={17} className="text-indigo-500" />
-              对比抽屉（{selectedModels.length}/4）
-            </h2>
-            <button onClick={() => setSelectedIds([])} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="清空对比">
-              <X size={16} />
-            </button>
-          </div>
-          <div className="max-h-[55vh] overflow-y-auto p-4">
-            <div className="grid grid-cols-1 lg:grid-cols-[18rem_1fr] gap-4">
-              <div className="rounded-xl bg-slate-50 dark:bg-slate-800/70 p-3">
-                <RadarChart models={selectedModels} />
-                <div className="mt-2 flex flex-wrap gap-2 text-xs">
-                  {selectedModels.map((model, index) => (
-                    <span key={model.id} className="rounded-full bg-white dark:bg-slate-900 px-2 py-1 text-slate-600 dark:text-slate-300">{index + 1}. {model.name}</span>
-                  ))}
-                </div>
+        <div className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-t from-white dark:from-slate-900 via-white dark:via-slate-900 to-white/0 dark:to-slate-900/0 pt-4 pb-4">
+          <div className="px-3 sm:px-6 max-w-screen-2xl mx-auto">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden">
+              <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-700 px-4 py-3 bg-slate-50 dark:bg-slate-800/50">
+                <h2 className="flex items-center gap-2 font-bold text-slate-900 dark:text-slate-100 text-sm">
+                  <GitCompare size={16} className="text-indigo-500" />
+                  对比 ({selectedModels.length}/4)
+                </h2>
+                <button
+                  onClick={() => setSelectedIds([])}
+                  className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+                  aria-label="清空对比"
+                >
+                  <X size={16} />
+                </button>
               </div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full text-xs">
-                  <thead>
-                    <tr className="text-left text-slate-400">
-                      <th className="px-3 py-2">维度</th>
-                      {selectedModels.map((model) => <th key={model.id} className="px-3 py-2">{model.name}</th>)}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                    {SCORE_KEYS.map((key) => (
-                      <tr key={key}>
-                        <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">{SCORE_LABELS[key]}</td>
-                        {selectedModels.map((model) => <td key={model.id} className="px-3 py-2 text-slate-700 dark:text-slate-200">{model.scores[key].toFixed(1)}</td>)}
-                      </tr>
-                    ))}
-                    <tr>
-                      <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">优点</td>
-                      {selectedModels.map((model) => <td key={model.id} className="px-3 py-2 text-slate-600 dark:text-slate-300">{model.pros.join('；')}</td>)}
-                    </tr>
-                    <tr>
-                      <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">限制</td>
-                      {selectedModels.map((model) => <td key={model.id} className="px-3 py-2 text-slate-600 dark:text-slate-300">{model.cons.join('；')}</td>)}
-                    </tr>
-                    <tr>
-                      <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">合规风险</td>
-                      {selectedModels.map((model) => (
-                        <td key={model.id} className="px-3 py-2">
-                          <span className={clsx('rounded-full px-2 py-0.5 font-semibold', RISK_CLASS[model.china.complianceRisk])}>{model.china.complianceRisk}</span>
-                          <p className="mt-1 text-slate-500 dark:text-slate-400">{model.china.note}</p>
-                        </td>
+              <div className="max-h-[50vh] overflow-y-auto">
+                <div className="p-4 grid grid-cols-1 lg:grid-cols-[14rem_1fr] gap-4">
+                  {/* Radar chart */}
+                  <div className="rounded-xl bg-slate-50 dark:bg-slate-800/70 p-3 flex flex-col">
+                    <RadarChart models={selectedModels} />
+                    <div className="mt-2 flex flex-wrap gap-1 text-xs">
+                      {selectedModels.map((model, i) => (
+                        <span key={model.id} className="rounded-full bg-white dark:bg-slate-900 px-2 py-0.5 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                          {i + 1}. {model.name}
+                        </span>
                       ))}
-                    </tr>
-                  </tbody>
-                </table>
+                    </div>
+                  </div>
+                  {/* Comparison table */}
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full text-xs divide-y divide-slate-100 dark:divide-slate-700">
+                      <thead>
+                        <tr className="text-left text-slate-400 bg-slate-50 dark:bg-slate-800/50">
+                          <th className="px-3 py-2 font-semibold">维度</th>
+                          {selectedModels.map((model) => (
+                            <th key={model.id} className="px-3 py-2 font-semibold text-slate-700 dark:text-slate-200">{model.name}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                        {SCORE_KEYS.map((key) => (
+                          <tr key={key} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                            <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">{SCORE_LABELS[key]}</td>
+                            {selectedModels.map((model) => (
+                              <td key={model.id} className="px-3 py-2 text-slate-700 dark:text-slate-200">
+                                <span className="font-semibold text-indigo-600 dark:text-indigo-300">{model.scores[key].toFixed(1)}</span>
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

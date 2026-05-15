@@ -4,9 +4,9 @@ import {
   ChevronDown,
   ChevronUp,
   Lightbulb,
-  AlertTriangle,
+  TriangleAlert,
   Info,
-  CheckCircle2,
+  CircleCheckBig,
   Terminal,
 } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -50,7 +50,7 @@ function TipRow({ tip }: { tip: ScenarioTip }) {
   const { lang, t } = useLanguage();
   const icons = {
     tip: <Lightbulb size={15} className="text-amber-500 shrink-0 mt-0.5" />,
-    warning: <AlertTriangle size={15} className="text-red-500 shrink-0 mt-0.5" />,
+    warning: <TriangleAlert size={15} className="text-red-500 shrink-0 mt-0.5" />,
     info: <Info size={15} className="text-blue-500 shrink-0 mt-0.5" />,
   };
   const labels = {
@@ -173,7 +173,7 @@ function ScenarioCard({ scenario }: { scenario: Scenario }) {
                     to={`/${entry.section}?q=${encodeURIComponent(entry.name)}`}
                     className="inline-flex items-center gap-1.5 text-xs font-mono bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-indigo-50 hover:text-indigo-700 dark:hover:bg-indigo-900/30 dark:hover:text-indigo-300 px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-700 transition-colors"
                   >
-                    <CheckCircle2 size={11} className="opacity-60" />
+                    <CircleCheckBig size={11} className="opacity-60" />
                     {entry.name}
                   </Link>
                 ))}

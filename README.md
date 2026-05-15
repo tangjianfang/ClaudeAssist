@@ -39,6 +39,9 @@ ClaudeAssist 是一个功能完整的 **Claude Code 命令速查网站**，提�
 git clone https://github.com/tangjianfang/ClaudeAssist.git
 cd ClaudeAssist
 
+# 使用受支持的 Node.js LTS 版本
+# 22.13+ 或 24+
+
 # 安装依赖
 npm install
 
@@ -47,6 +50,8 @@ npm run dev
 
 # 访问 http://localhost:5173
 ```
+
+说明：当前 ESLint 工具链的部分依赖不支持 Node 23 这类奇数版本。如果你使用 Yarn，在 Node 23 上会因为 engines 校验直接失败。请切换到 Node 22.13+ 或 24+，并优先使用 npm 安装依赖。
 
 ### 构建生产版本
 

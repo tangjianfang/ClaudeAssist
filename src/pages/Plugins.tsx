@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   ExternalLink, Puzzle, Star, ChevronDown, ChevronUp,
-  Terminal, Users, Copy, Check, BarChart2, Lightbulb,
+  Terminal, Users, Copy, Check, ChartBar, Lightbulb,
   ShieldCheck, Layers,
 } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -313,7 +313,7 @@ function ComparisonTable({ isZh }: { isZh: boolean }) {
     <div className="rounded-2xl border border-slate-200 dark:border-slate-700/60 overflow-hidden">
       <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700/50">
         <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-          <BarChart2 size={16} className="text-indigo-500" />
+          <ChartBar size={16} className="text-indigo-500" />
           {t.plugins.comparisonTitle}
         </h2>
         <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{t.plugins.comparisonSubtitle}</p>

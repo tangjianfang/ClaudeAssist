@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, AlertTriangle, Share2, Star } from 'lucide-react';
+import { ChevronDown, ChevronUp, TriangleAlert, Share2, Star } from 'lucide-react';
 import { CopyButton } from './ui/CopyButton';
 import { ComplexityBadge } from './ui/ComplexityBadge';
 import { TagChip } from './ui/TagChip';
@@ -43,7 +43,7 @@ export function CommandCard({ entry, activeTag, onTagClick }: CommandCardProps) 
             </code>
             {entry.deprecated && (
               <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-300 dark:bg-amber-900/30 dark:text-amber-400 dark:ring-amber-800">
-                <AlertTriangle size={10} />
+                <TriangleAlert size={10} />
                 {t.deprecated}
               </span>
             )}

@@ -14,6 +14,8 @@ import {
   X,
   Code,
   BrainCircuit,
+  Wrench,
+  Target,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useLanguage } from '../../i18n';
@@ -97,6 +99,18 @@ export function Sidebar({ onClose }: SidebarProps) {
       <NavLink to="/ai-ecosystem" className={navLinkClass} onClick={onClose}>
         <span className="opacity-70"><BrainCircuit size={18} /></span>
         <span className="truncate">{isZh ? 'AI 生态追踪' : 'AI Ecosystem'}</span>
+      </NavLink>
+
+      {/* AI Tools */}
+      <NavLink to="/ai-tools" className={navLinkClass} onClick={onClose}>
+        <span className="opacity-70"><Wrench size={18} /></span>
+        <span className="truncate">{isZh ? 'AI 编码工具' : 'AI Tools'}</span>
+      </NavLink>
+
+      {/* Tool Combinations */}
+      <NavLink to="/tool-combinations" className={navLinkClass} onClick={onClose}>
+        <span className="opacity-70"><Target size={18} /></span>
+        <span className="truncate">{isZh ? '工具组合方案' : 'Combinations'}</span>
       </NavLink>
 
       {/* Favorites */}

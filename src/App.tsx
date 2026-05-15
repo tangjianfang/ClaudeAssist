@@ -12,6 +12,8 @@ import { FeaturesPage } from './pages/Features';
 import { PluginsPage } from './pages/Plugins';
 import { ClawCodePage } from './pages/ClawCode';
 import { AiEcosystemPage } from './pages/AiEcosystem';
+import { AiToolsPage } from './pages/AiTools';
+import { ToolCombinationsPage } from './pages/ToolCombinations';
 import { LanguageProvider } from './i18n';
 import { FavoritesProvider } from './context/FavoritesContext';
 import { useSearch, useAiModelSearch } from './hooks/useSearch';
@@ -107,6 +109,8 @@ function AppInner() {
             <Route path="/plugins" element={<PluginsPage />} />
             <Route path="/clawcode" element={<ClawCodePage />} />
             <Route path="/ai-ecosystem" element={<AiEcosystemPage />} />
+            <Route path="/ai-tools" element={<AiToolsPage />} />
+            <Route path="/tool-combinations" element={<ToolCombinationsPage />} />
             <Route path="/:sectionId" element={<SectionPage globalQuery={query} />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
