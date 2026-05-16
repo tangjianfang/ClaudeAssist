@@ -35,19 +35,34 @@ export function ReportViewerPage() {
     ? (() => {
         try {
           const parsed = JSON.parse(reportJson);
-          // Reconstruct Date objects
+          
+          // Safe date parsing helper
+          const safeParseDate = (dateValue: unknown): Date => {
+            try {
+              if (dateValue instanceof Date) return dateValue;
+              if (typeof dateValue === 'string') return new Date(dateValue);
+              if (typeof dateValue === 'number') return new Date(dateValue);
+              return new Date();
+            } catch {
+              console.warn('Failed to parse date:', dateValue);
+              return new Date();
+            }
+          };
+
+          // Validate and reconstruct Date objects
           return {
             ...parsed,
-            generatedAt: new Date(parsed.generatedAt),
+            generatedAt: safeParseDate(parsed.generatedAt),
             content: {
               ...parsed.content,
               metadata: {
-                ...parsed.content.metadata,
-                checkedAt: new Date(parsed.content.metadata.checkedAt),
+                ...parsed.content?.metadata,
+                checkedAt: safeParseDate(parsed.content?.metadata?.checkedAt),
               },
             },
           };
-        } catch {
+        } catch (err) {
+          console.error('Failed to parse report JSON:', err);
           return null;
         }
       })()

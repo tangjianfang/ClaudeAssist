@@ -17,6 +17,7 @@ export function GenerateReportPage() {
   const [selectedTools, setSelectedTools] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const tools = getTools();
 
@@ -25,21 +26,37 @@ export function GenerateReportPage() {
     setSelectedScenario(scenarios[0].id);
   }
 
+  const clearFeedback = () => {
+    setError(null);
+    setSuccessMessage(null);
+  };
+
   const handleGenerateScenarioReport = async () => {
+    clearFeedback();
+
     if (!selectedScenario) {
-      setError(isZh ? '请选择场景' : 'Please select a scenario');
+      setError(
+        isZh
+          ? '请选择场景。选择一个您想了解的决策场景。'
+          : 'Please select a scenario. Choose a decision scenario you want to explore.'
+      );
       return;
     }
 
     setLoading(true);
-    setError(null);
 
     try {
       const report = await generateScenarioReport(selectedScenario);
       sessionStorage.setItem(`report:${report.id}`, JSON.stringify(report));
-      navigate(`/reports/${report.id}`);
+      setSuccessMessage(isZh ? '报告生成成功！' : 'Report generated successfully!');
+      // Brief delay to show success message before navigation
+      setTimeout(() => navigate(`/reports/${report.id}`), 600);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate report');
+      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+      const userFriendlyError = isZh
+        ? `无法生成报告: ${errorMsg}。请检查您的选择或重试。`
+        : `Failed to generate report: ${errorMsg}. Please check your selection and try again.`;
+      setError(userFriendlyError);
       console.error('Report generation error:', err);
     } finally {
       setLoading(false);
@@ -47,20 +64,30 @@ export function GenerateReportPage() {
   };
 
   const handleGenerateToolsReport = async () => {
+    clearFeedback();
+
     if (selectedTools.size === 0) {
-      setError(isZh ? '请至少选择一个工具' : 'Please select at least one tool');
+      setError(
+        isZh
+          ? '请至少选择一个工具。选择 2 个或更多工具进行对比效果更佳。'
+          : 'Please select at least one tool. Comparing 2 or more tools works best.'
+      );
       return;
     }
 
     setLoading(true);
-    setError(null);
 
     try {
       const report = await generateToolComparisonReport(Array.from(selectedTools));
       sessionStorage.setItem(`report:${report.id}`, JSON.stringify(report));
-      navigate(`/reports/${report.id}`);
+      setSuccessMessage(isZh ? '报告生成成功！' : 'Report generated successfully!');
+      setTimeout(() => navigate(`/reports/${report.id}`), 600);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate report');
+      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+      const userFriendlyError = isZh
+        ? `无法生成报告: ${errorMsg}。请确保选择的工具有效。`
+        : `Failed to generate report: ${errorMsg}. Please ensure selected tools are valid.`;
+      setError(userFriendlyError);
       console.error('Report generation error:', err);
     } finally {
       setLoading(false);
@@ -68,15 +95,20 @@ export function GenerateReportPage() {
   };
 
   const handleGenerateModelsReport = async () => {
+    clearFeedback();
     setLoading(true);
-    setError(null);
 
     try {
       const report = await generateModelPricingReport();
       sessionStorage.setItem(`report:${report.id}`, JSON.stringify(report));
-      navigate(`/reports/${report.id}`);
+      setSuccessMessage(isZh ? '报告生成成功！' : 'Report generated successfully!');
+      setTimeout(() => navigate(`/reports/${report.id}`), 600);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate report');
+      const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+      const userFriendlyError = isZh
+        ? `无法生成报告: ${errorMsg}。请检查数据连接后重试。`
+        : `Failed to generate report: ${errorMsg}. Please check data connection and try again.`;
+      setError(userFriendlyError);
       console.error('Report generation error:', err);
     } finally {
       setLoading(false);
@@ -107,10 +139,44 @@ export function GenerateReportPage() {
         </p>
       </div>
 
-      {/* Error Message */}
+      {/* Feedback Messages */}
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400">
-          {error}
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950/30">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 text-red-600 dark:text-red-400">
+              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-red-800 dark:text-red-200">{isZh ? '生成失败' : 'Generation Failed'}</h3>
+              <p className="mt-1 text-sm text-red-700 dark:text-red-300">{error}</p>
+            </div>
+            <button
+              onClick={clearFeedback}
+              className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200"
+              title={isZh ? '关闭' : 'Close'}
+            >
+              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950/30">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 text-green-600 dark:text-green-400">
+              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-green-800 dark:text-green-200">{successMessage}</p>
+            </div>
+          </div>
         </div>
       )}
 

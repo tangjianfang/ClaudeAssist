@@ -7,35 +7,58 @@ export function ReportRenderer({ report }: { report: Report }) {
   const { lang } = useLanguage();
   const isZh = lang === 'zh-CN' || lang === 'zh-TW';
   const [copied, setCopied] = useState(false);
+  const [exportInProgress, setExportInProgress] = useState<'md' | 'json' | null>(null);
 
   const handleExportMarkdown = async () => {
-    const markdown = renderToMarkdown(report);
-    const blob = new Blob([markdown], { type: 'text/markdown' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${report.id}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
+    setExportInProgress('md');
+    try {
+      const markdown = renderToMarkdown(report);
+      const blob = new Blob([markdown], { type: 'text/markdown' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${report.id}.md`;
+      a.click();
+      URL.revokeObjectURL(url);
+      // Show brief success feedback
+      setTimeout(() => setExportInProgress(null), 500);
+    } catch (err) {
+      console.error('Markdown export error:', err);
+      alert(isZh ? '导出失败，请重试' : 'Export failed. Please try again.');
+      setExportInProgress(null);
+    }
   };
 
   const handleExportJSON = async () => {
-    const json = JSON.stringify(report, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${report.id}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
+    setExportInProgress('json');
+    try {
+      const json = JSON.stringify(report, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${report.id}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setTimeout(() => setExportInProgress(null), 500);
+    } catch (err) {
+      console.error('JSON export error:', err);
+      alert(isZh ? '导出失败，请重试' : 'Export failed. Please try again.');
+      setExportInProgress(null);
+    }
   };
 
   const handleCopyLink = async () => {
     if (report.sharingUrl) {
-      const fullUrl = `${window.location.origin}${report.sharingUrl}`;
-      await navigator.clipboard.writeText(fullUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      try {
+        const fullUrl = `${window.location.origin}${report.sharingUrl}`;
+        await navigator.clipboard.writeText(fullUrl);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2500);
+      } catch (err) {
+        console.error('Copy to clipboard error:', err);
+        alert(isZh ? '复制失败，请手动复制' : 'Copy failed. Please copy manually.');
+      }
     }
   };
 
@@ -54,19 +77,29 @@ export function ReportRenderer({ report }: { report: Report }) {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={handleExportMarkdown}
-            title={isZh ? '导出为 Markdown' : 'Export as Markdown'}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+            disabled={exportInProgress !== null}
+            title={isZh ? '导出为 Markdown 格式' : 'Export as Markdown format'}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
           >
             <Download size={16} />
-            {isZh ? 'Markdown' : 'MD'}
+            {exportInProgress === 'md' ? (
+              <span className="animate-pulse">{isZh ? '导出中' : 'Exporting'}</span>
+            ) : (
+              `${isZh ? 'Markdown' : 'MD'}`
+            )}
           </button>
           <button
             onClick={handleExportJSON}
-            title={isZh ? '导出为 JSON' : 'Export as JSON'}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+            disabled={exportInProgress !== null}
+            title={isZh ? '导出为 JSON 格式' : 'Export as JSON format'}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
           >
             <Download size={16} />
-            JSON
+            {exportInProgress === 'json' ? (
+              <span className="animate-pulse">{isZh ? '导出中' : 'Exporting'}</span>
+            ) : (
+              'JSON'
+            )}
           </button>
           <button
             onClick={handleCopyLink}
@@ -75,8 +108,8 @@ export function ReportRenderer({ report }: { report: Report }) {
           >
             {copied ? (
               <>
-                <Check size={16} />
-                {isZh ? '已复制' : 'Copied'}
+                <Check size={16} className="text-green-600 dark:text-green-400" />
+                <span className="text-green-600 dark:text-green-400">{isZh ? '已复制' : 'Copied'}</span>
               </>
             ) : (
               <>

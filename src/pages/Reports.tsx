@@ -13,42 +13,82 @@ export function ReportsPage() {
   useEffect(() => {
     const loadReports = () => {
       const reportList: Report[] = [];
+      const invalidReports: string[] = [];
+      
       Object.keys(sessionStorage).forEach((key) => {
         if (key.startsWith('report:')) {
           try {
             const reportJson = sessionStorage.getItem(key);
             if (reportJson) {
               const parsed = JSON.parse(reportJson);
+              
+              // Safe date parsing
+              const safeParseDate = (dateValue: unknown): Date => {
+                try {
+                  if (dateValue instanceof Date) return dateValue;
+                  if (typeof dateValue === 'string') return new Date(dateValue);
+                  if (typeof dateValue === 'number') return new Date(dateValue);
+                  return new Date();
+                } catch {
+                  return new Date();
+                }
+              };
+
               const report: Report = {
                 ...parsed,
-                generatedAt: new Date(parsed.generatedAt),
+                generatedAt: safeParseDate(parsed.generatedAt),
                 content: {
                   ...parsed.content,
                   metadata: {
-                    ...parsed.content.metadata,
-                    checkedAt: new Date(parsed.content.metadata.checkedAt),
+                    ...parsed.content?.metadata,
+                    checkedAt: safeParseDate(parsed.content?.metadata?.checkedAt),
                   },
                 },
               };
               reportList.push(report);
             }
-          } catch {
-            // Ignore parse errors
+          } catch (err) {
+            // Track invalid reports for potential cleanup
+            console.warn(`Failed to load report ${key}:`, err);
+            invalidReports.push(key);
           }
         }
       });
+      
       // Sort by most recent first
       reportList.sort((a, b) => b.generatedAt.getTime() - a.generatedAt.getTime());
       setReports(reportList);
+      
+      // Clean up invalid reports silently
+      invalidReports.forEach((key) => {
+        try {
+          sessionStorage.removeItem(key);
+        } catch {
+          // Ignore cleanup errors
+        }
+      });
     };
 
     loadReports();
   }, []);
 
   const handleDeleteReport = (reportId: string) => {
-    if (confirm(isZh ? '确定删除这份报告吗?' : 'Are you sure you want to delete this report?')) {
-      sessionStorage.removeItem(`report:${reportId}`);
-      setReports(reports.filter((r) => r.id !== reportId));
+    const report = reports.find(r => r.id === reportId);
+    const reportName = report 
+      ? (isZh ? report.titleZh || report.title : report.title)
+      : reportId;
+    
+    if (confirm(isZh 
+      ? `确定删除报告 "${reportName}" 吗?此操作无法撤销。` 
+      : `Are you sure you want to delete "${reportName}"? This action cannot be undone.`
+    )) {
+      try {
+        sessionStorage.removeItem(`report:${reportId}`);
+        setReports(reports.filter((r) => r.id !== reportId));
+      } catch (err) {
+        console.error('Failed to delete report:', err);
+        alert(isZh ? '删除失败，请重试' : 'Failed to delete. Please try again.');
+      }
     }
   };
 
