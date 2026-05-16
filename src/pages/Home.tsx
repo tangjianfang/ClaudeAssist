@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Globe } from 'lucide-react';
 import { useLanguage } from '../i18n';
 import { allEntries, sectionEntries } from '../data';
 import { CommandCard } from '../components/CommandCard';
+import { DecisionWorkbench } from '../components/decision/DecisionWorkbench';
 import type { SectionId } from '../data/types';
 
 const BEGINNER_PICKS: Array<{ section: SectionId; id: string }> = [
@@ -26,39 +26,11 @@ export function HomePage() {
   const sectionIds = Object.keys(sectionEntries) as SectionId[];
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6 space-y-10">
-      {/* Hero */}
-      <section className="text-center space-y-3 pt-4 pb-2">
-        <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white whitespace-pre-line leading-tight">
-          {t.home.heroTitle}
-        </h1>
-        <p className="text-base text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
-          {t.home.heroSubtitle}
-        </p>
-        <p className="text-sm text-indigo-600 dark:text-indigo-400 font-medium">
-          {t.home.stats(allEntries.length)}
-        </p>
-        <p className="text-xs text-slate-400 dark:text-slate-500">
-          {t.home.versionInfo(__APP_VERSION__, __APP_UPDATED_AT__)}
-        </p>
-        <div className="flex flex-wrap justify-center gap-3 pt-1">
-          <Link
-            to="/slash-commands"
-            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors"
-          >
-            {t.home.getStarted}
-            <ArrowRight size={14} />
-          </Link>
-          <a
-            href="https://code.claude.com/docs"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-          >
-            {t.openDocs}
-            <Globe size={14} />
-          </a>
-        </div>
+    <div className="max-w-screen-2xl mx-auto px-4 md:px-6 py-6 space-y-10">
+      <DecisionWorkbench />
+
+      <section className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/40 px-4 py-3 text-xs text-slate-500 dark:text-slate-400">
+        参考资料库仍保留 {allEntries.length} 条 Claude Code 命令、flag、设置与场景记录；它现在服务于决策工作台，而不是作为唯一入口。版本：{__APP_VERSION__} · 更新：{__APP_UPDATED_AT__}
       </section>
 
       {/* Section overview */}

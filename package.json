@@ -12,7 +12,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "validate:data": "node scripts/validate-data.mjs",
-    "check": "npm run lint && npm run build && npm run validate:data"
+    "check": "npm run lint && npm run test:decision && npm run build && npm run validate:data",
+    "test:decision": "tsx tests/decision-recommendations.test.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",
@@ -42,6 +43,7 @@
     "eslint-plugin-react-refresh": "^0.4.16",
     "globals": "^15.14.0",
     "tailwindcss": "^4.0.0",
+    "tsx": "^4.22.0",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.18.2",
     "vite": "^6.0.5"
