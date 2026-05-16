@@ -3,6 +3,7 @@ import { ChartBar, ExternalLink, Filter, GitCompare, RefreshCw, Search, ShieldCh
 import { clsx } from 'clsx';
 import { DATA_STORE, SCORE_KEYS, SCORE_LABELS } from '../data/ai-ecosystem';
 import type { AiModel, AiModelCategory, CostTier } from '../data/ai-ecosystem';
+import { RadarChart } from '../components/charts/RadarChart';
 
 const CATEGORY_LABELS: Record<AiModelCategory, string> = {
   frontier: '前沿通用',
@@ -35,58 +36,18 @@ function contextWindowTokens(model: AiModel) {
   return match[2].toUpperCase() === 'M' ? value * 1_000_000 : value * 1_000;
 }
 
-function scorePolygon(model: AiModel, size = 180) {
-  const center = size / 2;
-  const radius = size * 0.38;
-  return SCORE_KEYS.map((key, index) => {
-    const angle = -Math.PI / 2 + (Math.PI * 2 * index) / SCORE_KEYS.length;
-    const valueRadius = radius * (model.scores[key] / 10);
-    return `${center + Math.cos(angle) * valueRadius},${center + Math.sin(angle) * valueRadius}`;
-  }).join(' ');
-}
-
-function gridPolygon(step: number, size = 180) {
-  const center = size / 2;
-  const radius = size * 0.38 * step;
-  return SCORE_KEYS.map((_, index) => {
-    const angle = -Math.PI / 2 + (Math.PI * 2 * index) / SCORE_KEYS.length;
-    return `${center + Math.cos(angle) * radius},${center + Math.sin(angle) * radius}`;
-  }).join(' ');
-}
-
-function RadarChart({ models }: { models: AiModel[] }) {
+function AiModelRadarChart({ models }: { models: AiModel[] }) {
   const colors = ['#4f46e5', '#059669', '#d97706', '#dc2626'];
   return (
-    <svg viewBox="0 0 180 180" className="h-56 w-full max-w-sm">
-      {[0.25, 0.5, 0.75, 1].map((step) => (
-        <polygon key={step} points={gridPolygon(step)} fill="none" stroke="currentColor" className="text-slate-200 dark:text-slate-700" strokeWidth="1" />
-      ))}
-      {SCORE_KEYS.map((key, index) => {
-        const angle = -Math.PI / 2 + (Math.PI * 2 * index) / SCORE_KEYS.length;
-        const endX = 90 + Math.cos(angle) * 76;
-        const endY = 90 + Math.sin(angle) * 76;
-        const labelX = 90 + Math.cos(angle) * 86;
-        const labelY = 90 + Math.sin(angle) * 86;
-        return (
-          <g key={key}>
-            <line x1="90" y1="90" x2={endX} y2={endY} stroke="currentColor" className="text-slate-200 dark:text-slate-700" />
-            <text x={labelX} y={labelY} textAnchor="middle" dominantBaseline="middle" className="fill-slate-500 dark:fill-slate-400 text-[9px]">
-              {SCORE_LABELS[key]}
-            </text>
-          </g>
-        );
-      })}
-      {models.map((model, index) => (
-        <polygon
-          key={model.id}
-          points={scorePolygon(model)}
-          fill={colors[index % colors.length]}
-          fillOpacity="0.12"
-          stroke={colors[index % colors.length]}
-          strokeWidth="2"
-        />
-      ))}
-    </svg>
+    <RadarChart
+      axisLabels={SCORE_KEYS.map((k) => SCORE_LABELS[k])}
+      series={models.map((model, index) => ({
+        id: model.id,
+        name: model.name,
+        color: colors[index % colors.length],
+        values: SCORE_KEYS.map((k) => model.scores[k]),
+      }))}
+    />
   );
 }
 
@@ -618,7 +579,7 @@ export function AiEcosystemPage() {
                 <div className="p-4 grid grid-cols-1 lg:grid-cols-[14rem_1fr] gap-4">
                   {/* Radar chart */}
                   <div className="rounded-xl bg-slate-50 dark:bg-slate-800/70 p-3 flex flex-col">
-                    <RadarChart models={selectedModels} />
+                    <AiModelRadarChart models={selectedModels} />
                     <div className="mt-2 flex flex-wrap gap-1 text-xs">
                       {selectedModels.map((model, i) => (
                         <span key={model.id} className="rounded-full bg-white dark:bg-slate-900 px-2 py-0.5 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700">

@@ -1,11 +1,22 @@
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ChartBar, ExternalLink, Filter, Search, X, ChevronDown, Zap, Layers } from 'lucide-react';
 import { clsx } from 'clsx';
-import { DATA_STORE, TOOL_CATEGORY_LABELS, COST_LABELS } from '../data/ai-ecosystem';
+import { DATA_STORE, TOOL_CATEGORY_LABELS, TOOL_SCORE_KEYS, TOOL_SCORE_LABELS, COST_LABELS } from '../data/ai-ecosystem';
 import type { AiTool, AiToolCategory, CostTier } from '../data/ai-ecosystem';
 import { ToolCard } from '../components/ToolCard';
+import { ReportActions } from '../components/reports/ReportActions';
+import { BarCompareChart } from '../components/charts/BarCompareChart';
+import {
+  buildToolCompareUrl,
+  parseToolCompareParams,
+  buildToolMarkdown,
+  downloadSvgElement,
+} from '../utils/report-share';
 
 export function AiToolsPage() {
+  const [searchParams] = useSearchParams();
+  const svgRef = useRef<SVGSVGElement>(null);
   const [searchInput, setSearchInput] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -30,6 +41,16 @@ export function AiToolsPage() {
   const [sortBy, setSortBy] = useState<'score' | 'cost' | 'name' | 'popularity'>('score');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [copyFeedback, setCopyFeedback] = useState<'link' | 'md' | null>(null);
+
+  // Step 29: mount 时从 URL 恢复对比选择（过滤未知 id，去重，最多 4 个）
+  const validToolIds = useMemo(() => new Set(DATA_STORE.tools.map((t) => t.id)), []);
+  useEffect(() => {
+    const { ids } = parseToolCompareParams(searchParams, validToolIds);
+    if (ids.length > 0) setSelectedIds(ids);
+    // 仅在 mount 时执行一次
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // 获取所有不同的功能特性用于过滤
   const allFeatures = useMemo(() => {
@@ -362,17 +383,53 @@ export function AiToolsPage() {
                 <h2 className="flex items-center gap-2 font-bold text-slate-900 dark:text-slate-100 text-sm">
                   <Layers size={16} className="text-indigo-500" />
                   工具对比 ({selectedTools.length}/4)
+                  {copyFeedback && (
+                    <span className="ml-2 text-xs font-normal text-emerald-600 dark:text-emerald-400">
+                      {copyFeedback === 'link' ? '链接已复制 ✓' : 'Markdown 已复制 ✓'}
+                    </span>
+                  )}
                 </h2>
-                <button
-                  onClick={() => setSelectedIds([])}
-                  className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
-                  aria-label="清空对比"
-                >
-                  <X size={16} />
-                </button>
+                <div className="flex items-center gap-1">
+                  <ReportActions
+                    onCopyLink={() => {
+                      navigator.clipboard.writeText(buildToolCompareUrl(selectedIds));
+                      setCopyFeedback('link');
+                      setTimeout(() => setCopyFeedback(null), 2000);
+                    }}
+                    onCopyMarkdown={() => {
+                      navigator.clipboard.writeText(buildToolMarkdown(selectedTools));
+                      setCopyFeedback('md');
+                      setTimeout(() => setCopyFeedback(null), 2000);
+                    }}
+                    onDownloadSvg={() => {
+                      if (svgRef.current) downloadSvgElement(svgRef.current, 'tool-compare.svg');
+                    }}
+                  />
+                  <button
+                    onClick={() => setSelectedIds([])}
+                    className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
+                    aria-label="清空对比"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
               </div>
-              <div className="max-h-[50vh] overflow-y-auto p-4">
-                <div className="overflow-x-auto">
+              <div className="max-h-[55vh] overflow-y-auto">
+                {/* Score bar chart (SVG, download target via svgRef) */}
+                <div className="p-4 border-b border-slate-100 dark:border-slate-700">
+                  <BarCompareChart
+                    ref={svgRef}
+                    dims={TOOL_SCORE_KEYS.map((k) => ({ key: k, label: TOOL_SCORE_LABELS[k] }))}
+                    series={selectedTools.map((t, i) => ({
+                      id: t.id,
+                      name: t.name,
+                      color: ['#4f46e5', '#059669', '#d97706', '#dc2626'][i % 4],
+                      values: Object.fromEntries(TOOL_SCORE_KEYS.map((k) => [k, t.scores[k]])),
+                    }))}
+                    className="w-full max-w-xl"
+                  />
+                </div>
+                <div className="p-4 overflow-x-auto">
                   <table className="min-w-full text-xs divide-y divide-slate-100 dark:divide-slate-700">
                     <thead>
                       <tr className="text-left text-slate-400 bg-slate-50 dark:bg-slate-800/50">
