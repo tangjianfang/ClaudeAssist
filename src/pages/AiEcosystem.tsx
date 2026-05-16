@@ -1,6 +1,6 @@
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { ChartBar, ExternalLink, Filter, GitCompare, RefreshCw, Search, ShieldCheck, X, ChevronDown, Zap } from 'lucide-react';
+import { ChartBar, ExternalLink, Filter, GitCompare, Search, ShieldCheck, X, ChevronDown, Zap } from 'lucide-react';
 import { clsx } from 'clsx';
 import { DATA_STORE, SCORE_KEYS, SCORE_LABELS } from '../data/ai-ecosystem';
 import type { AiModel, AiModelCategory, CostTier } from '../data/ai-ecosystem';
@@ -19,12 +19,6 @@ const COST_LABELS: Record<CostTier, string> = {
   low: '低成本',
   medium: '中等',
   high: '高成本',
-};
-
-const RISK_CLASS = {
-  low: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
-  medium: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-  high: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300',
 };
 
 function averageScore(model: AiModel) {
@@ -234,13 +228,13 @@ export function AiEcosystemPage() {
   
   // Debounced search
   useEffect(() => {
-    searchTimeoutRef.current && clearTimeout(searchTimeoutRef.current);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     searchTimeoutRef.current = setTimeout(() => {
       setSearchQuery(searchInput);
     }, 300);
     
     return () => {
-      searchTimeoutRef.current && clearTimeout(searchTimeoutRef.current);
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     };
   }, [searchInput]);
 
@@ -251,7 +245,6 @@ export function AiEcosystemPage() {
   const [tag, setTag] = useState('all');
   const [sortBy, setSortBy] = useState<'score' | 'cost' | 'context' | 'china'>('score');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [viewMode, setViewMode] = useState<'auto' | 'cards' | 'table'>('auto');
   const [filterOpen, setFilterOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
 

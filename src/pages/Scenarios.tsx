@@ -14,7 +14,6 @@ import { useLanguage } from '../i18n';
 import { scenarios, scenarioCategories, allEntries } from '../data';
 import type { Scenario, ScenarioTip, ScenarioDifficulty } from '../data/scenario-types';
 import { bi } from '../data/scenario-types';
-import { ComplexityBadge } from '../components/ui/ComplexityBadge';
 import { CopyButton } from '../components/ui/CopyButton';
 
 // ─── Difficulty pill ─────────────────────────────────────────────────────────
@@ -22,13 +21,6 @@ const DIFF_COLORS: Record<ScenarioDifficulty, string> = {
   beginner: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
   intermediate: 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
   advanced: 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300',
-};
-
-// Map scenario difficulty → CommandEntry complexity label
-const DIFF_TO_COMPLEXITY: Record<ScenarioDifficulty, 'beginner' | 'intermediate' | 'advanced'> = {
-  beginner: 'beginner',
-  intermediate: 'intermediate',
-  advanced: 'advanced',
 };
 
 function DifficultyPill({ difficulty }: { difficulty: ScenarioDifficulty }) {

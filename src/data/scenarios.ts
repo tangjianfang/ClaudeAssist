@@ -1,4 +1,4 @@
-import type { Scenario, ScenarioCategory } from './scenario-types';
+import type { Scenario } from './scenario-types';
 
 export const scenarios: Scenario[] = [
   // ─── PROTOTYPING ───────────────────────────────────────────────────────────

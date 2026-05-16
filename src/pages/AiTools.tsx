@@ -1,9 +1,9 @@
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { ChartBar, ExternalLink, Filter, Search, X, ChevronDown, Zap, Layers } from 'lucide-react';
+import { ChartBar, Filter, Search, X, Zap, Layers } from 'lucide-react';
 import { clsx } from 'clsx';
 import { DATA_STORE, TOOL_CATEGORY_LABELS, TOOL_SCORE_KEYS, TOOL_SCORE_LABELS, COST_LABELS } from '../data/ai-ecosystem';
-import type { AiTool, AiToolCategory, CostTier } from '../data/ai-ecosystem';
+import type { AiToolCategory, CostTier } from '../data/ai-ecosystem';
 import { ToolCard } from '../components/ToolCard';
 import { ReportActions } from '../components/reports/ReportActions';
 import { BarCompareChart } from '../components/charts/BarCompareChart';
@@ -23,13 +23,13 @@ export function AiToolsPage() {
   
   // Debounced search
   useEffect(() => {
-    searchTimeoutRef.current && clearTimeout(searchTimeoutRef.current);
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     searchTimeoutRef.current = setTimeout(() => {
       setSearchQuery(searchInput);
     }, 300);
     
     return () => {
-      searchTimeoutRef.current && clearTimeout(searchTimeoutRef.current);
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     };
   }, [searchInput]);
 
@@ -50,15 +50,6 @@ export function AiToolsPage() {
     if (ids.length > 0) setSelectedIds(ids);
     // 仅在 mount 时执行一次
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // 获取所有不同的功能特性用于过滤
-  const allFeatures = useMemo(() => {
-    const features = new Set<string>();
-    DATA_STORE.tools.forEach(tool => {
-      tool.features.forEach(f => features.add(f));
-    });
-    return Array.from(features).sort();
   }, []);
 
   // 获取所有不同的兼容环境
@@ -113,7 +104,7 @@ export function AiToolsPage() {
     // 按功能特性
     if (selectedFeatures.length > 0) {
       result = result.filter(tool =>
-        selectedFeatures.every(feature => tool.features.includes(feature as any))
+        selectedFeatures.every(feature => tool.features.some(f => f === feature))
       );
     }
 

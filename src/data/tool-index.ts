@@ -2,7 +2,7 @@
  * Tool indexing utilities for fast search and filtering
  */
 
-import { DATA_STORE, TOOL_CATEGORY_LABELS, TOOL_FEATURE_LABELS } from './ai-ecosystem';
+import { DATA_STORE } from './ai-ecosystem';
 import type { AiTool, AiToolCategory, AiToolFeature } from './ai-ecosystem';
 
 // Index of tools by category

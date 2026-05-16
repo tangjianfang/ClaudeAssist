@@ -1,8 +1,6 @@
 import { useMemo, useState } from 'react';
-import { ExternalLink, Filter, Search, Zap, Target, TrendingUp, CircleAlert, CircleCheck, Clock } from 'lucide-react';
-import { clsx } from 'clsx';
-import { DATA_STORE, getToolById } from '../data/ai-ecosystem';
-import type { AiToolCombination } from '../data/ai-ecosystem';
+import { Filter, Search, Zap, Target, TrendingUp, CircleAlert, CircleCheck, Clock } from 'lucide-react';
+import { DATA_STORE } from '../data/ai-ecosystem';
 
 export function ToolCombinationsPage() {
   const [searchQuery, setSearchQuery] = useState('');
