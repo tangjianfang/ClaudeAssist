@@ -6,9 +6,22 @@
  */
 
 import { DATA_STORE } from '../ai-ecosystem';
+import { getVendorLogo } from '../vendor-logos';
 import type { AiModel, AiModelCategory, CostTier } from '../ai-ecosystem';
 
 export type { AiModel, AiModelCategory, CostTier };
+
+/** 为模型添加厂商 logo */
+function enrichModelWithLogo(model: AiModel): AiModel {
+  if (model.logo) {
+    return model; // 已有 logo，不覆盖
+  }
+  const vendorLogo = getVendorLogo(model.vendor);
+  if (vendorLogo) {
+    return { ...model, logo: vendorLogo };
+  }
+  return model;
+}
 
 /** 获取所有模型列表（可选按分类/成本过滤） */
 export function getModels(filter?: {
@@ -32,12 +45,13 @@ export function getModels(filter?: {
     result = result.filter((m) => filter.tags!.some((tag) => m.tags.includes(tag)));
   }
 
-  return result;
+  return result.map(enrichModelWithLogo);
 }
 
 /** 按 id 查找模型；找不到返回 undefined */
 export function getModelById(id: string): AiModel | undefined {
-  return DATA_STORE.models.find((m) => m.id === id);
+  const model = DATA_STORE.models.find((m) => m.id === id);
+  return model ? enrichModelWithLogo(model) : undefined;
 }
 
 /** 获取所有模型 id 列表 */

@@ -13,6 +13,11 @@ export interface AiModel {
   id: string;
   name: string;
   vendor: string;
+  /** 厂商 logo URL，支持 PNG/SVG；可选 */
+  logo?: {
+    url: string;
+    alt: string;
+  };
   category: AiModelCategory;
   version: string;
   contextWindow: string;
@@ -88,6 +93,11 @@ export interface AiTool {
   id: string;
   name: string;
   vendor: string;
+  /** 厂商 logo URL，支持 PNG/SVG；可选 */
+  logo?: {
+    url: string;
+    alt: string;
+  };
   category: AiToolCategory;
   version: string;
   compatible: string[]; // 兼容的 IDE/编辑器，如 'VSCode', 'JetBrains', 'Neovim' 等

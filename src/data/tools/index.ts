@@ -7,6 +7,7 @@
 
 import { DATA_STORE } from '../ai-ecosystem';
 import { getHydratedScenarioRecommendation } from '../decision-scenarios';
+import { getVendorLogo } from '../vendor-logos';
 import type { AiModel, AiTool, AiToolCategory, AiToolFeature } from '../ai-ecosystem';
 import type { DecisionScenarioId } from '../decision-scenarios';
 
@@ -45,6 +46,18 @@ export function defineTool(tool: AiTool): AiTool {
   return tool;
 }
 
+/** 为工具添加厂商 logo */
+function enrichToolWithLogo(tool: AiTool): AiTool {
+  if (tool.logo) {
+    return tool; // 已有 logo，不覆盖
+  }
+  const vendorLogo = getVendorLogo(tool.vendor);
+  if (vendorLogo) {
+    return { ...tool, logo: vendorLogo };
+  }
+  return tool;
+}
+
 /** 获取所有工具列表（可选过滤） */
 export function getTools(filter?: {
   category?: AiToolCategory;
@@ -71,18 +84,20 @@ export function getTools(filter?: {
     result = result.filter((t) => t.china.accessible === filter.chinaAccessible);
   }
 
-  return result;
+  return result.map(enrichToolWithLogo);
 }
 
 /** 按 id 查找工具；找不到返回 undefined */
 export function getToolById(id: string): AiTool | undefined {
-  return DATA_STORE.tools.find((t) => t.id === id);
+  const tool = DATA_STORE.tools.find((t) => t.id === id);
+  return tool ? enrichToolWithLogo(tool) : undefined;
 }
 
 /** 按名称（大小写不敏感）查找工具 */
 export function getToolByName(name: string): AiTool | undefined {
   const lower = name.toLowerCase();
-  return DATA_STORE.tools.find((t) => t.name.toLowerCase() === lower);
+  const tool = DATA_STORE.tools.find((t) => t.name.toLowerCase() === lower);
+  return tool ? enrichToolWithLogo(tool) : undefined;
 }
 
 /** 获取所有工具 id 列表 */

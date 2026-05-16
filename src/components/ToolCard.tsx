@@ -26,7 +26,17 @@ export function ToolCard({ tool, isSelected, onToggle, isDisabled }: ToolCardPro
       <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-700">
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <h3 className="font-bold text-slate-900 dark:text-slate-100 line-clamp-2">{tool.name}</h3>
+            <div className="flex items-center gap-2">
+              {tool.logo && (
+                <img
+                  src={tool.logo.url}
+                  alt={tool.logo.alt}
+                  className="w-6 h-6 rounded object-contain"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+              )}
+              <h3 className="font-bold text-slate-900 dark:text-slate-100 line-clamp-2">{tool.name}</h3>
+            </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{tool.vendor}</p>
             <div className="flex items-center gap-2 mt-2 flex-wrap">
               <span className="rounded-full bg-indigo-100 dark:bg-indigo-900/40 px-2 py-0.5 text-[11px] font-semibold text-indigo-700 dark:text-indigo-300">

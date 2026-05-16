@@ -68,7 +68,17 @@ function ModelCard({
         {/* Header */}
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <h3 className="font-bold text-slate-900 dark:text-slate-100 truncate">{model.name}</h3>
+            <div className="flex items-center gap-2">
+              {model.logo && (
+                <img
+                  src={model.logo.url}
+                  alt={model.logo.alt}
+                  className="w-5 h-5 rounded object-contain"
+                  onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                />
+              )}
+              <h3 className="font-bold text-slate-900 dark:text-slate-100 truncate">{model.name}</h3>
+            </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{model.vendor}</p>
             <div className="mt-2 flex flex-wrap gap-1">
               <span className="inline-block rounded-full bg-indigo-100 dark:bg-indigo-900/30 px-2 py-0.5 text-[11px] text-indigo-700 dark:text-indigo-300">
