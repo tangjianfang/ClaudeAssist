@@ -21,8 +21,35 @@ export interface AiModel {
     currency: 'USD' | 'CNY';
     inputPerMTokens: string;
     outputPerMTokens: string;
+    /** 缓存命中输入价格；null = 不提供或未核验 */
+    cachedInputPerMTokens?: string | null;
+    /** 批量处理输入价格；null = 不提供或未核验 */
+    batchInputPerMTokens?: string | null;
+    /** 免费层级说明；null = 无免费层或未核验 */
+    freeTier?: string | null;
+    /** 可选套餐列表（如 Pro / Enterprise） */
+    plans?: string[];
     notes: string;
     officialUrl: string;
+  };
+  /** 能力披露（可选；未核验时整体缺省） */
+  capability?: {
+    /** 最大输出 tokens；null = 未披露 */
+    maxOutput: string | null;
+    /** 是否支持 Function Calling / Tool Use */
+    toolUse: boolean;
+    /** 是否支持结构化输出 / JSON Mode */
+    structuredOutput: boolean;
+    /** 支持的输入模态；null = 仅文本或未核验 */
+    multimodalIn: string[] | null;
+    /** 支持的输出模态；null = 仅文本或未核验 */
+    multimodalOut: string[] | null;
+    /** 部署方式：cloud / local / edge */
+    deployment: string[];
+    /** 可用区域；null = 未明确限制或未核验 */
+    regions: string[] | null;
+    /** 已知限制说明；null = 无已知重大限制 */
+    limitations: string | null;
   };
   scores: AiScores;
   china: {
@@ -140,8 +167,22 @@ export const DATA_STORE: AiEcosystemDataStore = {
         currency: 'USD',
         inputPerMTokens: '$5.00',
         outputPerMTokens: '$30.00',
+        cachedInputPerMTokens: '$2.50',
+        batchInputPerMTokens: null,
+        freeTier: null,
+        plans: ['pay-as-you-go', 'batch'],
         notes: 'Latest flagship model for complex reasoning and coding. Batch and Flex priority pricing available.',
         officialUrl: 'https://developers.openai.com/api/docs/pricing',
+      },
+      capability: {
+        maxOutput: '16K tokens',
+        toolUse: true,
+        structuredOutput: true,
+        multimodalIn: ['text', 'image'],
+        multimodalOut: ['text'],
+        deployment: ['cloud'],
+        regions: null,
+        limitations: null,
       },
       scores: { reasoning: 9.7, coding: 9.6, toolUse: 9.5, consistency: 9.3, latency: 7.5 },
       china: {
@@ -173,8 +214,22 @@ export const DATA_STORE: AiEcosystemDataStore = {
         currency: 'USD',
         inputPerMTokens: '$2.50',
         outputPerMTokens: '$15.00',
+        cachedInputPerMTokens: '$1.25',
+        batchInputPerMTokens: null,
+        freeTier: null,
+        plans: ['pay-as-you-go', 'batch'],
         notes: 'More affordable alternative to GPT-5.5 with strong performance. Batch and Flex pricing available.',
         officialUrl: 'https://developers.openai.com/api/docs/pricing',
+      },
+      capability: {
+        maxOutput: '16K tokens',
+        toolUse: true,
+        structuredOutput: true,
+        multimodalIn: ['text', 'image'],
+        multimodalOut: ['text'],
+        deployment: ['cloud'],
+        regions: null,
+        limitations: null,
       },
       scores: { reasoning: 9.3, coding: 9.2, toolUse: 9.1, consistency: 9.0, latency: 7.8 },
       china: {
@@ -206,8 +261,22 @@ export const DATA_STORE: AiEcosystemDataStore = {
         currency: 'USD',
         inputPerMTokens: '$0.75',
         outputPerMTokens: '$4.50',
+        cachedInputPerMTokens: '$0.375',
+        batchInputPerMTokens: null,
+        freeTier: null,
+        plans: ['pay-as-you-go'],
         notes: 'Strong mini model for coding, computer use, and cost-conscious deployments.',
         officialUrl: 'https://developers.openai.com/api/docs/pricing',
+      },
+      capability: {
+        maxOutput: '16K tokens',
+        toolUse: true,
+        structuredOutput: true,
+        multimodalIn: ['text', 'image'],
+        multimodalOut: ['text'],
+        deployment: ['cloud'],
+        regions: null,
+        limitations: 'Smaller context window (400K vs 1M)',
       },
       scores: { reasoning: 8.8, coding: 9.0, toolUse: 8.8, consistency: 8.7, latency: 8.5 },
       china: {
@@ -239,8 +308,22 @@ export const DATA_STORE: AiEcosystemDataStore = {
         currency: 'USD',
         inputPerMTokens: '$5.00',
         outputPerMTokens: '$25.00',
+        cachedInputPerMTokens: '$0.50',
+        batchInputPerMTokens: '$2.50',
+        freeTier: null,
+        plans: ['pay-as-you-go', 'batch'],
         notes: 'Most capable model for complex reasoning and agentic coding. Batch processing available at 50% discount.',
         officialUrl: 'https://platform.claude.com/docs/en/docs/about-claude/pricing',
+      },
+      capability: {
+        maxOutput: '32K tokens',
+        toolUse: true,
+        structuredOutput: true,
+        multimodalIn: ['text', 'image', 'document'],
+        multimodalOut: ['text'],
+        deployment: ['cloud', 'aws-bedrock', 'gcp-vertex'],
+        regions: null,
+        limitations: null,
       },
       scores: { reasoning: 9.6, coding: 9.7, toolUse: 9.4, consistency: 9.4, latency: 7.2 },
       china: {
@@ -272,8 +355,22 @@ export const DATA_STORE: AiEcosystemDataStore = {
         currency: 'USD',
         inputPerMTokens: '$5.00',
         outputPerMTokens: '$25.00',
+        cachedInputPerMTokens: '$0.50',
+        batchInputPerMTokens: '$2.50',
+        freeTier: null,
+        plans: ['pay-as-you-go', 'batch'],
         notes: 'Previous flagship model; pricing same as Opus 4.7. Maintained for compatibility.',
         officialUrl: 'https://platform.claude.com/docs/en/docs/about-claude/pricing',
+      },
+      capability: {
+        maxOutput: '32K tokens',
+        toolUse: true,
+        structuredOutput: true,
+        multimodalIn: ['text', 'image', 'document'],
+        multimodalOut: ['text'],
+        deployment: ['cloud', 'aws-bedrock', 'gcp-vertex'],
+        regions: null,
+        limitations: null,
       },
       scores: { reasoning: 9.5, coding: 9.6, toolUse: 9.3, consistency: 9.3, latency: 7.2 },
       china: {
@@ -305,8 +402,22 @@ export const DATA_STORE: AiEcosystemDataStore = {
         currency: 'USD',
         inputPerMTokens: '$3.00',
         outputPerMTokens: '$15.00',
+        cachedInputPerMTokens: '$0.30',
+        batchInputPerMTokens: '$1.50',
+        freeTier: null,
+        plans: ['pay-as-you-go', 'batch'],
         notes: 'Best balance of speed and intelligence. Extended thinking available.',
         officialUrl: 'https://platform.claude.com/docs/en/docs/about-claude/pricing',
+      },
+      capability: {
+        maxOutput: '64K tokens',
+        toolUse: true,
+        structuredOutput: true,
+        multimodalIn: ['text', 'image', 'document'],
+        multimodalOut: ['text'],
+        deployment: ['cloud', 'aws-bedrock', 'gcp-vertex'],
+        regions: null,
+        limitations: null,
       },
       scores: { reasoning: 9.2, coding: 9.5, toolUse: 9.1, consistency: 9.2, latency: 7.5 },
       china: {
@@ -338,8 +449,22 @@ export const DATA_STORE: AiEcosystemDataStore = {
         currency: 'USD',
         inputPerMTokens: '$1.00',
         outputPerMTokens: '$5.00',
+        cachedInputPerMTokens: '$0.10',
+        batchInputPerMTokens: '$0.50',
+        freeTier: null,
+        plans: ['pay-as-you-go', 'batch'],
         notes: 'Fastest and most affordable Claude model with strong capabilities.',
         officialUrl: 'https://platform.claude.com/docs/en/docs/about-claude/pricing',
+      },
+      capability: {
+        maxOutput: '8K tokens',
+        toolUse: true,
+        structuredOutput: true,
+        multimodalIn: ['text', 'image'],
+        multimodalOut: ['text'],
+        deployment: ['cloud', 'aws-bedrock', 'gcp-vertex'],
+        regions: null,
+        limitations: '200K context (vs 1M for Opus/Sonnet)',
       },
       scores: { reasoning: 8.5, coding: 8.8, toolUse: 8.4, consistency: 8.3, latency: 9.0 },
       china: {
@@ -371,8 +496,22 @@ export const DATA_STORE: AiEcosystemDataStore = {
         currency: 'USD',
         inputPerMTokens: '$2.00 (<=200K) / $4.00 (>200K)',
         outputPerMTokens: '$12.00 (<=200K) / $18.00 (>200K)',
+        cachedInputPerMTokens: '$0.50 (<=200K) / $1.00 (>200K)',
+        batchInputPerMTokens: null,
+        freeTier: '15 req/min free via Gemini API (rate limited)',
+        plans: ['pay-as-you-go'],
         notes: 'Google\'s latest frontier model with state-of-the-art reasoning. Tiered pricing by context length.',
         officialUrl: 'https://ai.google.dev/gemini-api/docs/pricing',
+      },
+      capability: {
+        maxOutput: '65K tokens',
+        toolUse: true,
+        structuredOutput: true,
+        multimodalIn: ['text', 'image', 'video', 'audio', 'document'],
+        multimodalOut: ['text'],
+        deployment: ['cloud', 'gcp-vertex'],
+        regions: null,
+        limitations: null,
       },
       scores: { reasoning: 9.6, coding: 9.3, toolUse: 9.2, consistency: 9.1, latency: 7.8 },
       china: {
@@ -404,8 +543,22 @@ export const DATA_STORE: AiEcosystemDataStore = {
         currency: 'USD',
         inputPerMTokens: '$0.50',
         outputPerMTokens: '$3.00',
+        cachedInputPerMTokens: '$0.125',
+        batchInputPerMTokens: null,
+        freeTier: '15 req/min free via Gemini API (rate limited)',
+        plans: ['pay-as-you-go'],
         notes: 'Fast and cost-effective frontier model with excellent speed.',
         officialUrl: 'https://ai.google.dev/gemini-api/docs/pricing',
+      },
+      capability: {
+        maxOutput: '8K tokens',
+        toolUse: true,
+        structuredOutput: true,
+        multimodalIn: ['text', 'image', 'video', 'audio'],
+        multimodalOut: ['text'],
+        deployment: ['cloud', 'gcp-vertex'],
+        regions: null,
+        limitations: null,
       },
       scores: { reasoning: 9.2, coding: 9.1, toolUse: 8.9, consistency: 8.9, latency: 8.8 },
       china: {
@@ -437,8 +590,22 @@ export const DATA_STORE: AiEcosystemDataStore = {
         currency: 'USD',
         inputPerMTokens: '$1.25 (<=200K) / $2.50 (>200K)',
         outputPerMTokens: '$10.00 (<=200K) / $15.00 (>200K)',
+        cachedInputPerMTokens: '$0.315 (<=200K) / $0.625 (>200K)',
+        batchInputPerMTokens: null,
+        freeTier: '2 req/min free via Gemini API (rate limited)',
+        plans: ['pay-as-you-go'],
         notes: 'Advanced multi-purpose model with excellent coding and reasoning. Tiered pricing by context length.',
         officialUrl: 'https://ai.google.dev/gemini-api/docs/pricing',
+      },
+      capability: {
+        maxOutput: '8K tokens',
+        toolUse: true,
+        structuredOutput: true,
+        multimodalIn: ['text', 'image', 'video', 'audio', 'document'],
+        multimodalOut: ['text'],
+        deployment: ['cloud', 'gcp-vertex'],
+        regions: null,
+        limitations: null,
       },
       scores: { reasoning: 9.4, coding: 9.1, toolUse: 8.9, consistency: 8.9, latency: 8.2 },
       china: {
@@ -470,8 +637,22 @@ export const DATA_STORE: AiEcosystemDataStore = {
         currency: 'USD',
         inputPerMTokens: '$0.30',
         outputPerMTokens: '$2.50',
+        cachedInputPerMTokens: '$0.075',
+        batchInputPerMTokens: null,
+        freeTier: '15 req/min free via Gemini API (rate limited)',
+        plans: ['pay-as-you-go'],
         notes: 'First hybrid reasoning model with 1M context window and thinking support.',
         officialUrl: 'https://ai.google.dev/gemini-api/docs/pricing',
+      },
+      capability: {
+        maxOutput: '100K tokens',
+        toolUse: true,
+        structuredOutput: true,
+        multimodalIn: ['text', 'image', 'video', 'audio'],
+        multimodalOut: ['text'],
+        deployment: ['cloud', 'gcp-vertex'],
+        regions: null,
+        limitations: null,
       },
       scores: { reasoning: 8.9, coding: 8.8, toolUse: 8.6, consistency: 8.5, latency: 8.6 },
       china: {

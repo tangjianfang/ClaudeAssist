@@ -1,5 +1,5 @@
-import type { AiTool } from '../data/ai-ecosystem';
-import { TOOL_SCORE_KEYS, TOOL_SCORE_LABELS } from '../data/ai-ecosystem';
+import type { AiTool, AiModel } from '../data/ai-ecosystem';
+import { TOOL_SCORE_KEYS, TOOL_SCORE_LABELS, SCORE_KEYS, SCORE_LABELS } from '../data/ai-ecosystem';
 
 // ── 白名单常量 ────────────────────────────────────────────────────────────────
 export const VALID_TOOL_DIMS = TOOL_SCORE_KEYS as readonly string[];
@@ -71,6 +71,90 @@ export function buildToolMarkdown(tools: AiTool[], dims: string[] = []): string 
     `| ${header} |`,
     `| ${sep} |`,
     ...rows.map((r) => `| ${r} |`),
+    '',
+    `### 来源`,
+    sources,
+    '',
+    `> 生成时间：${now}`,
+  ].join('\n');
+}
+
+// ── 模型对比 URL 构建 / 解析 ─────────────────────────────────────────────────
+
+export const VALID_MODEL_DIMS = SCORE_KEYS as readonly string[];
+const MODEL_REPORT_TYPE = 'model-compare';
+
+/**
+ * 构建模型对比可分享 URL。
+ * 格式：<origin><pathname>#/ai-ecosystem?r=model-compare&v=1&ids=a,b&tab=pricing
+ */
+export function buildModelCompareUrl(
+  ids: string[],
+  tab: 'scores' | 'pricing' | 'capability' = 'scores',
+): string {
+  const base = `${window.location.origin}${window.location.pathname}`;
+  const params = new URLSearchParams({
+    r: MODEL_REPORT_TYPE,
+    v: VERSION,
+    ids: ids.join(','),
+    tab,
+  });
+  return `${base}#/ai-ecosystem?${params.toString()}`;
+}
+
+/**
+ * 从 useSearchParams 解析模型对比参数。
+ * 未知 id / 超过 4 个 id 均被安全处理。
+ */
+export function parseModelCompareParams(
+  searchParams: URLSearchParams,
+  validIds: Set<string>,
+): { ids: string[]; tab: 'scores' | 'pricing' | 'capability' } {
+  if (searchParams.get('r') !== MODEL_REPORT_TYPE) return { ids: [], tab: 'scores' };
+
+  const rawIds = searchParams.get('ids')?.split(',').filter(Boolean) ?? [];
+  const ids = [...new Set(rawIds.filter((id) => validIds.has(id)))].slice(0, 4);
+
+  const rawTab = searchParams.get('tab') ?? 'scores';
+  const tab: 'scores' | 'pricing' | 'capability' =
+    rawTab === 'pricing' ? 'pricing' :
+    rawTab === 'capability' ? 'capability' : 'scores';
+
+  return { ids, tab };
+}
+
+/** 生成模型对比 Markdown 摘要（含定价与来源）*/
+export function buildModelMarkdown(models: AiModel[]): string {
+  const now = new Date().toISOString().slice(0, 10);
+  const header = ['维度', ...models.map((m) => m.name)].join(' | ');
+  const sep = ['---', ...models.map(() => '---')].join(' | ');
+  const scoreRows = SCORE_KEYS.map((key) => {
+    const label = SCORE_LABELS[key];
+    const cells = models.map((m) => m.scores[key].toFixed(1));
+    return `| ${[label, ...cells].join(' | ')} |`;
+  });
+
+  const pricingRows = [
+    ['输入 /1M', ...models.map((m) => m.pricing.inputPerMTokens)],
+    ['输出 /1M', ...models.map((m) => m.pricing.outputPerMTokens)],
+  ].map((row) => `| ${row.join(' | ')} |`);
+
+  const sources = models
+    .map((m) => `- **${m.name}**: [${m.source.label}](${m.source.url}) — 核验于 ${m.source.checkedAt}`)
+    .join('\n');
+
+  return [
+    `## AI 模型对比`,
+    '',
+    `### 能力评分`,
+    `| ${header} |`,
+    `| ${sep} |`,
+    ...scoreRows,
+    '',
+    `### 定价`,
+    `| ${['定价项', ...models.map((m) => m.name)].join(' | ')} |`,
+    `| ${['---', ...models.map(() => '---')].join(' | ')} |`,
+    ...pricingRows,
     '',
     `### 来源`,
     sources,

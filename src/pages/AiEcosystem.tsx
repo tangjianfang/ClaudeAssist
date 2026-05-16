@@ -1,9 +1,11 @@
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { ChartBar, ExternalLink, Filter, GitCompare, RefreshCw, Search, ShieldCheck, X, ChevronDown, Zap } from 'lucide-react';
 import { clsx } from 'clsx';
 import { DATA_STORE, SCORE_KEYS, SCORE_LABELS } from '../data/ai-ecosystem';
 import type { AiModel, AiModelCategory, CostTier } from '../data/ai-ecosystem';
 import { RadarChart } from '../components/charts/RadarChart';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/Tabs';
 
 const CATEGORY_LABELS: Record<AiModelCategory, string> = {
   frontier: '前沿通用',
@@ -251,6 +253,23 @@ export function AiEcosystemPage() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'auto' | 'cards' | 'table'>('auto');
   const [filterOpen, setFilterOpen] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // 对比面板 Tab：scores / pricing / capability
+  type CompareTab = 'scores' | 'pricing' | 'capability';
+  const rParam = searchParams.get('r');
+  const compareTab: CompareTab =
+    rParam === 'model-pricing' ? 'pricing' :
+    rParam === 'model-capability' ? 'capability' : 'scores';
+
+  const setCompareTab = useCallback((tab: CompareTab) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (tab === 'scores') next.delete('r');
+      else next.set('r', `model-${tab}`);
+      return next;
+    }, { replace: true });
+  }, [setSearchParams]);
 
   const allTags = useMemo(
     () => Array.from(new Set(DATA_STORE.models.flatMap((model) => model.tags))).sort(),
@@ -588,30 +607,174 @@ export function AiEcosystemPage() {
                       ))}
                     </div>
                   </div>
-                  {/* Comparison table */}
+                  {/* Comparison tabs */}
                   <div className="overflow-x-auto">
-                    <table className="min-w-full text-xs divide-y divide-slate-100 dark:divide-slate-700">
-                      <thead>
-                        <tr className="text-left text-slate-400 bg-slate-50 dark:bg-slate-800/50">
-                          <th className="px-3 py-2 font-semibold">维度</th>
-                          {selectedModels.map((model) => (
-                            <th key={model.id} className="px-3 py-2 font-semibold text-slate-700 dark:text-slate-200">{model.name}</th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                        {SCORE_KEYS.map((key) => (
-                          <tr key={key} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                            <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">{SCORE_LABELS[key]}</td>
-                            {selectedModels.map((model) => (
-                              <td key={model.id} className="px-3 py-2 text-slate-700 dark:text-slate-200">
-                                <span className="font-semibold text-indigo-600 dark:text-indigo-300">{model.scores[key].toFixed(1)}</span>
-                              </td>
+                    <Tabs value={compareTab} onValueChange={(v) => setCompareTab(v as CompareTab)}>
+                      <TabsList className="mb-3">
+                        <TabsTrigger value="scores" className="text-xs py-1 px-2.5">评分</TabsTrigger>
+                        <TabsTrigger value="pricing" className="text-xs py-1 px-2.5">定价</TabsTrigger>
+                        <TabsTrigger value="capability" className="text-xs py-1 px-2.5">能力</TabsTrigger>
+                      </TabsList>
+
+                      {/* Scores tab */}
+                      <TabsContent value="scores">
+                        <table className="min-w-full text-xs divide-y divide-slate-100 dark:divide-slate-700">
+                          <thead>
+                            <tr className="text-left text-slate-400 bg-slate-50 dark:bg-slate-800/50">
+                              <th className="px-3 py-2 font-semibold">维度</th>
+                              {selectedModels.map((model) => (
+                                <th key={model.id} className="px-3 py-2 font-semibold text-slate-700 dark:text-slate-200">{model.name}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                            {SCORE_KEYS.map((key) => (
+                              <tr key={key} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                                <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">{SCORE_LABELS[key]}</td>
+                                {selectedModels.map((model) => (
+                                  <td key={model.id} className="px-3 py-2 text-slate-700 dark:text-slate-200">
+                                    <span className="font-semibold text-indigo-600 dark:text-indigo-300">{model.scores[key].toFixed(1)}</span>
+                                  </td>
+                                ))}
+                              </tr>
                             ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                          </tbody>
+                        </table>
+                      </TabsContent>
+
+                      {/* Pricing tab */}
+                      <TabsContent value="pricing">
+                        <table className="min-w-full text-xs divide-y divide-slate-100 dark:divide-slate-700">
+                          <thead>
+                            <tr className="text-left text-slate-400 bg-slate-50 dark:bg-slate-800/50">
+                              <th className="px-3 py-2 font-semibold">字段</th>
+                              {selectedModels.map((model) => (
+                                <th key={model.id} className="px-3 py-2 font-semibold text-slate-700 dark:text-slate-200">{model.name}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                            {[
+                              { label: '输入 /1M tokens', key: 'inputPerMTokens' as const },
+                              { label: '输出 /1M tokens', key: 'outputPerMTokens' as const },
+                              { label: '缓存输入 /1M', key: 'cachedInputPerMTokens' as const },
+                              { label: '批量输入 /1M', key: 'batchInputPerMTokens' as const },
+                              { label: '免费层', key: 'freeTier' as const },
+                            ].map(({ label, key }) => (
+                              <tr key={key} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                                <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">{label}</td>
+                                {selectedModels.map((model) => {
+                                  const val = model.pricing[key];
+                                  return (
+                                    <td key={model.id} className="px-3 py-2 text-slate-700 dark:text-slate-200">
+                                      {val == null ? (
+                                        <span className="text-slate-400 dark:text-slate-500">—</span>
+                                      ) : (
+                                        <span className="font-semibold text-emerald-700 dark:text-emerald-300">{val}</span>
+                                      )}
+                                    </td>
+                                  );
+                                })}
+                              </tr>
+                            ))}
+                            <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                              <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">官方链接</td>
+                              {selectedModels.map((model) => (
+                                <td key={model.id} className="px-3 py-2">
+                                  <a
+                                    href={model.pricing.officialUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 text-indigo-600 dark:text-indigo-300 hover:underline"
+                                  >
+                                    <ExternalLink size={11} />
+                                    <span>查看</span>
+                                  </a>
+                                </td>
+                              ))}
+                            </tr>
+                          </tbody>
+                        </table>
+                      </TabsContent>
+
+                      {/* Capability tab */}
+                      <TabsContent value="capability">
+                        <table className="min-w-full text-xs divide-y divide-slate-100 dark:divide-slate-700">
+                          <thead>
+                            <tr className="text-left text-slate-400 bg-slate-50 dark:bg-slate-800/50">
+                              <th className="px-3 py-2 font-semibold">能力项</th>
+                              {selectedModels.map((model) => (
+                                <th key={model.id} className="px-3 py-2 font-semibold text-slate-700 dark:text-slate-200">{model.name}</th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                            <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                              <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">最大输出</td>
+                              {selectedModels.map((model) => (
+                                <td key={model.id} className="px-3 py-2 text-slate-700 dark:text-slate-200">
+                                  {model.capability?.maxOutput ?? <span className="text-slate-400 dark:text-slate-500">—</span>}
+                                </td>
+                              ))}
+                            </tr>
+                            <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                              <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">工具调用</td>
+                              {selectedModels.map((model) => (
+                                <td key={model.id} className="px-3 py-2">
+                                  {model.capability == null ? (
+                                    <span className="text-slate-400 dark:text-slate-500">—</span>
+                                  ) : model.capability.toolUse ? (
+                                    <span className="text-emerald-600 dark:text-emerald-300 font-bold">✓</span>
+                                  ) : (
+                                    <span className="text-red-500 dark:text-red-400 font-bold">✗</span>
+                                  )}
+                                </td>
+                              ))}
+                            </tr>
+                            <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                              <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">结构化输出</td>
+                              {selectedModels.map((model) => (
+                                <td key={model.id} className="px-3 py-2">
+                                  {model.capability == null ? (
+                                    <span className="text-slate-400 dark:text-slate-500">—</span>
+                                  ) : model.capability.structuredOutput ? (
+                                    <span className="text-emerald-600 dark:text-emerald-300 font-bold">✓</span>
+                                  ) : (
+                                    <span className="text-red-500 dark:text-red-400 font-bold">✗</span>
+                                  )}
+                                </td>
+                              ))}
+                            </tr>
+                            <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                              <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">输入模态</td>
+                              {selectedModels.map((model) => (
+                                <td key={model.id} className="px-3 py-2 text-slate-700 dark:text-slate-200">
+                                  {model.capability?.multimodalIn
+                                    ? model.capability.multimodalIn.join(', ')
+                                    : <span className="text-slate-400 dark:text-slate-500">—</span>}
+                                </td>
+                              ))}
+                            </tr>
+                            <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                              <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">部署方式</td>
+                              {selectedModels.map((model) => (
+                                <td key={model.id} className="px-3 py-2 text-slate-700 dark:text-slate-200">
+                                  {model.capability?.deployment?.join(', ') ?? <span className="text-slate-400 dark:text-slate-500">—</span>}
+                                </td>
+                              ))}
+                            </tr>
+                            <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                              <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">已知限制</td>
+                              {selectedModels.map((model) => (
+                                <td key={model.id} className="px-3 py-2 text-slate-600 dark:text-slate-300 max-w-[160px]">
+                                  {model.capability?.limitations ?? <span className="text-slate-400 dark:text-slate-500">—</span>}
+                                </td>
+                              ))}
+                            </tr>
+                          </tbody>
+                        </table>
+                      </TabsContent>
+                    </Tabs>
                   </div>
                 </div>
               </div>

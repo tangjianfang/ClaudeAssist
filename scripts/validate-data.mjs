@@ -143,6 +143,38 @@ for (const entry of modelEntries) {
   }
   modelIds.add(id);
 
+  // ---- pricing 块：officialUrl 必填且非空 ----
+  const pricingMatch = entry.match(/pricing:\s*\{([\s\S]*?)\}/);
+  if (!pricingMatch) {
+    error(`模型 "${id}" 缺少 pricing 块`);
+  } else {
+    const pricingBlock = pricingMatch[1];
+    const officialUrl = getFieldFromEntry(pricingBlock, 'officialUrl');
+    if (!officialUrl) {
+      error(`模型 "${id}" 缺少 pricing.officialUrl`);
+    }
+    // nullable 价格字段不允许空字符串（必须是 null 或非空字符串）
+    const nullableFields = ['cachedInputPerMTokens', 'batchInputPerMTokens', 'freeTier'];
+    for (const f of nullableFields) {
+      const emptyRe = new RegExp(`\\b${f}:\\s*['"]['"']`);
+      if (emptyRe.test(pricingBlock)) {
+        error(`模型 "${id}" 的 pricing.${f} 为空字符串；请改为 null 或填写实际值`);
+      }
+    }
+  }
+
+  // ---- capability 块：若存在则校验 nullable 字段非空字符串 ----
+  const capabilityMatch = entry.match(/capability:\s*\{([\s\S]*?)\}/);
+  if (capabilityMatch) {
+    const capBlock = capabilityMatch[1];
+    for (const f of ['maxOutput', 'limitations']) {
+      const emptyRe = new RegExp(`\\b${f}:\\s*['"]['"']`);
+      if (emptyRe.test(capBlock)) {
+        error(`模型 "${id}" 的 capability.${f} 为空字符串；请改为 null 或填写实际值`);
+      }
+    }
+  }
+
   const sourceMatch = entry.match(/source:\s*\{([^}]+)\}/);
   if (!sourceMatch) {
     error(`模型 "${id}" 缺少 source 块`);
