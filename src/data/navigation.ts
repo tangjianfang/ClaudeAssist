@@ -2,7 +2,7 @@
  * src/data/navigation.ts
  * ─────────────────────────────────────────────────────────────────
  * 导航树配置。Sidebar 从此处读取数据渲染，无需手动维护 JSX 列表。
- * 新增页面只需在对应 group 中追加一条 NavItem，不用改 Sidebar 代码。
+ * 顶级 group 表示产品域，section 表示域内语义分区，children 表示真实父子层级。
  */
 
 import type { LucideIcon } from 'lucide-react';
@@ -44,59 +44,138 @@ export interface NavItem {
    * - `null`：无徽章
    */
   badge?: 'section-count' | 'favorites-count' | 'scenarios-count';
+  /** 子导航项，用于表达真实层级，如 Claude Code 下的知识页 */
+  children?: NavItem[];
 }
 
-export interface NavGroup {
+export interface NavSection {
   id: string;
   labelZh: string;
   labelEn: string;
   items: NavItem[];
 }
 
+export interface NavGroup {
+  id: string;
+  labelZh: string;
+  labelEn: string;
+  sections: NavSection[];
+}
+
 // ── 数据 ─────────────────────────────────────────────────────────
 
 export const NAV_GROUPS: NavGroup[] = [
   {
-    id: 'claude-code',
-    labelZh: 'Claude Code',
-    labelEn: 'Claude Code',
-    items: [
-      { id: 'scenarios',  path: '/scenarios',  Icon: BookOpen,    labelZh: '使用场景',        labelEn: 'Scenarios',    badge: 'scenarios-count' as const },
-      { id: 'features',   path: '/features',   Icon: Sparkles,    labelZh: '新特性',          labelEn: "What's New" },
-      { id: 'plugins',    path: '/plugins',    Icon: Puzzle,      labelZh: '插件指南',        labelEn: 'Plugin Guides' },
-      { id: 'clawcode',   path: '/clawcode',   Icon: Code,        labelZh: 'ClawCode',        labelEn: 'ClawCode' },
+    id: 'decision-lab',
+    labelZh: 'Decision Lab',
+    labelEn: 'Decision Lab',
+    sections: [
+      {
+        id: 'decision-workflows',
+        labelZh: '决策工作流',
+        labelEn: 'Decision Workflows',
+        items: [
+          { id: 'decision-workbench', path: '/', Icon: Target, labelZh: '场景决策', labelEn: 'Scenario Decisions' },
+          { id: 'tool-combinations', path: '/tool-combinations', Icon: Layers, labelZh: '组合方案', labelEn: 'Combinations' },
+          { id: 'scenarios', path: '/scenarios', Icon: BookOpen, labelZh: '场景库', labelEn: 'Scenario Library', badge: 'scenarios-count' as const },
+        ],
+      },
     ],
   },
   {
-    id: 'ai-tools-models',
-    labelZh: 'AI 工具 & 模型',
-    labelEn: 'AI Tools & Models',
-    items: [
-      { id: 'ai-ecosystem',    path: '/ai-ecosystem',    Icon: BrainCircuit, labelZh: 'AI 生态追踪',   labelEn: 'AI Ecosystem' },
-      { id: 'ai-tools',        path: '/ai-tools',        Icon: Wrench,       labelZh: 'AI 编码工具',   labelEn: 'AI Tools' },
-      { id: 'tool-combinations', path: '/tool-combinations', Icon: Target,   labelZh: '工具组合方案', labelEn: 'Combinations' },
+    id: 'ai-coding-tools',
+    labelZh: 'AI Coding Tools',
+    labelEn: 'AI Coding Tools',
+    sections: [
+      {
+        id: 'tool-decision',
+        labelZh: '工具决策',
+        labelEn: 'Tool Decision',
+        items: [
+          { id: 'ai-tools-workbench', path: '/ai-tools', Icon: Wrench, labelZh: '工具工作台', labelEn: 'Tool Workbench' },
+        ],
+      },
+      {
+        id: 'tool-profiles',
+        labelZh: '工具 Profiles',
+        labelEn: 'Tool Profiles',
+        items: [
+          {
+            id: 'claude-code',
+            path: '/tools/claude-code',
+            Icon: Code,
+            labelZh: 'Claude Code',
+            labelEn: 'Claude Code',
+            children: [
+              { id: 'claude-code-commands', path: '/tools/claude-code/commands', Icon: Slash, labelZh: 'Commands', labelEn: 'Commands' },
+              { id: 'claude-code-cli-flags', path: '/tools/claude-code/cli-flags', Icon: Terminal, labelZh: 'CLI Flags', labelEn: 'CLI Flags' },
+              { id: 'claude-code-shortcuts', path: '/tools/claude-code/shortcuts', Icon: Keyboard, labelZh: 'Shortcuts', labelEn: 'Shortcuts' },
+              { id: 'claude-code-settings', path: '/tools/claude-code/settings', Icon: Settings, labelZh: 'Settings', labelEn: 'Settings' },
+              { id: 'claude-code-skills', path: '/tools/claude-code/skills', Icon: Zap, labelZh: 'Skills', labelEn: 'Skills' },
+              { id: 'claude-code-modes', path: '/tools/claude-code/modes', Icon: Layers, labelZh: 'Modes', labelEn: 'Modes' },
+              { id: 'claude-code-plugins', path: '/tools/claude-code/plugins', Icon: Puzzle, labelZh: 'Plugins', labelEn: 'Plugins' },
+              { id: 'claude-code-env-vars', path: '/tools/claude-code/env-vars', Icon: Variable, labelZh: 'Env Vars', labelEn: 'Env Vars' },
+            ],
+          },
+          { id: 'opencode', path: '/tools/opencode', Icon: Terminal, labelZh: 'OpenCode', labelEn: 'OpenCode' },
+          { id: 'gemini-cli', path: '/tools/gemini-cli', Icon: Sparkles, labelZh: 'Gemini CLI', labelEn: 'Gemini CLI' },
+          { id: 'github-copilot-cli', path: '/tools/github-copilot-cli', Icon: Slash, labelZh: 'GitHub Copilot CLI', labelEn: 'GitHub Copilot CLI' },
+        ],
+      },
     ],
   },
   {
-    id: 'personal',
-    labelZh: '个人',
-    labelEn: 'Personal',
-    items: [
-      { id: 'favorites', path: '/favorites', Icon: Star, labelZh: '收藏', labelEn: 'Favorites', badge: 'favorites-count' },
+    id: 'models',
+    labelZh: 'Models',
+    labelEn: 'Models',
+    sections: [
+      {
+        id: 'model-workbench',
+        labelZh: '模型工作台',
+        labelEn: 'Model Workbench',
+        items: [
+          { id: 'model-decision-table', path: '/ai-ecosystem', Icon: BrainCircuit, labelZh: '模型决策表', labelEn: 'Model Decisions' },
+        ],
+      },
     ],
   },
   {
-    id: 'reference',
-    labelZh: '参考手册',
-    labelEn: 'Reference',
-    items: [
-      { id: 'slash-commands', path: '/slash-commands', Icon: Slash,    labelZh: '斜杠命令',  labelEn: 'Slash Commands', badge: 'section-count' },
-      { id: 'cli-flags',      path: '/cli-flags',      Icon: Terminal, labelZh: 'CLI 标志', labelEn: 'CLI Flags',      badge: 'section-count' },
-      { id: 'shortcuts',      path: '/shortcuts',      Icon: Keyboard, labelZh: '快捷键',   labelEn: 'Shortcuts',      badge: 'section-count' },
-      { id: 'skills',         path: '/skills',         Icon: Zap,      labelZh: 'Skills',   labelEn: 'Skills',         badge: 'section-count' },
-      { id: 'modes',          path: '/modes',          Icon: Layers,   labelZh: 'Modes',    labelEn: 'Modes',          badge: 'section-count' },
-      { id: 'settings',       path: '/settings',       Icon: Settings, labelZh: '设置',     labelEn: 'Settings',       badge: 'section-count' },
-      { id: 'env-vars',       path: '/env-vars',       Icon: Variable, labelZh: '环境变量', labelEn: 'Env Vars',       badge: 'section-count' },
+    id: 'reports',
+    labelZh: 'Reports',
+    labelEn: 'Reports',
+    sections: [
+      {
+        id: 'report-entrypoints',
+        labelZh: '报告入口',
+        labelEn: 'Report Entrypoints',
+        items: [
+          { id: 'reports-overview', path: '/reports', Icon: Target, labelZh: '报告中心', labelEn: 'Reports Center' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'maintenance',
+    labelZh: 'Maintenance',
+    labelEn: 'Maintenance',
+    sections: [
+      {
+        id: 'maintenance-links',
+        labelZh: '维护入口',
+        labelEn: 'Maintenance Links',
+        items: [
+          { id: 'maintenance-overview', path: '/maintenance', Icon: Sparkles, labelZh: '数据维护', labelEn: 'Data Maintenance' },
+          { id: 'favorites', path: '/favorites', Icon: Star, labelZh: '收藏', labelEn: 'Favorites', badge: 'favorites-count' },
+        ],
+      },
     ],
   },
 ];
+
+export function flattenNavLinks(groups: NavGroup[] = NAV_GROUPS): NavItem[] {
+  return groups.flatMap((group) =>
+    group.sections.flatMap((section) =>
+      section.items.flatMap((item) => [item, ...(item.children ?? [])]),
+    ),
+  );
+}

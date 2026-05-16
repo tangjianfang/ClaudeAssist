@@ -2,7 +2,7 @@ import { getModelById } from './models/index';
 import { getToolById } from './tools/index';
 import type { AiModel, AiTool } from './ai-ecosystem';
 
-export type DecisionScenarioId = 'china-low-cost-coding';
+export type DecisionScenarioId = 'china-low-cost-coding' | 'enterprise-reliability-coding';
 
 export interface DecisionRecommendationOption {
   toolId: string;
@@ -119,6 +119,97 @@ const SCENARIO_RECOMMENDATIONS: Record<DecisionScenarioId, DecisionScenarioRecom
       templateId: 'scenario-recommendation',
       summary: '推荐 OpenCode + DeepSeek V4-Flash 作为国内低成本 AI 编码默认组合；Qwen3.6-Flash 作为合规和延迟优先的备选。',
       decision: '先用 OpenCode 的 BYOK 形态承载工作流，再按任务复杂度在 DeepSeek V4-Flash 与 Qwen3.6-Flash 之间切换。',
+    },
+  },
+  'enterprise-reliability-coding': {
+    id: 'enterprise-reliability-coding',
+    title: '企业级高可靠性 AI 编码方案',
+    shortTitle: '企业级高可靠',
+    description: '面向企业研发团队和金融科技公司：优先选择生产级稳定性、支持企业部署、可审计追溯的工具与模型组合。',
+    userGoal: '在严格的合规、安全和可靠性要求下，获得高质量的代码生成、审查和重构能力，同时支持团队协作和企业级服务保障。',
+    primary: {
+      toolId: 'claude-code',
+      modelId: 'claude-opus-4-plus',
+      monthlyCost: 'Claude Code $20/月；模型通过 Claude API 按量计费或企业合约',
+      fit: 'primary',
+      reasons: [
+        'Claude Code 是成熟的生产级工具，支持企业级功能如代码审查、多文件编辑和工作流集成，已被数千家企业采用。',
+        'Claude 3.7 Opus 在复杂推理、长上下文代码分析和工具调用稳定性上超过开源模型和国内模型，适合金融和医疗等高风险场景。',
+        '支持企业部署方案、合同级 SLA、完整审计日志和合规认证（SOC 2、ISO 等），满足严格监管要求。',
+      ],
+      risks: [
+        '国内直接访问需要合规安排，企业可采用 API 代理或私有部署方案，但需要额外的基础设施投入。',
+        '订阅费用相比开源方案较高，企业需评估 ROI；但稳定性和支持价值通常可以抵消成本。',
+      ],
+    },
+    alternatives: [
+      {
+        toolId: 'cursor',
+        modelId: 'claude-opus-4-plus',
+        monthlyCost: 'Cursor 订阅 $20/月；Claude API 按量计费或企业合约',
+        fit: 'alternative',
+        reasons: [
+          'Cursor 是广泛使用的商业级编辑器，与 Claude 集成紧密，UI/UX 对开发者友好且功能丰富。',
+          'Claude Opus 提供与 Claude Code 相同的推理和代码质量，通过 Cursor 界面使用同样可靠。',
+          '企业可根据 Cursor 的定价和功能灵活选择，同时保留 Claude 的稳定性和企业支持选项。',
+        ],
+        risks: [
+          'Cursor 作为第三方工具，企业级支持和合规认证不如 Anthropic 原生产品完整。',
+          '需要确认 Cursor 的隐私政策和数据处理流程是否符合企业内部安全标准。',
+        ],
+      },
+      {
+        toolId: 'jetbrains-ai',
+        modelId: 'claude-opus-4-plus',
+        monthlyCost: 'JetBrains All Products 企业订阅；Claude API 按量计费或企业合约',
+        fit: 'alternative',
+        reasons: [
+          'JetBrains IDE 是企业 Java/Kotlin 开发的标准工具，深度集成的 AI 功能提供无缝工作流。',
+          'Claude Opus 通过 JetBrains AI 使用可获得同等推理能力，同时保留 IDE 的完整工具链支持。',
+          '企业可通过 JetBrains 统一许可管理，降低采购和部署复杂性。',
+        ],
+        risks: [
+          'JetBrains 的 AI 功能相比 Claude Code/Cursor 仍在演进中，某些高级工作流可能不如专业 AI 工具完整。',
+          'IDE 重度依赖可能限制跨平台灵活性；企业需评估是否适合多语言和微服务架构团队。',
+        ],
+      },
+    ],
+    avoid: [
+      {
+        toolId: 'deepseek-tui',
+        modelId: 'deepseek-v4-pro',
+        monthlyCost: 'DeepSeek API 按量计费，相比 Claude 便宜 50-70%',
+        fit: 'avoid',
+        reasons: [
+          'DeepSeek V4-Pro 虽然在中文代码生成上表现不错，但在多语言混合、复杂推理和工具链集成上仍弱于 Opus。',
+          'DeepSeek TUI 是社区工具而非商业级产品，不提供企业级 SLA、审计日志或安全合规认证。',
+          '对于需要完整可追溯性和审计的企业场景，缺乏必要的企业级功能和支持承诺。',
+        ],
+        risks: [
+          '如果后续遭遇关键 bug 或性能问题，社区支持响应速度和企业级修复承诺不可靠。',
+          '某些企业的安全审查和合规部门可能不接受非商业化、无企业支持的工具在生产环境中使用。',
+        ],
+      },
+    ],
+    evidence: {
+      sources: [
+        { label: 'Claude Code 官方文档', url: 'https://claude.ai/code', checkedAt: '2026-05-16' },
+        { label: 'Claude API 定价和企业方案', url: 'https://www.anthropic.com/pricing', checkedAt: '2026-05-16' },
+        { label: 'Anthropic 企业合规认证', url: 'https://www.anthropic.com/security', checkedAt: '2026-05-16' },
+        { label: 'Cursor 官方网站', url: 'https://www.cursor.com/', checkedAt: '2026-05-15' },
+        { label: 'JetBrains AI 集成指南', url: 'https://www.jetbrains.com/help/idea/ai-assistant.html', checkedAt: '2026-05-15' },
+      ],
+      freshness: '企业级工具、API 定价和合规信息均在 2026-05-15 至 2026-05-16 核验；企业部署方案需企业与厂商直接沟通。',
+      unknowns: [
+        '不同企业对"高可靠性"和"合规"的定义存在差异，选择需根据具体行业和地域法规调整。',
+        'Claude API 企业合约定价和 SLA 条款因客户规模和需求不同有较大差异，正式采购前需直接咨询 Anthropic。',
+        '国内企业部署 Claude 相关工具涉及网络和数据合规，需单独评估和规划。',
+      ],
+    },
+    report: {
+      templateId: 'scenario-recommendation',
+      summary: '推荐 Claude Code + Claude Opus 作为企业级高可靠性编码默认方案；Cursor + Opus 和 JetBrains + Opus 作为工具选型灵活的备选。',
+      decision: '优先选择 Claude Code 以获得端到端的企业支持和安全保障；如企业已有 Cursor 或 JetBrains 投资，可保留工具选择灵活性。',
     },
   },
 };

@@ -1,485 +1,335 @@
-import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { ChartBar, Filter, Search, X, Zap, Layers } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ArrowRight, CircleAlert, CircleCheck, Filter, Search, Terminal } from 'lucide-react';
 import { clsx } from 'clsx';
-import { DATA_STORE, TOOL_CATEGORY_LABELS, TOOL_SCORE_KEYS, TOOL_SCORE_LABELS, COST_LABELS } from '../data/ai-ecosystem';
-import type { AiToolCategory, CostTier } from '../data/ai-ecosystem';
-import { ToolCard } from '../components/ToolCard';
-import { ReportActions } from '../components/reports/ReportActions';
-import { BarCompareChart } from '../components/charts/BarCompareChart';
-import {
-  buildToolCompareUrl,
-  parseToolCompareParams,
-  buildToolMarkdown,
-  downloadSvgElement,
-} from '../utils/report-share';
+import { getToolProfilePreview, getToolWorkbenchCandidates } from '../data/tools/index';
+import type { ToolDecisionFit, ToolWorkbenchCandidate } from '../data/tools/index';
+import type { DecisionScenarioId } from '../data/decision-scenarios';
+import { Panel } from '../components/ui/Panel';
+import { SourceLink } from '../components/ui/SourceLink';
+import { StatusBadge } from '../components/ui/StatusBadge';
+
+type ScenarioFilter = DecisionScenarioId | 'all';
+type ConstraintFilter = 'all' | 'china-accessible' | 'low-cost' | 'overseas-frontier';
+
+const scenarioOptions: Array<{ id: ScenarioFilter; label: string; description: string }> = [
+  {
+    id: 'china-low-cost-coding',
+    label: '国内可用 + 低成本',
+    description: '直接查看首选、备选和不推荐组合。',
+  },
+  {
+    id: 'all',
+    label: '全部工具 profile',
+    description: '浏览所有工具，但仍按决策摘要展示。',
+  },
+];
+
+const constraintOptions: Array<{ id: ConstraintFilter; label: string }> = [
+  { id: 'all', label: '全部约束' },
+  { id: 'china-accessible', label: '国内可用' },
+  { id: 'low-cost', label: '低成本' },
+  { id: 'overseas-frontier', label: '海外前沿能力' },
+];
+
+const fitLabels: Record<ToolDecisionFit, string> = {
+  primary: '首选',
+  alternative: '备选',
+  avoid: '不作为默认',
+  neutral: '候选',
+};
 
 export function AiToolsPage() {
-  const [searchParams] = useSearchParams();
-  const svgRef = useRef<SVGSVGElement>(null);
-  const [searchInput, setSearchInput] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  
-  // Debounced search
-  useEffect(() => {
-    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    searchTimeoutRef.current = setTimeout(() => {
-      setSearchQuery(searchInput);
-    }, 300);
-    
-    return () => {
-      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    };
-  }, [searchInput]);
+  const [scenario, setScenario] = useState<ScenarioFilter>('china-low-cost-coding');
+  const [constraint, setConstraint] = useState<ConstraintFilter>('all');
+  const [query, setQuery] = useState('');
+  const [selectedToolId, setSelectedToolId] = useState<string | null>(null);
 
-  const [category, setCategory] = useState<AiToolCategory | 'all'>('all');
-  const [costTier, setCostTier] = useState<CostTier | 'all'>('all');
-  const [chinaAvailability, setChinaAvailability] = useState<'all' | 'accessible' | 'blocked'>('all');
-  const [minScoreType, setMinScoreType] = useState<'completion' | 'generation' | 'efficiency'>('completion');
-  const [minScore, setMinScore] = useState(0);
-  const [sortBy, setSortBy] = useState<'score' | 'cost' | 'name' | 'popularity'>('score');
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [filterOpen, setFilterOpen] = useState(false);
-  const [copyFeedback, setCopyFeedback] = useState<'link' | 'md' | null>(null);
+  const candidates = useMemo(() => getToolWorkbenchCandidates({
+    scenarioId: scenario === 'all' ? undefined : scenario,
+    query,
+    chinaAccessible: constraint === 'china-accessible' ? true : constraint === 'overseas-frontier' ? false : undefined,
+    costTier: constraint === 'low-cost' ? 'low' : undefined,
+  }), [constraint, query, scenario]);
 
-  // Step 29: mount 时从 URL 恢复对比选择（过滤未知 id，去重，最多 4 个）
-  const validToolIds = useMemo(() => new Set(DATA_STORE.tools.map((t) => t.id)), []);
-  useEffect(() => {
-    const { ids } = parseToolCompareParams(searchParams, validToolIds);
-    if (ids.length > 0) setSelectedIds(ids);
-    // 仅在 mount 时执行一次
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // 获取所有不同的兼容环境
-  const allCompatible = useMemo(() => {
-    const compat = new Set<string>();
-    DATA_STORE.tools.forEach(tool => {
-      tool.compatible.forEach(c => compat.add(c));
-    });
-    return Array.from(compat).sort();
-  }, []);
-
-  const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
-  const [selectedCompatible, setSelectedCompatible] = useState<string>('all');
-
-  // 过滤和排序逻辑
-  const filteredTools = useMemo(() => {
-    let result = DATA_STORE.tools;
-
-    // 按搜索文本
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(tool =>
-        tool.name.toLowerCase().includes(q) ||
-        tool.vendor.toLowerCase().includes(q) ||
-        tool.tags.some(tag => tag.toLowerCase().includes(q))
-      );
-    }
-
-    // 按分类
-    if (category !== 'all') {
-      result = result.filter(tool => tool.category === category);
-    }
-
-    // 按成本
-    if (costTier !== 'all') {
-      result = result.filter(tool => tool.costTier === costTier);
-    }
-
-    // 按国内可用性
-    if (chinaAvailability !== 'all') {
-      result = result.filter(tool =>
-        chinaAvailability === 'accessible' ? tool.china.accessible : !tool.china.accessible
-      );
-    }
-
-    // 按评分类型
-    const scoreField = minScoreType === 'completion' ? 'codeCompletion' : minScoreType === 'generation' ? 'codeGeneration' : 'efficiency';
-    if (minScore > 0) {
-      result = result.filter(tool => tool.scores[scoreField] >= minScore);
-    }
-
-    // 按功能特性
-    if (selectedFeatures.length > 0) {
-      result = result.filter(tool =>
-        selectedFeatures.every(feature => tool.features.some(f => f === feature))
-      );
-    }
-
-    // 按兼容环境
-    if (selectedCompatible !== 'all') {
-      result = result.filter(tool => tool.compatible.includes(selectedCompatible));
-    }
-
-    // 排序
-    result.sort((a, b) => {
-      if (sortBy === 'score') {
-        return b.scores[scoreField] - a.scores[scoreField];
-      } else if (sortBy === 'cost') {
-        const costOrder = { low: 0, medium: 1, high: 2 };
-        return costOrder[a.costTier] - costOrder[b.costTier];
-      } else if (sortBy === 'name') {
-        return a.name.localeCompare(b.name);
-      } else {
-        // popularity - by vendor prominence
-        const vendorPriority: Record<string, number> = {
-          'GitHub': 0, 'Anthropic': 1, 'OpenAI': 2, 'JetBrains': 3, 'Amazon Web Services': 4
-        };
-        return (vendorPriority[a.vendor] || 999) - (vendorPriority[b.vendor] || 999);
-      }
-    });
-
-    return result;
-  }, [searchQuery, category, costTier, chinaAvailability, minScore, minScoreType, sortBy, selectedFeatures, selectedCompatible]);
-
-  const selectedTools = useMemo(() => {
-    return DATA_STORE.tools.filter(tool => selectedIds.includes(tool.id));
-  }, [selectedIds]);
-
-  const toggleCompare = useCallback((toolId: string) => {
-    setSelectedIds(prev =>
-      prev.includes(toolId)
-        ? prev.filter(id => id !== toolId)
-        : prev.length < 4
-          ? [...prev, toolId]
-          : prev
-    );
-  }, []);
+  const selectedCandidate = candidates.find((candidate) => candidate.tool.id === selectedToolId) ?? candidates[0];
+  const preview = selectedCandidate ? getToolProfilePreview(selectedCandidate.tool.id) : null;
 
   return (
-    <div className="px-3 sm:px-6 py-6 sm:py-8 max-w-screen-2xl mx-auto">
-      {/* Header */}
-      <div className="mb-6 rounded-2xl sm:rounded-3xl border border-indigo-100 dark:border-indigo-900/50 bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-950/40 dark:to-slate-900 p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/80 dark:bg-slate-900/80 px-3 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-300">
-              <Zap size={13} />
-              AI 编码工具库 · {DATA_STORE.tools.length} 款工具
-            </div>
-            <h1 className="mt-3 sm:mt-4 text-2xl sm:text-3xl font-bold text-slate-950 dark:text-white">
-              AI 编码助手与工具对比
+    <div className="px-3 sm:px-6 py-6 sm:py-8 max-w-screen-2xl mx-auto space-y-5">
+      <header className="border-b border-slate-100 dark:border-slate-800 pb-5">
+        <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+          AI Coding Tools
+        </p>
+        <div className="mt-2 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-950 dark:text-white">
+              从场景约束选择工具，而不是浏览卡片墙
             </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-5 sm:leading-6 text-slate-600 dark:text-slate-300">
-              从 Copilot、Claude Code 到 Cursor 和 Tabnine，找到最适合你的开发工具。对比能力、成本、国内可用性。
+            <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+              Claude Code 现在是 AI Coding Tools 的第一个工具 profile；同级还有 OpenCode、Gemini CLI、GitHub Copilot CLI 等候选工具。
             </p>
           </div>
-          <div className="rounded-2xl bg-white/80 dark:bg-slate-900/80 border border-white dark:border-slate-700 px-4 py-3 text-xs text-slate-500 dark:text-slate-400 max-w-sm h-fit">
-            <div className="font-semibold text-slate-700 dark:text-slate-200 mb-1">💡 提示</div>
-            选择最多 4 款工具进行对比。查看它们的优缺点、兼容 IDE、国内可用性。
-          </div>
+          <Link
+            to="/tools/claude-code"
+            className="inline-flex w-fit items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+          >
+            查看 Claude Code profile
+            <ArrowRight size={14} />
+          </Link>
         </div>
-      </div>
+      </header>
 
-      {/* Main layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-[16rem_1fr] gap-4 sm:gap-6">
-        {/* Sidebar - Filter Panel */}
-        <aside className={clsx(
-          'lg:sticky lg:top-20 self-start rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60',
-          'transition-all duration-300',
-          filterOpen ? 'block' : 'hidden lg:block'
-        )}>
-          <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-sm font-bold text-slate-800 dark:text-slate-100">
-              <Filter size={16} className="text-indigo-500" />
-              筛选
-            </h2>
-            <button
-              onClick={() => setFilterOpen(false)}
-              className="lg:hidden p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded"
-              aria-label="关闭筛选"
-            >
-              <X size={16} />
-            </button>
-          </div>
-
-          <div className="p-4 sm:p-5 space-y-4 sm:space-y-5">
-            {/* Search */}
-            <label className="block">
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                <Search size={13} />
-                搜索工具
-              </span>
-              <input
-                type="text"
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="工具名称或厂商..."
-                className="w-full mt-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-indigo-500 outline-none transition"
-              />
-            </label>
-
-            {/* Category */}
-            <label className="block">
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">工具类型</span>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value as AiToolCategory | 'all')}
-                className="w-full mt-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
-              >
-                <option value="all">全部类型</option>
-                {Object.entries(TOOL_CATEGORY_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>{label}</option>
-                ))}
-              </select>
-            </label>
-
-            {/* Cost */}
-            <label className="block">
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">价格</span>
-              <select
-                value={costTier}
-                onChange={(e) => setCostTier(e.target.value as CostTier | 'all')}
-                className="w-full mt-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
-              >
-                <option value="all">全部价格</option>
-                {Object.entries(COST_LABELS).map(([value, label]) => (
-                  <option key={value} value={value}>{label}</option>
-                ))}
-              </select>
-            </label>
-
-            {/* China Availability */}
-            <label className="block">
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">国内可用</span>
-              <select
-                value={chinaAvailability}
-                onChange={(e) => setChinaAvailability(e.target.value as typeof chinaAvailability)}
-                className="w-full mt-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
-              >
-                <option value="all">全部</option>
-                <option value="accessible">国内可用</option>
-                <option value="blocked">需代理/海外</option>
-              </select>
-            </label>
-
-            {/* Minimum Score */}
-            <label className="block">
-              <span className="flex justify-between text-xs font-semibold text-slate-500 dark:text-slate-400">
-                <span>评分下限</span>
-                <span className="text-indigo-600 dark:text-indigo-300">{minScore.toFixed(1)}</span>
-              </span>
-              <select
-                value={minScoreType}
-                onChange={(e) => setMinScoreType(e.target.value as typeof minScoreType)}
-                className="w-full mt-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs focus:ring-2 focus:ring-indigo-500 outline-none transition"
-              >
-                <option value="completion">补全能力</option>
-                <option value="generation">生成能力</option>
-                <option value="efficiency">工作效率</option>
-              </select>
-              <input
-                type="range"
-                min="0"
-                max="10"
-                step="0.5"
-                value={minScore}
-                onChange={(e) => setMinScore(Number(e.target.value))}
-                className="w-full mt-2 accent-indigo-600 cursor-pointer"
-              />
-            </label>
-
-            {/* Compatible IDE */}
-            <label className="block">
-              <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">支持环境</span>
-              <select
-                value={selectedCompatible}
-                onChange={(e) => setSelectedCompatible(e.target.value)}
-                className="w-full mt-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
-              >
-                <option value="all">全部环境</option>
-                {allCompatible.map((compat) => (
-                  <option key={compat} value={compat}>{compat}</option>
-                ))}
-              </select>
-            </label>
-
-            {/* Reset filters */}
-            <button
-              onClick={() => {
-                setSearchInput('');
-                setCategory('all');
-                setCostTier('all');
-                setChinaAvailability('all');
-                setMinScore(0);
-                setSelectedFeatures([]);
-                setSelectedCompatible('all');
-              }}
-              className="w-full py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
-            >
-              重置筛选
-            </button>
-          </div>
-        </aside>
-
-        {/* Main content */}
-        <section className="min-w-0 space-y-6">
-          {/* Controls */}
-          <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
-            <div className="flex-1 min-w-0">
-              <h2 className="flex items-center gap-2 text-base font-bold text-slate-900 dark:text-slate-100">
-                <ChartBar size={17} className="text-indigo-500 shrink-0" />
-                <span className="truncate">{filteredTools.length} / {DATA_STORE.tools.length} 款工具</span>
-              </h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">最多选择 4 款进行对比</p>
+      <div className="grid grid-cols-1 xl:grid-cols-[260px_minmax(0,1fr)_360px] gap-4">
+        <Panel className="space-y-5" padding="p-4">
+          <section>
+            <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-slate-100">
+              <Filter size={15} className="text-slate-500" />
+              场景与约束
             </div>
-            <div className="flex gap-2 items-center">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 sm:px-3 py-2 text-xs sm:text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
-              >
-                <option value="score">按评分</option>
-                <option value="cost">按成本</option>
-                <option value="name">按名称</option>
-                <option value="popularity">按热度</option>
-              </select>
-              <button
-                onClick={() => setFilterOpen(!filterOpen)}
-                className="lg:hidden rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm font-semibold text-slate-600 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-              >
-                <Filter size={16} />
-              </button>
+            <div className="mt-3 space-y-2">
+              {scenarioOptions.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => {
+                    setScenario(option.id);
+                    setSelectedToolId(null);
+                  }}
+                  className={clsx(
+                    'w-full rounded-lg border px-3 py-3 text-left transition-colors',
+                    scenario === option.id
+                      ? 'border-emerald-300 bg-emerald-50 text-emerald-950 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-100'
+                      : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200',
+                  )}
+                >
+                  <span className="block text-sm font-bold">{option.label}</span>
+                  <span className="mt-1 block text-xs leading-5 text-slate-500 dark:text-slate-400">{option.description}</span>
+                </button>
+              ))}
             </div>
-          </div>
+          </section>
 
-          {/* Tools grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredTools.map((tool) => (
-              <ToolCard
-                key={tool.id}
-                tool={tool}
-                isSelected={selectedIds.includes(tool.id)}
-                onToggle={() => toggleCompare(tool.id)}
-                isDisabled={!selectedIds.includes(tool.id) && selectedIds.length >= 4}
+          <section>
+            <label className="block text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+              搜索工具
+            </label>
+            <div className="mt-2 flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 dark:border-slate-700 dark:bg-slate-900">
+              <Search size={15} className="text-slate-400" />
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="OpenCode / Claude / CLI"
+                className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-slate-400"
               />
-            ))}
+            </div>
+          </section>
+
+          <section>
+            <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+              约束
+            </p>
+            <div className="mt-2 grid grid-cols-1 gap-2">
+              {constraintOptions.map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => {
+                    setConstraint(option.id);
+                    setSelectedToolId(null);
+                  }}
+                  className={clsx(
+                    'rounded-lg px-3 py-2 text-left text-sm font-semibold transition-colors',
+                    constraint === option.id
+                      ? 'bg-slate-950 text-white dark:bg-white dark:text-slate-950'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700',
+                  )}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </section>
+        </Panel>
+
+        <section className="min-w-0 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">候选工具</h2>
+            <span className="text-xs text-slate-500 dark:text-slate-400">{candidates.length} 个结果</span>
           </div>
 
-          {filteredTools.length === 0 && (
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 p-8 text-center">
-              <p className="text-slate-600 dark:text-slate-300">未找到匹配的工具。请调整筛选条件。</p>
+          {candidates.length === 0 ? (
+            <Panel className="text-sm text-slate-500 dark:text-slate-400">当前约束下没有匹配工具。</Panel>
+          ) : (
+            <div className="space-y-3">
+              {candidates.map((candidate) => (
+                <CandidateRow
+                  key={`${candidate.tool.id}-${candidate.decisionFit}`}
+                  candidate={candidate}
+                  selected={candidate.tool.id === selectedCandidate?.tool.id}
+                  onSelect={() => setSelectedToolId(candidate.tool.id)}
+                />
+              ))}
             </div>
           )}
         </section>
+
+        {preview && selectedCandidate && (
+          <Panel className="space-y-5 xl:sticky xl:top-4 xl:self-start" padding="p-4">
+            <div>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Profile Preview</p>
+                  <h2 className="mt-1 text-xl font-extrabold text-slate-950 dark:text-white">{preview.tool.name}</h2>
+                  <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{preview.tool.vendor} · {fitLabels[selectedCandidate.decisionFit]}</p>
+                </div>
+                <StatusBadge status={preview.tool.status} />
+              </div>
+              <p className="mt-3 text-sm leading-6 text-slate-700 dark:text-slate-200">{preview.fitSummary}</p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <Metric label="价格" value={preview.tool.pricing.plan} />
+              <Metric label="国内可用" value={preview.tool.china.accessible ? '可用' : '受限'} tone={preview.tool.china.accessible ? 'positive' : 'warning'} />
+              <Metric label="推荐模型" value={selectedCandidate.recommendedModel?.name ?? preview.recommendedModels[0] ?? '待确认'} />
+              <Metric label="安装入口" value={preview.installation} />
+            </div>
+
+            <section>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">常用工作流</h3>
+              <ul className="mt-2 space-y-2">
+                {preview.workflows.map((workflow) => (
+                  <li key={workflow} className="flex gap-2 text-sm leading-6 text-slate-700 dark:text-slate-200">
+                    <Terminal size={14} className="mt-1 shrink-0 text-slate-400" />
+                    {workflow}
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <section>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">风险摘要</h3>
+              <p className="mt-2 text-sm leading-6 text-amber-700 dark:text-amber-300">{preview.riskSummary}</p>
+            </section>
+
+            {preview.childPages.length > 0 && (
+              <section>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Claude Code 子知识</h3>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {preview.childPages.map((page) => (
+                    <Link
+                      key={page.path}
+                      to={page.path}
+                      className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-400 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-500"
+                    >
+                      {page.label}
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            <div className="border-t border-slate-100 pt-4 dark:border-slate-800">
+              <SourceLink label={preview.tool.source.label} url={preview.tool.source.url} checkedAt={preview.tool.source.checkedAt} />
+              <Link
+                to={`/tools/${preview.tool.id}`}
+                className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-slate-900 hover:text-[--color-ca-accent] dark:text-slate-100"
+              >
+                打开完整 profile
+                <ArrowRight size={14} />
+              </Link>
+            </div>
+          </Panel>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CandidateRow({
+  candidate,
+  selected,
+  onSelect,
+}: {
+  candidate: ToolWorkbenchCandidate;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  const Icon = candidate.decisionFit === 'avoid' ? CircleAlert : CircleCheck;
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={clsx(
+        'w-full rounded-lg border bg-white p-4 text-left transition-colors dark:bg-slate-900',
+        selected
+          ? 'border-slate-950 shadow-sm dark:border-white'
+          : 'border-slate-200 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-500',
+      )}
+    >
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className={clsx(
+              'inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-bold',
+              candidate.decisionFit === 'primary' && 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300',
+              candidate.decisionFit === 'alternative' && 'bg-blue-100 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300',
+              candidate.decisionFit === 'avoid' && 'bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300',
+              candidate.decisionFit === 'neutral' && 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300',
+            )}>
+              <Icon size={12} />
+              {fitLabels[candidate.decisionFit]}
+            </span>
+            <StatusBadge status={candidate.tool.status} />
+          </div>
+          <h3 className="mt-2 text-lg font-extrabold text-slate-950 dark:text-white">{candidate.tool.name}</h3>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{candidate.tool.vendor}</p>
+        </div>
+        <div className="grid grid-cols-2 gap-2 text-xs lg:w-72">
+          <Metric label="成本" value={candidate.monthlyCost} />
+          <Metric label="国内" value={candidate.tool.china.accessible ? '可用' : '受限'} tone={candidate.tool.china.accessible ? 'positive' : 'warning'} />
+        </div>
       </div>
 
-      {/* Comparison drawer */}
-      {selectedTools.length > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-30 bg-gradient-to-t from-white dark:from-slate-900 via-white dark:via-slate-900 to-white/0 dark:to-slate-900/0 pt-4 pb-4">
-          <div className="px-3 sm:px-6 max-w-screen-2xl mx-auto">
-            <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-2xl overflow-hidden">
-              <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-700 px-4 py-3 bg-slate-50 dark:bg-slate-800/50">
-                <h2 className="flex items-center gap-2 font-bold text-slate-900 dark:text-slate-100 text-sm">
-                  <Layers size={16} className="text-indigo-500" />
-                  工具对比 ({selectedTools.length}/4)
-                  {copyFeedback && (
-                    <span className="ml-2 text-xs font-normal text-emerald-600 dark:text-emerald-400">
-                      {copyFeedback === 'link' ? '链接已复制 ✓' : 'Markdown 已复制 ✓'}
-                    </span>
-                  )}
-                </h2>
-                <div className="flex items-center gap-1">
-                  <ReportActions
-                    onCopyLink={() => {
-                      navigator.clipboard.writeText(buildToolCompareUrl(selectedIds));
-                      setCopyFeedback('link');
-                      setTimeout(() => setCopyFeedback(null), 2000);
-                    }}
-                    onCopyMarkdown={() => {
-                      navigator.clipboard.writeText(buildToolMarkdown(selectedTools));
-                      setCopyFeedback('md');
-                      setTimeout(() => setCopyFeedback(null), 2000);
-                    }}
-                    onDownloadSvg={() => {
-                      if (svgRef.current) downloadSvgElement(svgRef.current, 'tool-compare.svg');
-                    }}
-                  />
-                  <button
-                    onClick={() => setSelectedIds([])}
-                    className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors"
-                    aria-label="清空对比"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              </div>
-              <div className="max-h-[55vh] overflow-y-auto">
-                {/* Score bar chart (SVG, download target via svgRef) */}
-                <div className="p-4 border-b border-slate-100 dark:border-slate-700">
-                  <BarCompareChart
-                    ref={svgRef}
-                    dims={TOOL_SCORE_KEYS.map((k) => ({ key: k, label: TOOL_SCORE_LABELS[k] }))}
-                    series={selectedTools.map((t, i) => ({
-                      id: t.id,
-                      name: t.name,
-                      color: ['#4f46e5', '#059669', '#d97706', '#dc2626'][i % 4],
-                      values: Object.fromEntries(TOOL_SCORE_KEYS.map((k) => [k, t.scores[k]])),
-                    }))}
-                    className="w-full max-w-xl"
-                  />
-                </div>
-                <div className="p-4 overflow-x-auto">
-                  <table className="min-w-full text-xs divide-y divide-slate-100 dark:divide-slate-700">
-                    <thead>
-                      <tr className="text-left text-slate-400 bg-slate-50 dark:bg-slate-800/50">
-                        <th className="px-3 py-2 font-semibold">维度</th>
-                        {selectedTools.map((tool) => (
-                          <th key={tool.id} className="px-3 py-2 font-semibold text-slate-700 dark:text-slate-200">{tool.name}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                      <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                        <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">类别</td>
-                        {selectedTools.map((tool) => (
-                          <td key={tool.id} className="px-3 py-2 text-slate-700 dark:text-slate-200">{tool.category}</td>
-                        ))}
-                      </tr>
-                      <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                        <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">价格</td>
-                        {selectedTools.map((tool) => (
-                          <td key={tool.id} className="px-3 py-2 text-slate-700 dark:text-slate-200">{tool.pricing.plan}</td>
-                        ))}
-                      </tr>
-                      <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                        <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">补全</td>
-                        {selectedTools.map((tool) => (
-                          <td key={tool.id} className="px-3 py-2">
-                            <span className="font-semibold text-indigo-600 dark:text-indigo-300">{tool.scores.codeCompletion.toFixed(1)}</span>
-                          </td>
-                        ))}
-                      </tr>
-                      <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                        <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">生成</td>
-                        {selectedTools.map((tool) => (
-                          <td key={tool.id} className="px-3 py-2">
-                            <span className="font-semibold text-indigo-600 dark:text-indigo-300">{tool.scores.codeGeneration.toFixed(1)}</span>
-                          </td>
-                        ))}
-                      </tr>
-                      <tr className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                        <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">国内可用</td>
-                        {selectedTools.map((tool) => (
-                          <td key={tool.id} className="px-3 py-2">
-                            <span className={clsx(
-                              'rounded-full px-2 py-1 text-xs font-semibold',
-                              tool.china.accessible ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
-                            )}>
-                              {tool.china.accessible ? '✓ 可用' : '✗ 受限'}
-                            </span>
-                          </td>
-                        ))}
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <CompactList title="选择理由" items={candidate.reasons.slice(0, 3)} />
+        <CompactList title="风险" items={candidate.risks.slice(0, 2)} tone="warning" />
+      </div>
+    </button>
+  );
+}
+
+function CompactList({ title, items, tone = 'neutral' }: { title: string; items: string[]; tone?: 'neutral' | 'warning' }) {
+  return (
+    <div>
+      <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">{title}</p>
+      <ul className="mt-1 space-y-1">
+        {items.map((item) => (
+          <li key={item} className={clsx(
+            'text-xs leading-5',
+            tone === 'warning' ? 'text-amber-700 dark:text-amber-300' : 'text-slate-600 dark:text-slate-300',
+          )}>
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function Metric({ label, value, tone = 'neutral' }: { label: string; value: string; tone?: 'neutral' | 'positive' | 'warning' }) {
+  return (
+    <div className={clsx(
+      'rounded-lg border px-3 py-2',
+      tone === 'positive'
+        ? 'border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/30 dark:text-emerald-100'
+        : tone === 'warning'
+          ? 'border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100'
+          : 'border-slate-200 bg-slate-50 text-slate-800 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-100',
+    )}>
+      <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">{label}</p>
+      <p className="mt-1 line-clamp-2 text-xs font-bold leading-5">{value}</p>
     </div>
   );
 }

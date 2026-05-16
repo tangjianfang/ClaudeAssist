@@ -2,7 +2,9 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, CircleCheck, CircleX, ExternalLink, Globe, ShieldAlert } from 'lucide-react';
 import { getToolById } from '../data/tools/index';
 import { DATA_STORE } from '../data/ai-ecosystem';
+import { sectionEntries } from '../data';
 import { PageHeader } from '../components/layout/PageHeader';
+import { CommandCard } from '../components/CommandCard';
 import { MetricCell, MetricRow } from '../components/ui/MetricCell';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { Panel } from '../components/ui/Panel';
@@ -10,10 +12,11 @@ import { SourceLink } from '../components/ui/SourceLink';
 import { EmptyState } from '../components/ui/EmptyState';
 import { TOOL_FEATURE_LABELS } from '../data/taxonomy';
 import type { AiToolFeature } from '../data/ai-ecosystem';
+import type { SectionId } from '../data/types';
 
 
 export function ToolDetailPage() {
-  const { toolId } = useParams<{ toolId: string }>();
+  const { toolId, knowledgeId } = useParams<{ toolId: string; knowledgeId?: string }>();
   const tool = toolId ? getToolById(toolId) : undefined;
 
   if (!tool) {
@@ -36,6 +39,8 @@ export function ToolDetailPage() {
   const combos = DATA_STORE.toolCombinations.filter(
     (c) => c.tool === tool.name || tool.id === toolId,
   );
+  const childPage = tool.id === 'claude-code' && knowledgeId ? CLAUDE_CODE_CHILD_PAGE_MAP[knowledgeId] : undefined;
+  const childEntries = childPage?.sectionId ? sectionEntries[childPage.sectionId] ?? [] : [];
 
   return (
     <div className="px-4 md:px-6 py-6 max-w-4xl mx-auto space-y-6">
@@ -51,7 +56,7 @@ export function ToolDetailPage() {
       {/* Header */}
       <PageHeader
         title={tool.name}
-        description={`${tool.vendor} · ${tool.category}`}
+        description={childPage ? `Claude Code · ${childPage.label}` : `${tool.vendor} · ${tool.category}`}
         actions={
           <a
             href={tool.source.url}
@@ -64,6 +69,32 @@ export function ToolDetailPage() {
           </a>
         }
       />
+
+      {childPage && (
+        <Panel className="border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60">
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+            AI Coding Tools / Claude Code
+          </p>
+          <h2 className="mt-2 text-lg font-extrabold text-slate-950 dark:text-white">{childPage.label}</h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
+            这是 Claude Code profile 下的子知识页。旧参考路由仍可访问，但主要入口已经收束到 `/tools/claude-code/*` 路由树中。
+          </p>
+          <Link
+            to={childPage.legacyPath}
+            className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:underline dark:text-indigo-300"
+          >
+            打开现有参考内容
+            <ExternalLink size={13} />
+          </Link>
+          {childEntries.length > 0 && (
+            <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-3">
+              {childEntries.map((entry) => (
+                <CommandCard key={entry.id} entry={entry} activeTag={null} onTagClick={() => undefined} />
+              ))}
+            </div>
+          )}
+        </Panel>
+      )}
 
       {/* Overview */}
       <Panel>
@@ -229,3 +260,14 @@ export function ToolDetailPage() {
     </div>
   );
 }
+
+const CLAUDE_CODE_CHILD_PAGE_MAP: Record<string, { label: string; legacyPath: string; sectionId: SectionId | null }> = {
+  commands: { label: 'Commands', legacyPath: '/slash-commands', sectionId: 'slash-commands' },
+  'cli-flags': { label: 'CLI Flags', legacyPath: '/cli-flags', sectionId: 'cli-flags' },
+  shortcuts: { label: 'Shortcuts', legacyPath: '/shortcuts', sectionId: 'shortcuts' },
+  settings: { label: 'Settings', legacyPath: '/settings', sectionId: 'settings' },
+  skills: { label: 'Skills', legacyPath: '/skills', sectionId: 'skills' },
+  modes: { label: 'Modes', legacyPath: '/modes', sectionId: 'modes' },
+  plugins: { label: 'Plugins', legacyPath: '/plugins', sectionId: null },
+  'env-vars': { label: 'Env Vars', legacyPath: '/env-vars', sectionId: 'env-vars' },
+};

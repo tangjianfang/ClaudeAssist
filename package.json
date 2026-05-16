@@ -12,8 +12,10 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "validate:data": "node scripts/validate-data.mjs",
-    "check": "npm run lint && npm run test:decision && npm run build && npm run validate:data",
-    "test:decision": "tsx tests/decision-recommendations.test.ts"
+    "check": "npm run lint && npm run test:decision && npm run test:navigation && npm run test:tools && npm run build && npm run validate:data",
+    "test:decision": "tsx tests/decision-recommendations.test.ts",
+    "test:navigation": "tsx tests/navigation-architecture.test.ts",
+    "test:tools": "tsx tests/tool-workbench.test.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

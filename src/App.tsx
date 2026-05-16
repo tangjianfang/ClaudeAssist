@@ -15,6 +15,10 @@ import { AiEcosystemPage } from './pages/AiEcosystem';
 import { AiToolsPage } from './pages/AiTools';
 import { ToolCombinationsPage } from './pages/ToolCombinations';
 import { ToolDetailPage } from './pages/ToolDetail';
+import { ReportsPage } from './pages/Reports';
+import { GenerateReportPage } from './pages/GenerateReport';
+import { ReportViewerPage } from './pages/ReportViewer';
+import { MaintenancePage } from './pages/Maintenance';
 import { LanguageProvider } from './i18n';
 import { FavoritesProvider } from './context/FavoritesContext';
 import { useUnifiedSearch } from './hooks/useSearch';
@@ -111,7 +115,12 @@ function AppInner() {
             <Route path="/ai-ecosystem" element={<AiEcosystemPage />} />
             <Route path="/ai-tools" element={<AiToolsPage />} />
             <Route path="/tool-combinations" element={<ToolCombinationsPage />} />
+            <Route path="/generate-report" element={<GenerateReportPage />} />
+            <Route path="/reports/:reportId" element={<ReportViewerPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/maintenance" element={<MaintenancePage />} />
             <Route path="/tools/:toolId" element={<ToolDetailPage />} />
+            <Route path="/tools/:toolId/:knowledgeId" element={<ToolDetailPage />} />
             <Route path="/:sectionId" element={<SectionPage globalQuery={query} />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
