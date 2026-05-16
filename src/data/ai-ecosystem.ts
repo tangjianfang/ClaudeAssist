@@ -53,6 +53,7 @@ export interface AiRecommendation {
   risk: string;
 }
 
+export type AiToolStatus = 'stable' | 'preview' | 'unverified' | 'deprecated';
 export type AiToolCategory = 'ide' | 'editor' | 'platform' | 'specialized' | 'workflow';
 export type AiToolFeature = 'code-completion' | 'code-generation' | 'code-execution' | 'refactoring' | 'testing' | 'documentation' | 'debugging' | 'optimization' | 'api-integration' | 'voice-control' | 'terminal' | 'agents' | 'multi-file' | 'chat' | 'file-editing' | 'security-scanning' | 'local-private' | 'git-integration' | 'web-search' | 'image-analysis';
 
@@ -85,6 +86,7 @@ export interface AiTool {
     note: string;
   };
   supportedModels: string[]; // 支持的模型，如 GPT-4, Claude 等
+  status?: AiToolStatus;
   tags: string[];
   pros: string[];
   cons: string[];
@@ -120,13 +122,6 @@ export interface AiEcosystemDataStore {
   tools: AiTool[];
   recommendations: AiRecommendation[];
   toolCombinations: AiToolCombination[];
-}
-
-export interface AiEcosystemDataStore {
-  lastUpdated: string;
-  version: string;
-  models: AiModel[];
-  recommendations: AiRecommendation[];
 }
 
 export const DATA_STORE: AiEcosystemDataStore = {
@@ -1800,6 +1795,201 @@ export const DATA_STORE: AiEcosystemDataStore = {
       source: {
         label: 'Void Editor GitHub',
         url: 'https://github.com/voideditor/void',
+        checkedAt: '2026-05-16',
+      },
+    },
+    {
+      id: 'codex-app',
+      name: 'Codex App',
+      vendor: 'OpenAI',
+      category: 'platform',
+      version: 'Latest',
+      compatible: ['Web Browser', 'MacOS App', 'Windows App'],
+      costTier: 'medium',
+      pricing: {
+        currency: 'USD',
+        plan: 'ChatGPT Plus/Pro 订阅 / API 按量',
+        notes: 'ChatGPT Plus 订阅（$20/月）包含使用权限；API 模式按 Token 计费。桌面端 App 免费下载。',
+        officialUrl: 'https://chatgpt.com',
+      },
+      features: ['code-generation', 'code-execution', 'agents', 'multi-file', 'file-editing', 'chat', 'web-search'],
+      scores: {
+        codeCompletion: 7.0,
+        codeGeneration: 9.4,
+        efficiency: 9.0,
+        accuracy: 9.2,
+        contextAwareness: 9.1,
+      },
+      china: {
+        accessible: false,
+        needsProxy: true,
+        alternativeAvailable: false,
+        note: 'OpenAI 服务在中国大陆不可直连，需合规海外代理或企业渠道访问。',
+      },
+      supportedModels: ['GPT-5.5', 'GPT-5.4', 'GPT-5.4-mini', 'o3', 'o4-mini'],
+      status: 'stable',
+      tags: ['openai-official', 'web-app', 'desktop-app', 'agentic', 'code-execution', 'canvas'],
+      pros: ['OpenAI 官方应用，最直接体验 GPT-5 系列能力', 'Canvas 模式支持代码实时编辑与运行', 'Web 和桌面双端', 'Agent 模式可自主完成多步骤任务', '内置 Code Interpreter（数据分析/图表/文件处理）'],
+      cons: ['中国大陆不可直接访问', '非 IDE 插件，与代码库集成需手动复制', '订阅成本与 API 费用叠加', '复杂工程上下文感知不如 Claude Code'],
+      source: {
+        label: 'OpenAI ChatGPT',
+        url: 'https://chatgpt.com',
+        checkedAt: '2026-05-16',
+      },
+    },
+    {
+      id: 'factory-droid',
+      name: 'Factory Droid',
+      vendor: 'Factory AI',
+      category: 'platform',
+      version: 'Latest',
+      compatible: ['Web Browser', 'GitHub Integration', 'CLI'],
+      costTier: 'medium',
+      pricing: {
+        currency: 'USD',
+        plan: '联系 Factory AI 获取定价',
+        notes: '企业级定价；公开价格信息有限，建议联系 Factory AI 销售团队。',
+        officialUrl: 'https://factory.ai',
+      },
+      features: ['code-generation', 'code-execution', 'agents', 'multi-file', 'testing', 'git-integration', 'refactoring'],
+      scores: {
+        codeCompletion: 7.5,
+        codeGeneration: 9.0,
+        efficiency: 9.2,
+        accuracy: 8.8,
+        contextAwareness: 9.0,
+      },
+      china: {
+        accessible: false,
+        needsProxy: true,
+        alternativeAvailable: false,
+        note: 'Factory AI 为海外服务，中国大陆访问受限；企业合规使用需海外渠道。',
+      },
+      supportedModels: ['Claude Opus 4.7', 'GPT-5.5', 'Gemini 3.1 Pro'],
+      status: 'preview',
+      tags: ['enterprise', 'autonomous-agent', 'droids', 'code-review', 'pr-automation', 'github-integration'],
+      pros: ['专为企业软件工程设计的自主 Agent（Droids）', '深度 GitHub/GitLab 集成，可自动提 PR', '多 Agent 协作完成复杂工程任务', '支持代码审查、测试生成、重构自动化', '企业级安全与合规架构'],
+      cons: ['定价不透明，需联系销售', '产品处于快速迭代期，功能稳定性待验证', '国内访问受限', '学习曲线较高，需配置工作流'],
+      source: {
+        label: 'Factory AI 官方',
+        url: 'https://factory.ai',
+        checkedAt: '2026-05-16',
+      },
+    },
+    {
+      id: 'gemini-cli',
+      name: 'Gemini CLI',
+      vendor: 'Google DeepMind',
+      category: 'workflow',
+      version: 'Latest',
+      compatible: ['CLI/Terminal'],
+      costTier: 'low',
+      pricing: {
+        currency: 'USD',
+        plan: 'Gemini API 免费层 / 按量计费',
+        notes: 'Gemini API 提供免费层（60 req/min）；超出后按 Token 计费。CLI 工具本身免费开源。',
+        officialUrl: 'https://github.com/google-gemini/gemini-cli',
+      },
+      features: ['code-generation', 'code-execution', 'file-editing', 'agents', 'terminal', 'multi-file', 'web-search'],
+      scores: {
+        codeCompletion: 7.0,
+        codeGeneration: 9.1,
+        efficiency: 8.9,
+        accuracy: 9.0,
+        contextAwareness: 9.2,
+      },
+      china: {
+        accessible: false,
+        needsProxy: true,
+        alternativeAvailable: false,
+        note: 'Google AI 服务需合规海外网络；Gemini API 在中国大陆不可直连。',
+      },
+      supportedModels: ['Gemini 3.1 Pro', 'Gemini 3 Flash', 'Gemini 2.5 Pro', 'Gemini 2.5 Flash'],
+      status: 'stable',
+      tags: ['google-official', 'cli-tool', 'agentic', 'open-source', 'free-tier', 'gemini-powered', 'mcp-support'],
+      pros: ['Google 官方出品，原生调用 Gemini 最新模型', '免费 API 层提供较大配额（个人开发者友好）', '1M 超大上下文窗口', '支持 MCP（Model Context Protocol）工具调用', '开源可自定义，npm 安装即用', '文件系统操作与终端执行能力'],
+      cons: ['国内访问需代理', '生态成熟度低于 Claude Code/Codex CLI', '自主任务能力仍在成熟', 'Windows 原生体验略弱于 macOS/Linux'],
+      source: {
+        label: 'Google Gemini CLI GitHub',
+        url: 'https://github.com/google-gemini/gemini-cli',
+        checkedAt: '2026-05-16',
+      },
+    },
+    {
+      id: 'opencode',
+      name: 'OpenCode',
+      vendor: 'SST (Open Source)',
+      category: 'workflow',
+      version: 'Latest',
+      compatible: ['CLI/Terminal'],
+      costTier: 'low',
+      pricing: {
+        currency: 'USD',
+        plan: 'Free (BYOK)',
+        notes: '完全开源免费；自带 API Key 连接任意支持 OpenAI 接口的 LLM。',
+        officialUrl: 'https://github.com/sst/opencode',
+      },
+      features: ['code-generation', 'file-editing', 'agents', 'terminal', 'multi-file', 'git-integration'],
+      scores: {
+        codeCompletion: 6.5,
+        codeGeneration: 8.8,
+        efficiency: 8.7,
+        accuracy: 8.8,
+        contextAwareness: 9.0,
+      },
+      china: {
+        accessible: true,
+        needsProxy: false,
+        alternativeAvailable: true,
+        note: 'CLI 本体国内可安装；搭配 DeepSeek/Qwen 等国内 API 可完全国内化使用。',
+      },
+      supportedModels: ['Claude Opus 4.7', 'Claude Sonnet 4.6', 'GPT-5.4', 'Gemini 3.1 Pro', 'DeepSeek V4-Pro', 'Qwen3.6-Max'],
+      status: 'preview',
+      tags: ['open-source', 'cli-tool', 'byok', 'terminal-ui', 'agentic', 'china-friendly', 'sst'],
+      pros: ['SST 团队出品，专注开发者工具体验', '交互式终端 UI（TUI），操作体验优于纯命令行', '完全开源 BYOK，无供应商锁定', '国内可搭配 DeepSeek/Qwen 使用', '轻量快速，无重型依赖'],
+      cons: ['项目较新，功能完整度仍在追赶 Aider/Claude Code', '社区规模小', '企业级功能待验证', '文档相对有限'],
+      source: {
+        label: 'OpenCode GitHub (SST)',
+        url: 'https://github.com/sst/opencode',
+        checkedAt: '2026-05-16',
+      },
+    },
+    {
+      id: 'github-copilot-cli',
+      name: 'GitHub Copilot CLI',
+      vendor: 'GitHub/OpenAI',
+      category: 'workflow',
+      version: 'Latest',
+      compatible: ['CLI/Terminal', 'Bash', 'Zsh', 'Fish'],
+      costTier: 'low',
+      pricing: {
+        currency: 'USD',
+        plan: 'GitHub Copilot 订阅包含（Pro $10/月）',
+        notes: 'Copilot Pro/Business/Enterprise 订阅包含 Copilot CLI；无需额外付费。',
+        officialUrl: 'https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-in-the-command-line',
+      },
+      features: ['code-generation', 'terminal', 'agents', 'git-integration'],
+      scores: {
+        codeCompletion: 7.8,
+        codeGeneration: 8.5,
+        efficiency: 9.0,
+        accuracy: 8.6,
+        contextAwareness: 8.3,
+      },
+      china: {
+        accessible: false,
+        needsProxy: true,
+        alternativeAvailable: false,
+        note: 'GitHub Copilot 需 GitHub 账号和海外网络，中国大陆访问受限。',
+      },
+      supportedModels: ['GPT-4.5', 'GPT-5.4-mini', 'Claude Sonnet 4.6'],
+      status: 'stable',
+      tags: ['github-official', 'cli-tool', 'shell-assistant', 'explain-command', 'suggest-command', 'copilot-ecosystem'],
+      pros: ['GitHub Copilot 订阅包含，无额外费用', 'Shell 命令建议与解释（`gh copilot suggest` / `explain`）', '深度 Git/GitHub 工作流集成', '轻量快速，不需要额外 API Key', '支持 Bash/Zsh/Fish 多 Shell'],
+      cons: ['中国大陆不可直接访问', '功能聚焦 Shell/CLI，不如全功能 Agent CLI', '不支持多文件代码重构', '依赖 Copilot 订阅生态'],
+      source: {
+        label: 'GitHub Copilot CLI 文档',
+        url: 'https://docs.github.com/en/copilot/using-github-copilot/using-github-copilot-in-the-command-line',
         checkedAt: '2026-05-16',
       },
     },

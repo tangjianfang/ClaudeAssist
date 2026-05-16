@@ -3,6 +3,7 @@ import { ChevronDown, ExternalLink } from 'lucide-react';
 import { clsx } from 'clsx';
 import type { AiTool } from '../data/ai-ecosystem';
 import { TOOL_FEATURE_LABELS } from '../data/ai-ecosystem';
+import { StatusBadge } from './ui/StatusBadge';
 
 interface ToolCardProps {
   tool: AiTool;
@@ -44,6 +45,7 @@ export function ToolCard({ tool, isSelected, onToggle, isDisabled }: ToolCardPro
                   国内可用 ✓
                 </span>
               )}
+              <StatusBadge status={tool.status} />
             </div>
           </div>
           <button

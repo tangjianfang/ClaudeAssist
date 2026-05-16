@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { HashRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { TopBar } from './components/Layout/TopBar';
-import { Sidebar } from './components/Layout/Sidebar';
+import { TopBar } from './components/layout/TopBar';
+import { Sidebar } from './components/layout/Sidebar';
 import { HomePage } from './pages/Home';
 import { SectionPage } from './pages/Section';
 import { CheatsheetPage } from './pages/Cheatsheet';

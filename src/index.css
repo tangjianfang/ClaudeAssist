@@ -3,6 +3,52 @@
 /* Enable class-based dark mode for Tailwind CSS v4 */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ── ca- design tokens (Tailwind v4 @theme) ────────────────────────── */
+@theme {
+  /* Surface */
+  --color-ca-surface: #ffffff;
+  --color-ca-surface-muted: #f8fafc;
+  --color-ca-border-subtle: #e2e8f0;
+
+  /* Text */
+  --color-ca-text: #0f172a;
+  --color-ca-text-muted: #64748b;
+
+  /* Accent (indigo) */
+  --color-ca-accent: #4f46e5;
+  --color-ca-accent-fg: #ffffff;
+
+  /* Status — semantic */
+  --color-ca-status-stable: #10b981;
+  --color-ca-status-preview: #f59e0b;
+  --color-ca-status-unverified: #ef4444;
+  --color-ca-status-deprecated: #94a3b8;
+  --color-ca-status-success: #10b981;
+  --color-ca-status-warning: #f59e0b;
+  --color-ca-status-danger: #ef4444;
+
+  /* Panel */
+  --shadow-ca-panel: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --radius-ca-panel: 0.75rem;
+
+  /* Chart palette */
+  --color-ca-chart-1: #3b82f6;  /* blue */
+  --color-ca-chart-2: #10b981;  /* emerald */
+  --color-ca-chart-3: #f59e0b;  /* amber */
+  --color-ca-chart-4: #f43f5e;  /* rose */
+  --color-ca-chart-5: #64748b;  /* slate */
+  --color-ca-chart-6: #06b6d4;  /* cyan */
+}
+
+/* Dark overrides for ca- tokens */
+.dark {
+  --color-ca-surface: #0f172a;
+  --color-ca-surface-muted: #1e293b;
+  --color-ca-border-subtle: #334155;
+  --color-ca-text: #f1f5f9;
+  --color-ca-text-muted: #94a3b8;
+}
+
 @layer base {
   html {
     -webkit-font-smoothing: antialiased;
