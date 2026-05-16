@@ -11,7 +11,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "validate:data": "node scripts/validate-data.mjs"
+    "validate:data": "node scripts/validate-data.mjs",
+    "check": "npm run lint && npm run build && npm run validate:data"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

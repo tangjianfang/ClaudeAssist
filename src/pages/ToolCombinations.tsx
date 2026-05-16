@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Filter, Search, Zap, Target, TrendingUp, CircleAlert, CircleCheck, Clock } from 'lucide-react';
 import { DATA_STORE } from '../data/ai-ecosystem';
+import { getToolByName } from '../data/tools/index';
 
 export function ToolCombinationsPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -216,7 +218,19 @@ export function ToolCombinationsPage() {
                 </div>
                 <div className="rounded-lg bg-emerald-50 dark:bg-emerald-900/20 p-3">
                   <div className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-300 mb-1">编码工具</div>
-                  <div className="text-sm font-bold text-slate-900 dark:text-slate-100">{combo.tool}</div>
+                  {(() => {
+                    const tool = getToolByName(combo.tool);
+                    return tool ? (
+                      <Link
+                        to={`/tools/${tool.id}`}
+                        className="text-sm font-bold text-emerald-700 dark:text-emerald-300 hover:underline"
+                      >
+                        {combo.tool}
+                      </Link>
+                    ) : (
+                      <div className="text-sm font-bold text-slate-900 dark:text-slate-100">{combo.tool}</div>
+                    );
+                  })()}
                 </div>
               </div>
 

@@ -14,9 +14,10 @@ import { ClawCodePage } from './pages/ClawCode';
 import { AiEcosystemPage } from './pages/AiEcosystem';
 import { AiToolsPage } from './pages/AiTools';
 import { ToolCombinationsPage } from './pages/ToolCombinations';
+import { ToolDetailPage } from './pages/ToolDetail';
 import { LanguageProvider } from './i18n';
 import { FavoritesProvider } from './context/FavoritesContext';
-import { useSearch, useAiModelSearch } from './hooks/useSearch';
+import { useUnifiedSearch } from './hooks/useSearch';
 import { useLanguage } from './i18n';
 
 function AppInner() {
@@ -65,8 +66,7 @@ function AppInner() {
     }
   }
 
-  const searchResults = useSearch(query, lang);
-  const aiSearchResults = useAiModelSearch(query);
+  const unifiedResults = useUnifiedSearch(query, lang);
 
   return (
     <div className="flex flex-col h-screen bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
@@ -101,7 +101,7 @@ function AppInner() {
         <main className="flex-1 overflow-y-auto">
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/search" element={<SearchResults results={searchResults} aiResults={aiSearchResults} query={query} />} />
+            <Route path="/search" element={<SearchResults results={unifiedResults.commands} aiResults={unifiedResults.models} toolResults={unifiedResults.tools} query={query} />} />
             <Route path="/cheatsheet" element={<CheatsheetPage />} />
             <Route path="/scenarios" element={<ScenariosPage />} />
             <Route path="/favorites" element={<FavoritesPage />} />
@@ -111,6 +111,7 @@ function AppInner() {
             <Route path="/ai-ecosystem" element={<AiEcosystemPage />} />
             <Route path="/ai-tools" element={<AiToolsPage />} />
             <Route path="/tool-combinations" element={<ToolCombinationsPage />} />
+            <Route path="/tools/:toolId" element={<ToolDetailPage />} />
             <Route path="/:sectionId" element={<SectionPage globalQuery={query} />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

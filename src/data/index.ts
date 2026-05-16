@@ -9,6 +9,12 @@ export type { Scenario, ScenarioDifficulty, ScenarioCategory, ScenarioStep, Scen
 export { DATA_STORE as aiEcosystem } from './ai-ecosystem';
 export type { AiModel } from './ai-ecosystem';
 
+// ── 新增 query API barrel ──────────────────────────────────────────
+export { getModels, getModelById, getModelIds, getModelVendors } from './models/index';
+export { getTools, getToolById, getToolByName, getToolIds, getToolVendors, getAllToolFeatures, getAllCompatibleIDEs } from './tools/index';
+export * from './taxonomy';
+
+
 import { slashCommands } from './slash-commands';
 import { cliFlags } from './cli-flags';
 import { shortcuts } from './shortcuts';

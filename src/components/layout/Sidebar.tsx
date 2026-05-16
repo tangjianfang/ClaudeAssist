@@ -1,45 +1,22 @@
 import { NavLink } from 'react-router-dom';
-import {
-  Slash,
-  Terminal,
-  Keyboard,
-  Zap,
-  Layers,
-  Settings,
-  Variable,
-  BookOpen,
-  Star,
-  Sparkles,
-  Puzzle,
-  X,
-  Code,
-  BrainCircuit,
-  Wrench,
-  Target,
-} from 'lucide-react';
+import { X } from 'lucide-react';
 import { clsx } from 'clsx';
 import { useLanguage } from '../../i18n';
 import { sectionEntries, scenarios } from '../../data';
 import { useFavoritesContext } from '../../context/FavoritesContext';
+import { NAV_GROUPS } from '../../data/navigation';
 import type { SectionId } from '../../data/types';
-
-interface SidebarItem {
-  id: SectionId;
-  icon: React.ReactNode;
-}
-
-const items: SidebarItem[] = [
-  { id: 'slash-commands', icon: <Slash size={18} /> },
-  { id: 'cli-flags', icon: <Terminal size={18} /> },
-  { id: 'shortcuts', icon: <Keyboard size={18} /> },
-  { id: 'skills', icon: <Zap size={18} /> },
-  { id: 'modes', icon: <Layers size={18} /> },
-  { id: 'settings', icon: <Settings size={18} /> },
-  { id: 'env-vars', icon: <Variable size={18} /> },
-];
 
 interface SidebarProps {
   onClose?: () => void;
+}
+
+function SectionLabel({ children, className }: { children: React.ReactNode; className?: string }) {
+  return (
+    <p className={clsx('px-3 pt-2 pb-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-600 select-none', className)}>
+      {children}
+    </p>
+  );
 }
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -51,9 +28,19 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   );
 
 export function Sidebar({ onClose }: SidebarProps) {
-  const { lang, t } = useLanguage();
+  const { lang } = useLanguage();
   const { favorites } = useFavoritesContext();
   const isZh = lang === 'zh-CN' || lang === 'zh-TW';
+
+  function getBadgeValue(badge?: string, id?: string): number | null {
+    if (!badge) return null;
+    if (badge === 'scenarios-count') return scenarios.length;
+    if (badge === 'favorites-count') return favorites.size > 0 ? favorites.size : null;
+    if (badge === 'section-count' && id && id in sectionEntries) {
+      return sectionEntries[id as SectionId].length;
+    }
+    return null;
+  }
 
   return (
     <nav className="w-56 shrink-0 flex flex-col gap-0.5 py-4 pr-2 border-r border-slate-100 dark:border-slate-800">
@@ -68,79 +55,35 @@ export function Sidebar({ onClose }: SidebarProps) {
           </button>
         </div>
       )}
-      {/* Scenarios link */}
-      <NavLink to="/scenarios" className={navLinkClass} onClick={onClose}>
-        <span className="opacity-70"><BookOpen size={18} /></span>
-        <span className="truncate">{t.sections['scenarios']}</span>
-        <span className="ml-auto text-xs text-slate-400 dark:text-slate-500">
-          {scenarios.length}
-        </span>
-      </NavLink>
 
-      {/* What's New */}
-      <NavLink to="/features" className={navLinkClass} onClick={onClose}>
-        <span className="opacity-70"><Sparkles size={18} /></span>
-        <span className="truncate">{t.sections['features']}</span>
-      </NavLink>
-
-      {/* Plugins */}
-      <NavLink to="/plugins" className={navLinkClass} onClick={onClose}>
-        <span className="opacity-70"><Puzzle size={18} /></span>
-        <span className="truncate">{t.sections['plugins']}</span>
-      </NavLink>
-
-      {/* ClawCode */}
-      <NavLink to="/clawcode" className={navLinkClass} onClick={onClose}>
-        <span className="opacity-70"><Code size={18} /></span>
-        <span className="truncate">{t.clawcode.pageTitle}</span>
-      </NavLink>
-
-      {/* AI Ecosystem */}
-      <NavLink to="/ai-ecosystem" className={navLinkClass} onClick={onClose}>
-        <span className="opacity-70"><BrainCircuit size={18} /></span>
-        <span className="truncate">{isZh ? 'AI 生态追踪' : 'AI Ecosystem'}</span>
-      </NavLink>
-
-      {/* AI Tools */}
-      <NavLink to="/ai-tools" className={navLinkClass} onClick={onClose}>
-        <span className="opacity-70"><Wrench size={18} /></span>
-        <span className="truncate">{isZh ? 'AI 编码工具' : 'AI Tools'}</span>
-      </NavLink>
-
-      {/* Tool Combinations */}
-      <NavLink to="/tool-combinations" className={navLinkClass} onClick={onClose}>
-        <span className="opacity-70"><Target size={18} /></span>
-        <span className="truncate">{isZh ? '工具组合方案' : 'Combinations'}</span>
-      </NavLink>
-
-      {/* Favorites */}
-      <NavLink to="/favorites" className={navLinkClass} onClick={onClose}>
-        <span className="opacity-70"><Star size={18} /></span>
-        <span className="truncate">{t.sections['favorites']}</span>
-        {favorites.size > 0 && (
-          <span className="ml-auto text-xs text-amber-500 dark:text-amber-400 font-semibold">
-            {favorites.size}
-          </span>
-        )}
-      </NavLink>
-
-      {/* Divider */}
-      <div className="my-1 border-t border-slate-100 dark:border-slate-800" />
-
-      {items.map(({ id, icon }) => (
-        <NavLink
-          key={id}
-          to={`/${id}`}
-          className={navLinkClass}
-          onClick={onClose}
-        >
-          <span className="opacity-70">{icon}</span>
-          <span className="truncate">{t.sections[id]}</span>
-          <span className="ml-auto text-xs text-slate-400 dark:text-slate-500">
-            {sectionEntries[id].length}
-          </span>
-        </NavLink>
+      {NAV_GROUPS.map((group, gi) => (
+        <div key={group.id}>
+          <SectionLabel className={gi > 0 ? 'mt-1' : undefined}>
+            {isZh ? group.labelZh : group.labelEn}
+          </SectionLabel>
+          {group.items.map((item) => {
+            const badgeVal = getBadgeValue(item.badge, item.id);
+            const label = isZh ? item.labelZh : item.labelEn;
+            return (
+              <NavLink key={item.id} to={item.path} className={navLinkClass} onClick={onClose}>
+                <span className="opacity-70"><item.Icon size={18} /></span>
+                <span className="truncate">{label}</span>
+                {badgeVal !== null && (
+                  <span className={clsx(
+                    'ml-auto text-xs font-semibold',
+                    item.badge === 'favorites-count'
+                      ? 'text-amber-500 dark:text-amber-400'
+                      : 'text-slate-400 dark:text-slate-500',
+                  )}>
+                    {badgeVal}
+                  </span>
+                )}
+              </NavLink>
+            );
+          })}
+        </div>
       ))}
     </nav>
   );
 }
+
