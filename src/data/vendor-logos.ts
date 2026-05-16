@@ -100,6 +100,33 @@ export const VENDOR_LOGOS: Record<string, { url: string; alt: string }> = {
 };
 
 /**
+ * 工具专属 logo 映射表（按工具 id）
+ * 优先级高于厂商 logo，适用于工具与厂商 logo 不同的情况
+ * 如：Claude Code 与 Anthropic、GitHub Copilot 与 GitHub
+ */
+export const TOOL_LOGOS: Record<string, { url: string; alt: string }> = {
+  // Claude Code 使用 Claude 品牌 logo（不同于 Anthropic 通用 logo）
+  'claude-code': {
+    url: '/ClaudeAssist/logos/claude.svg',
+    alt: 'Claude Code Logo',
+  },
+  // GitHub Copilot 使用 Copilot 专属 logo（不同于 GitHub Octocat）
+  'github-copilot-individual': {
+    url: '/ClaudeAssist/logos/githubcopilot.svg',
+    alt: 'GitHub Copilot Logo',
+  },
+  'github-copilot-cli': {
+    url: '/ClaudeAssist/logos/githubcopilot.svg',
+    alt: 'GitHub Copilot Logo',
+  },
+  // Gemini CLI 使用 Gemini 专属 logo（不同于 Google 通用 logo）
+  'gemini-cli': {
+    url: '/ClaudeAssist/logos/googlegemini.svg',
+    alt: 'Gemini CLI Logo',
+  },
+};
+
+/**
  * 根据厂商名称获取 logo，支持备选方案
  */
 export function getVendorLogo(vendor: string): { url: string; alt: string } | undefined {

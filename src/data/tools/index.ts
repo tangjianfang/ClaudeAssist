@@ -7,7 +7,7 @@
 
 import { DATA_STORE } from '../ai-ecosystem';
 import { getHydratedScenarioRecommendation } from '../decision-scenarios';
-import { getVendorLogo } from '../vendor-logos';
+import { getVendorLogo, TOOL_LOGOS } from '../vendor-logos';
 import type { AiModel, AiTool, AiToolCategory, AiToolFeature } from '../ai-ecosystem';
 import type { DecisionScenarioId } from '../decision-scenarios';
 
@@ -50,6 +50,11 @@ export function defineTool(tool: AiTool): AiTool {
 function enrichToolWithLogo(tool: AiTool): AiTool {
   if (tool.logo) {
     return tool; // 已有 logo，不覆盖
+  }
+  // 工具专属 logo 优先于厂商 logo
+  const toolLogo = TOOL_LOGOS[tool.id];
+  if (toolLogo) {
+    return { ...tool, logo: toolLogo };
   }
   const vendorLogo = getVendorLogo(tool.vendor);
   if (vendorLogo) {
