@@ -1,8 +1,32 @@
 import { Link } from 'react-router-dom';
-import { Plus, FileText, Trash2 } from 'lucide-react';
+import { BrainCircuit, FileText, Lightbulb, Plus, Trash2, Wrench } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../i18n';
-import type { Report } from '../data/reports';
+import type { Report, ReportType } from '../data/reports';
+
+const TYPE_META: Record<ReportType, {
+  labelZh: string;
+  label: string;
+  Icon: typeof FileText;
+  colorClass: string;
+  bgClass: string;
+}> = {
+  scenario: {
+    labelZh: '场景推荐', label: 'Scenario', Icon: Lightbulb,
+    colorClass: 'text-sky-700 dark:text-sky-300',
+    bgClass: 'bg-sky-100 dark:bg-sky-900/40',
+  },
+  'tools-comparison': {
+    labelZh: '工具对比', label: 'Tools', Icon: Wrench,
+    colorClass: 'text-emerald-700 dark:text-emerald-300',
+    bgClass: 'bg-emerald-100 dark:bg-emerald-900/40',
+  },
+  'models-pricing': {
+    labelZh: '模型价格', label: 'Models', Icon: BrainCircuit,
+    colorClass: 'text-violet-700 dark:text-violet-300',
+    bgClass: 'bg-violet-100 dark:bg-violet-900/40',
+  },
+};
 
 export function ReportsPage() {
   const { lang } = useLanguage();
@@ -118,55 +142,74 @@ export function ReportsPage() {
 
       {/* Reports List */}
       {reports.length === 0 ? (
-        <div className="rounded-lg border-2 border-dashed border-slate-300 py-12 text-center dark:border-slate-700">
-          <FileText className="mx-auto mb-3 text-slate-400" size={40} />
-          <p className="text-slate-600 dark:text-slate-400 font-medium">
+        <div className="rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700 py-14 text-center">
+          <div className="inline-flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 p-4 mb-4">
+            <FileText size={32} className="text-slate-400" />
+          </div>
+          <p className="text-slate-700 dark:text-slate-200 font-semibold">
             {isZh ? '暂无报告' : 'No reports yet'}
           </p>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-500">
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
             {isZh
-              ? '点击上方"生成报告"按钮创建第一份报告'
-              : 'Click the "Generate Report" button above to create your first report'}
+              ? '点击「生成报告」按钮创建第一份报告'
+              : 'Click "Generate Report" above to create your first report'}
           </p>
+          <Link
+            to="/generate-report"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-sm text-white font-medium hover:bg-sky-700 dark:bg-sky-700 dark:hover:bg-sky-600"
+          >
+            <Plus size={15} />
+            {isZh ? '立即生成' : 'Generate now'}
+          </Link>
         </div>
       ) : (
         <div className="space-y-3">
-          {reports.map((report) => (
-            <Link
-              key={report.id}
-              to={`/reports/${report.id}`}
-              className="group flex items-start justify-between rounded-lg border border-slate-200 bg-white p-4 transition-colors hover:border-sky-300 hover:bg-sky-50 dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-sky-700 dark:hover:bg-sky-950/20"
-            >
-              <div className="flex-1 space-y-1">
-                <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-                  {isZh ? report.titleZh || report.title : report.title}
-                </h3>
-                <div className="flex flex-wrap gap-3 text-xs text-slate-500 dark:text-slate-400">
-                  <span>{report.type}</span>
-                  <span>•</span>
-                  <span>
-                    {isZh ? '生成于' : 'Generated'}: {report.generatedAt.toLocaleDateString(isZh ? 'zh-CN' : 'en-US')}
-                  </span>
-                  {report.content.metadata.sources.length > 0 && (
-                    <>
-                      <span>•</span>
-                      <span>{isZh ? '来源' : 'Sources'}: {report.content.metadata.sources.length}</span>
-                    </>
-                  )}
-                </div>
-              </div>
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleDeleteReport(report.id);
-                }}
-                className="ml-4 inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm font-medium text-slate-600 transition-colors hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-red-950/30 dark:hover:text-red-400 dark:hover:border-red-700 opacity-0 group-hover:opacity-100"
-                title={isZh ? '删除' : 'Delete'}
+          {reports.map((report) => {
+            const meta = TYPE_META[report.type] ?? TYPE_META['scenario'];
+            const TypeIcon = meta.Icon;
+            return (
+              <Link
+                key={report.id}
+                to={`/reports/${report.id}`}
+                className="group flex items-start justify-between rounded-xl border border-slate-200 bg-white p-4 transition-all hover:border-sky-300 hover:shadow-sm dark:border-slate-800 dark:bg-slate-900/60 dark:hover:border-sky-700"
               >
-                <Trash2 size={14} />
-              </button>
-            </Link>
-          ))}
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <div className={`mt-0.5 rounded-lg p-2 shrink-0 ${meta.bgClass}`}>
+                    <TypeIcon size={16} className={meta.colorClass} />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-slate-900 dark:text-slate-100 truncate">
+                      {isZh ? report.titleZh || report.title : report.title}
+                    </h3>
+                    <div className="flex flex-wrap items-center gap-2 mt-1">
+                      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold ${meta.bgClass} ${meta.colorClass}`}>
+                        <TypeIcon size={10} />
+                        {isZh ? meta.labelZh : meta.label}
+                      </span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400">
+                        {report.generatedAt.toLocaleDateString(isZh ? 'zh-CN' : 'en-US')}
+                      </span>
+                      {report.content.metadata.sources.length > 0 && (
+                        <span className="text-xs text-slate-400 dark:text-slate-500">
+                          {report.content.metadata.sources.length} {isZh ? '个来源' : 'sources'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDeleteReport(report.id);
+                  }}
+                  className="ml-4 inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm font-medium text-slate-600 transition-colors hover:bg-red-50 hover:text-red-700 hover:border-red-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-red-950/30 dark:hover:text-red-400 dark:hover:border-red-700 opacity-0 group-hover:opacity-100 shrink-0"
+                  title={isZh ? '删除' : 'Delete'}
+                >
+                  <Trash2 size={14} />
+                </button>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

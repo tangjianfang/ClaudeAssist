@@ -1,7 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, CircleCheck, CircleX, ExternalLink, Globe, ShieldAlert } from 'lucide-react';
 import { getToolById } from '../data/tools/index';
-import { DATA_STORE } from '../data/ai-ecosystem';
 import { sectionEntries } from '../data';
 import { PageHeader } from '../components/layout/PageHeader';
 import { CommandCard } from '../components/CommandCard';
@@ -35,11 +34,7 @@ export function ToolDetailPage() {
     );
   }
 
-  /* 相关组合方案 */
-  const combos = DATA_STORE.toolCombinations.filter(
-    (c) => c.tool === tool.name || tool.id === toolId,
-  );
-  const childPage = tool.id === 'claude-code' && knowledgeId ? CLAUDE_CODE_CHILD_PAGE_MAP[knowledgeId] : undefined;
+  const childPage = knowledgeId ? TOOL_CHILD_PAGE_MAP[tool.id]?.[knowledgeId] : undefined;
   const childEntries = childPage?.sectionId ? sectionEntries[childPage.sectionId] ?? [] : [];
 
   return (
@@ -56,7 +51,7 @@ export function ToolDetailPage() {
       {/* Header */}
       <PageHeader
         title={tool.name}
-        description={childPage ? `Claude Code · ${childPage.label}` : `${tool.vendor} · ${tool.category}`}
+        description={childPage ? `${tool.name} · ${childPage.label}` : `${tool.vendor} · ${tool.category}`}
         actions={
           <a
             href={tool.source.url}
@@ -73,19 +68,30 @@ export function ToolDetailPage() {
       {childPage && (
         <Panel className="border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/60">
           <p className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-            AI Coding Tools / Claude Code
+            AI Coding Tools / {tool.name}
           </p>
           <h2 className="mt-2 text-lg font-extrabold text-slate-950 dark:text-white">{childPage.label}</h2>
           <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-            这是 Claude Code profile 下的子知识页。旧参考路由仍可访问，但主要入口已经收束到 `/tools/claude-code/*` 路由树中。
+            {childPage.description}
           </p>
-          <Link
-            to={childPage.legacyPath}
-            className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:underline dark:text-indigo-300"
-          >
-            打开现有参考内容
-            <ExternalLink size={13} />
-          </Link>
+          {childPage.legacyPath && (
+            <Link
+              to={childPage.legacyPath}
+              className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:underline dark:text-indigo-300"
+            >
+              打开现有参考内容
+              <ExternalLink size={13} />
+            </Link>
+          )}
+          {childPage.highlights && (
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {childPage.highlights.map((item) => (
+                <div key={item} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">
+                  {item}
+                </div>
+              ))}
+            </div>
+          )}
           {childEntries.length > 0 && (
             <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-3">
               {childEntries.map((entry) => (
@@ -235,21 +241,6 @@ export function ToolDetailPage() {
         </div>
       )}
 
-      {/* Related Combinations */}
-      {combos.length > 0 && (
-        <Panel>
-          <h2 className="font-bold text-slate-800 dark:text-slate-100 mb-3">相关工具组合</h2>
-          <div className="space-y-2">
-            {combos.map((c) => (
-              <div key={c.id} className="rounded-lg border border-slate-100 dark:border-slate-700 p-3">
-                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{c.name}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{c.scenario}</p>
-              </div>
-            ))}
-          </div>
-        </Panel>
-      )}
-
       {/* Source */}
       <div className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-2">
         来源：<SourceLink url={tool.source.url} label={tool.source.label} checkedAt={tool.source.checkedAt} />
@@ -261,13 +252,48 @@ export function ToolDetailPage() {
   );
 }
 
-const CLAUDE_CODE_CHILD_PAGE_MAP: Record<string, { label: string; legacyPath: string; sectionId: SectionId | null }> = {
-  commands: { label: 'Commands', legacyPath: '/slash-commands', sectionId: 'slash-commands' },
-  'cli-flags': { label: 'CLI Flags', legacyPath: '/cli-flags', sectionId: 'cli-flags' },
-  shortcuts: { label: 'Shortcuts', legacyPath: '/shortcuts', sectionId: 'shortcuts' },
-  settings: { label: 'Settings', legacyPath: '/settings', sectionId: 'settings' },
-  skills: { label: 'Skills', legacyPath: '/skills', sectionId: 'skills' },
-  modes: { label: 'Modes', legacyPath: '/modes', sectionId: 'modes' },
-  plugins: { label: 'Plugins', legacyPath: '/plugins', sectionId: null },
-  'env-vars': { label: 'Env Vars', legacyPath: '/env-vars', sectionId: 'env-vars' },
+type ToolChildPage = {
+  label: string;
+  description: string;
+  legacyPath?: string;
+  sectionId: SectionId | null;
+  highlights?: string[];
+};
+
+const TOOL_CHILD_PAGE_MAP: Record<string, Record<string, ToolChildPage>> = {
+  'claude-code': {
+    onboarding: {
+      label: '初次使用',
+      legacyPath: '/scenarios',
+      sectionId: null,
+      description: 'Claude Code 的初学内容现在独立归到 Claude Code profile 下，避免和通用 AI 场景决策混在一起。',
+      highlights: ['从 /help、/init 和项目上下文开始', '先让 Claude 读仓库并给计划，再执行修改', '每次修改后运行测试或构建验证'],
+    },
+    commands: { label: 'Commands', legacyPath: '/slash-commands', sectionId: 'slash-commands', description: 'Claude Code 内置 slash commands 的完整参考。' },
+    'cli-flags': { label: 'CLI Flags', legacyPath: '/cli-flags', sectionId: 'cli-flags', description: 'Claude Code CLI 启动参数、认证和脚本化入口。' },
+    shortcuts: { label: 'Shortcuts', legacyPath: '/shortcuts', sectionId: 'shortcuts', description: 'Claude Code 交互会话中的键盘快捷键。' },
+    settings: { label: 'Settings', legacyPath: '/settings', sectionId: 'settings', description: 'Claude Code 用户级、项目级和企业级配置项。' },
+    skills: { label: 'Skills', legacyPath: '/skills', sectionId: 'skills', description: 'Claude Code 内置或自定义 skill 的调用方式与适用场景。' },
+    modes: { label: 'Modes', legacyPath: '/modes', sectionId: 'modes', description: 'Claude Code 特殊运行模式和行为差异。' },
+    plugins: { label: 'Plugins', legacyPath: '/plugins', sectionId: null, description: 'Claude Code 插件生态、安装入口和风险边界。' },
+    'env-vars': { label: 'Env Vars', legacyPath: '/env-vars', sectionId: 'env-vars', description: '影响 Claude Code 行为的环境变量参考。' },
+  },
+  opencode: {
+    setup: { label: '安装与配置', sectionId: null, description: 'OpenCode 的核心价值是开源、BYOK 和终端工作流，落地前先确认安装方式、API Key 管理和项目权限。', highlights: ['按官方文档安装 OpenCode CLI', '用环境变量或配置文件接入 DeepSeek/Qwen/OpenAI 等模型', '把 Git diff 和测试命令作为默认验收闭环'] },
+    models: { label: '模型接入', sectionId: null, description: 'OpenCode 适合承载多模型策略：低成本任务走 DeepSeek/Qwen，复杂规划任务切到 Claude/OpenAI。', highlights: ['DeepSeek V4-Flash：高频低成本迭代', 'Qwen3.6-Flash/Plus：国内链路和中文需求', 'Claude/OpenAI：复杂重构和高风险 review'] },
+    workflows: { label: '工作流', sectionId: null, description: 'OpenCode 更像可替换模型后端的 CLI Agent，适合小团队把编码、测试和 Git 审查串起来。', highlights: ['让 Agent 先写计划再修改文件', '每轮变更后查看 diff 并运行测试', '把长任务拆成可回滚的小步提交'] },
+    risks: { label: '风险与适配', sectionId: null, description: 'OpenCode 仍需按团队项目验证 preview 稳定性、模型工具调用表现和密钥治理。', highlights: ['避免把生产密钥暴露给模型上下文', '复杂多步任务保留人工 review', '企业落地需统一审计和供应商策略'] },
+  },
+  'gemini-cli': {
+    setup: { label: '认证与安装', sectionId: null, description: 'Gemini CLI 适合可以稳定访问 Google AI 服务的用户，重点是账号、API Key 和本地项目权限配置。', highlights: ['确认 Google AI Studio 或 Vertex AI 访问路径', '配置 API Key 与项目配额', '在代码目录内限定文件访问和执行命令范围'] },
+    models: { label: 'Gemini 模型', sectionId: null, description: 'Gemini CLI 的模型能力集中在长上下文、多模态和快速低成本变体。', highlights: ['Gemini 3.1 Pro：前沿推理和多模态', 'Gemini 2.5 Pro：1M 上下文资料研读', 'Gemini Flash：快速低成本代码解释和生成'] },
+    workflows: { label: '长上下文工作流', sectionId: null, description: 'Gemini CLI 适合整仓阅读、文档总结、日志分析和多模态资料辅助，但提交前仍要本地验证。', highlights: ['整仓结构梳理和重构计划', '长日志/长文档归纳', '用测试和静态检查验证代码输出'] },
+    risks: { label: '访问与合规', sectionId: null, description: 'Google AI 服务在中国大陆多数网络环境不可直连，团队默认方案需要先解决合规访问和账号一致性。', highlights: ['跨境数据合规需单独评估', '免费层有速率限制', '企业更适合走正式云账号和配额治理'] },
+  },
+  'github-copilot-cli': {
+    setup: { label: '安装与登录', sectionId: null, description: 'GitHub Copilot CLI 适合 GitHub 生态用户，重点是 GitHub 账号、Copilot 权限和本机 shell 集成。', highlights: ['确认 Copilot 订阅或企业许可', '完成 GitHub 认证', '把命令建议限定在可 review 的 shell 工作流中'] },
+    commands: { label: '命令能力', sectionId: null, description: 'Copilot CLI 更偏命令解释、命令生成和 GitHub 工作流辅助，而不是完整多文件自主 Agent。', highlights: ['解释复杂 shell 命令', '生成 git/gh/npm 等常见命令', '把自然语言转换成可确认的终端操作'] },
+    workflows: { label: 'GitHub 工作流', sectionId: null, description: '它适合和 gh CLI、GitHub Issues、PR review 流程组合，帮助用户更快完成仓库维护动作。', highlights: ['生成 PR/issue 相关命令', '辅助定位 CI 和 Git 操作', '与 IDE 中的 Copilot Chat 互补'] },
+    enterprise: { label: '企业适配', sectionId: null, description: '企业采用时主要看 GitHub Enterprise、组织策略、数据保留和审计能力。', highlights: ['统一管理 Copilot seats', '配置组织级策略', '审查命令执行和敏感仓库边界'] },
+  },
 };

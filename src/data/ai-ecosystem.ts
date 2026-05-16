@@ -683,6 +683,72 @@ export const DATA_STORE: AiEcosystemDataStore = {
       },
     },
     {
+      id: 'google-gemma-4-27b',
+      name: 'Gemma 4 27B',
+      vendor: 'Google DeepMind',
+      category: 'open',
+      version: 'gemma-4-27b',
+      contextWindow: '128K tokens',
+      costTier: 'low',
+      pricing: {
+        currency: 'USD',
+        inputPerMTokens: 'N/A (self-host); ~$0.25 via cloud providers',
+        outputPerMTokens: 'N/A (self-host); ~$1.00 via cloud providers',
+        notes: 'Gemma 4 是 Google 的开源模型系列（Apache 2.0 / Gemma 许可证）。本地部署免费；云端价格因供应商（HuggingFace、Vertex AI 等）不同而变化。',
+        officialUrl: 'https://ai.google.dev/gemma/docs',
+      },
+      scores: { reasoning: 8.5, coding: 8.6, toolUse: 7.8, consistency: 8.2, latency: 9.0 },
+      china: {
+        accessible: true,
+        needsProxy: false,
+        localDeploy: true,
+        complianceRisk: 'low',
+        note: '开源权重可本地部署，数据不出境；HuggingFace 下载需关注国内带宽；阿里云、华为云等支持托管推理。',
+      },
+      tags: ['open-weight', 'local-deploy', 'coding', 'efficient', 'self-hostable', 'china-friendly', 'google'],
+      pros: ['完全开源（Gemma 许可证），本地推理免费', '显存占用低，适合消费级 GPU 部署（16G+ VRAM）', '各主流推理框架支持完善（Ollama/vLLM/LM Studio）', '代码生成能力出色，适合轻量辅助编码'],
+      cons: ['工具调用能力弱于大参数闭源模型', '云端 API 定价因供应商而异，需要自行评估'],
+      changeLog: ['2026-05: 新增 Gemma 4 27B 条目，依据 Google 官方 Gemma 文档。'],
+      source: {
+        label: 'Google Gemma 官方文档',
+        url: 'https://ai.google.dev/gemma/docs',
+        checkedAt: '2026-05-17',
+      },
+    },
+    {
+      id: 'google-gemma-4-9b',
+      name: 'Gemma 4 9B',
+      vendor: 'Google DeepMind',
+      category: 'open',
+      version: 'gemma-4-9b',
+      contextWindow: '128K tokens',
+      costTier: 'low',
+      pricing: {
+        currency: 'USD',
+        inputPerMTokens: 'N/A (self-host)',
+        outputPerMTokens: 'N/A (self-host)',
+        notes: '开源权重，本地部署免费。轻量版本，适合 8G VRAM 及以上设备。',
+        officialUrl: 'https://ai.google.dev/gemma/docs',
+      },
+      scores: { reasoning: 8.0, coding: 8.2, toolUse: 7.5, consistency: 7.9, latency: 9.3 },
+      china: {
+        accessible: true,
+        needsProxy: false,
+        localDeploy: true,
+        complianceRisk: 'low',
+        note: '开源轻量模型，消费级 GPU（8G+ VRAM）可直接运行，国内部署无网络障碍。',
+      },
+      tags: ['open-weight', 'local-deploy', 'efficient', 'lightweight', 'self-hostable', 'china-friendly', 'google'],
+      pros: ['超轻量，8G VRAM 即可运行', '本地推理极快', '完全开源数据不出境', '适合边缘/离线场景'],
+      cons: ['推理和工具调用能力弱于 27B 版本', '复杂代码生成质量有限'],
+      changeLog: ['2026-05: 新增 Gemma 4 9B，依据 Google 官方 Gemma 文档。'],
+      source: {
+        label: 'Google Gemma 官方文档',
+        url: 'https://ai.google.dev/gemma/docs',
+        checkedAt: '2026-05-17',
+      },
+    },
+    {
       id: 'deepseek-v4-flash',
       name: 'DeepSeek V4-Flash',
       vendor: 'DeepSeek',
@@ -1274,6 +1340,39 @@ export const DATA_STORE: AiEcosystemDataStore = {
         label: '火山方舟 API 文档',
         url: 'https://www.volcengine.com/docs/82379',
         checkedAt: '2026-05-15',
+      },
+    },
+    {
+      id: 'xiaomi-mimo-7b',
+      name: 'MiMo 7B',
+      vendor: 'Xiaomi',
+      category: 'open',
+      version: 'mimo-7b',
+      contextWindow: '32K tokens',
+      costTier: 'low',
+      pricing: {
+        currency: 'USD',
+        inputPerMTokens: 'N/A (open-source, self-host)',
+        outputPerMTokens: 'N/A (open-source, self-host)',
+        notes: 'MiMo 是小米开源的高性能推理/代码模型（Apache 2.0）。完全免费自托管；消费级 GPU（4G+ VRAM 量化版）可直接运行。',
+        officialUrl: 'https://github.com/XiaomiMiMo/MiMo',
+      },
+      scores: { reasoning: 8.3, coding: 8.5, toolUse: 7.5, consistency: 8.0, latency: 9.4 },
+      china: {
+        accessible: true,
+        needsProxy: false,
+        localDeploy: true,
+        complianceRisk: 'low',
+        note: '小米开源模型，支持本地推理，数据不出境；国内 GitHub 镜像和 ModelScope 均可下载。',
+      },
+      tags: ['open-weight', 'local-deploy', 'coding', 'reasoning', 'efficient', 'china-friendly', 'lightweight'],
+      pros: ['完全开源（Apache 2.0），本地推理成本为零', '强调数学与代码推理能力，7B 体量内表现突出', '支持量化（Q4/Q5），消费级 GPU 可运行', '小米生态配合 ModelScope 国内下载便捷'],
+      cons: ['上下文窗口仅 32K，不适合超长代码仓库分析', '工具调用生态相对早期', '生产级应用需要自行维护推理服务'],
+      changeLog: ['2026-05: 新增小米 MiMo 7B 条目，依据 MiMo 官方 GitHub 文档。'],
+      source: {
+        label: 'MiMo GitHub 仓库',
+        url: 'https://github.com/XiaomiMiMo/MiMo',
+        checkedAt: '2026-05-17',
       },
     },
   ],
@@ -2184,6 +2283,45 @@ export const DATA_STORE: AiEcosystemDataStore = {
         checkedAt: '2026-05-16',
       },
     },
+    {
+      id: 'deepseek-tui',
+      name: 'DeepSeek TUI',
+      vendor: 'DeepSeek',
+      category: 'workflow',
+      version: 'Latest',
+      compatible: ['CLI/Terminal', 'Windows', 'macOS', 'Linux'],
+      costTier: 'low',
+      pricing: {
+        currency: 'CNY',
+        plan: '免费（BYOK，使用 DeepSeek API）',
+        notes: '工具本身免费；API 费用按 Token 计费，DeepSeek V4-Flash 价格极低（约 ¥0.001/千 Tokens），个人使用几乎零成本。',
+        officialUrl: 'https://github.com/deepseek-ai',
+      },
+      features: ['chat', 'terminal'],
+      scores: {
+        codeCompletion: 5.5,
+        codeGeneration: 8.5,
+        efficiency: 9.2,
+        accuracy: 8.8,
+        contextAwareness: 8.0,
+      },
+      china: {
+        accessible: true,
+        needsProxy: false,
+        alternativeAvailable: false,
+        note: '国内直连 DeepSeek API，速度快，成本极低。Windows 手动安装时建议将二进制文件命名为 deepseek.exe 与 deepseek-tui.exe 并置同目录，避免 doctor 检查报告伴生文件缺失。',
+      },
+      supportedModels: ['DeepSeek V4-Pro', 'DeepSeek V4-Flash', 'DeepSeek V4'],
+      status: 'stable',
+      tags: ['china-first', 'free', 'tui', 'terminal', 'deepseek-api', 'low-cost', 'open-source', 'byok'],
+      pros: ['国内直连，无需代理', 'DeepSeek V4 系列支持，模型能力强', 'API 成本极低（V4-Flash 接近免费）', '轻量 TUI，无 GUI 依赖，SSH/远程服务器可用', '中文交互友好，适合国内开发者'],
+      cons: ['无 IDE 集成，仅终端聊天界面', '无内联代码补全功能', '功能相对单一，适合快速问答而非复杂工程任务', 'Windows 需手动下载配置二进制文件，注意规范文件名'],
+      source: {
+        label: 'DeepSeek GitHub 主页',
+        url: 'https://github.com/deepseek-ai',
+        checkedAt: '2026-05-17',
+      },
+    },
   ],
   toolCombinations: [
     {
@@ -2470,6 +2608,15 @@ export const SCORE_LABELS: Record<keyof AiScores, string> = {
   consistency: '稳定',
   latency: '速度',
 };
+
+/**
+ * 评分方法论说明：所有能力评分均为编辑综合估算（满分 10 分），
+ * 参考 SWE-bench Verified、LMSYS Chatbot Arena、LiveCodeBench、HumanEval、
+ * AIME 及各厂商官方发布的技术报告，并非任何单一官方评级。
+ * "速度"维度越高代表延迟越低（越快），其余维度越高越好。
+ */
+export const SCORE_METHODOLOGY =
+  '评分综合参考 SWE-bench、LMSYS Arena、LiveCodeBench、AIME 等公开 Benchmark 编辑估算（满分 10 分）；速度维度越高代表延迟越低；非任何官方评级。';
 
 // Tool categories labels
 export const TOOL_CATEGORY_LABELS: Record<AiToolCategory, string> = {

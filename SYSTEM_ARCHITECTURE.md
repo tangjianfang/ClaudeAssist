@@ -1,4 +1,4 @@
-# 🤖 ClaudeAssist - 完整系统功能架构脑图
+# 🤖 AINav - 完整系统功能架构脑图
 
 **最后更新**: 2026年5月16日  
 **系统版本**: 2026.05.6  
@@ -8,7 +8,7 @@
 
 ## 📊 系统架构概览
 
-ClaudeAssist 是一个全面的 Claude Code 和 AI 编码工具生态参考系统，整合了：
+AINav 是一个全面的 Claude Code 和 AI 编码工具生态参考系统，整合了：
 
 | 模块 | 描述 | 功能数 |
 |------|------|--------|
@@ -26,7 +26,7 @@ ClaudeAssist 是一个全面的 Claude Code 和 AI 编码工具生态参考系�
 
 ```mermaid
 mindmap
-  root((🤖 ClaudeAssist<br/>Claude Code<br/>完整参考系统))
+  root((🤖 AINav<br/>Claude Code<br/>完整参考系统))
     📚 基础参考模块
       💻 Slash Commands
         代码生成与分析

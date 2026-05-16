@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Loader } from 'lucide-react';
+import { BrainCircuit, CircleAlert, CircleCheck, Lightbulb, Loader, X, Wrench } from 'lucide-react';
 import { generateScenarioReport, generateToolComparisonReport, generateModelPricingReport } from '../data/reports';
 import { scenarios } from '../data/scenarios';
 import { getTools } from '../data/tools/index';
@@ -141,40 +141,30 @@ export function GenerateReportPage() {
 
       {/* Feedback Messages */}
       {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950/30">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-900 dark:bg-red-950/30">
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 text-red-600 dark:text-red-400">
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-            </div>
+            <CircleAlert size={18} className="mt-0.5 shrink-0 text-red-600 dark:text-red-400" />
             <div className="flex-1">
               <h3 className="text-sm font-medium text-red-800 dark:text-red-200">{isZh ? '生成失败' : 'Generation Failed'}</h3>
               <p className="mt-1 text-sm text-red-700 dark:text-red-300">{error}</p>
             </div>
             <button
               onClick={clearFeedback}
-              className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200"
+              className="text-red-400 hover:text-red-600 dark:text-red-500 dark:hover:text-red-300"
               title={isZh ? '关闭' : 'Close'}
             >
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
+              <X size={16} />
             </button>
           </div>
         </div>
       )}
 
       {successMessage && (
-        <div className="rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950/30">
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/30">
           <div className="flex items-start gap-3">
-            <div className="mt-0.5 text-green-600 dark:text-green-400">
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-            </div>
+            <CircleCheck size={18} className="mt-0.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
             <div>
-              <p className="text-sm font-medium text-green-800 dark:text-green-200">{successMessage}</p>
+              <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200">{successMessage}</p>
             </div>
           </div>
         </div>
@@ -187,25 +177,53 @@ export function GenerateReportPage() {
         </label>
         <div className="grid gap-3 md:grid-cols-3">
           {[
-            { value: 'scenario', label: isZh ? '场景推荐' : 'Scenario Recommendation' },
-            { value: 'tools', label: isZh ? '工具对比' : 'Tool Comparison' },
-            { value: 'models', label: isZh ? '模型价格' : 'Model Pricing' },
-          ].map((type) => (
-            <button
-              key={type.value}
-              onClick={() => {
-                setReportType(type.value as typeof reportType);
-                setError(null);
-              }}
-              className={`rounded-lg border-2 px-4 py-3 text-sm font-medium transition-colors ${
-                reportType === type.value
-                  ? 'border-sky-500 bg-sky-50 text-sky-900 dark:border-sky-600 dark:bg-sky-950/30 dark:text-sky-300'
-                  : 'border-slate-200 text-slate-700 hover:border-slate-300 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-600'
-              }`}
-            >
-              {type.label}
-            </button>
-          ))}
+            {
+              value: 'scenario',
+              label: isZh ? '场景推荐' : 'Scenario',
+              desc: isZh ? '针对具体使用场景推荐最佳工具组合' : 'Best tools for your workflow',
+              Icon: Lightbulb,
+              activeColor: 'border-sky-500 bg-sky-50 dark:border-sky-600 dark:bg-sky-950/30',
+              iconColor: 'text-sky-600 dark:text-sky-400',
+            },
+            {
+              value: 'tools',
+              label: isZh ? '工具对比' : 'Tools',
+              desc: isZh ? '多工具功能与价格横向对比' : 'Compare features & pricing',
+              Icon: Wrench,
+              activeColor: 'border-emerald-500 bg-emerald-50 dark:border-emerald-600 dark:bg-emerald-950/30',
+              iconColor: 'text-emerald-600 dark:text-emerald-400',
+            },
+            {
+              value: 'models',
+              label: isZh ? '模型价格' : 'Models',
+              desc: isZh ? '所有 AI 模型价格与可用性一览' : 'All AI models pricing sheet',
+              Icon: BrainCircuit,
+              activeColor: 'border-violet-500 bg-violet-50 dark:border-violet-600 dark:bg-violet-950/30',
+              iconColor: 'text-violet-600 dark:text-violet-400',
+            },
+          ].map((type) => {
+            const selected = reportType === type.value;
+            return (
+              <button
+                key={type.value}
+                onClick={() => {
+                  setReportType(type.value as typeof reportType);
+                  setError(null);
+                }}
+                className={`rounded-xl border-2 px-4 py-3 text-left transition-colors ${
+                  selected
+                    ? type.activeColor
+                    : 'border-slate-200 hover:border-slate-300 dark:border-slate-700 dark:hover:border-slate-600'
+                }`}
+              >
+                <type.Icon size={18} className={`mb-2 ${selected ? type.iconColor : 'text-slate-400 dark:text-slate-500'}`} />
+                <p className={`text-sm font-semibold ${selected ? 'text-slate-900 dark:text-slate-100' : 'text-slate-700 dark:text-slate-300'}`}>
+                  {type.label}
+                </p>
+                <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{type.desc}</p>
+              </button>
+            );
+          })}
         </div>
       </div>
 

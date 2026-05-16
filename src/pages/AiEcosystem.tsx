@@ -1,11 +1,14 @@
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { ChartBar, ExternalLink, Filter, GitCompare, Search, ShieldCheck, X, ChevronDown, Zap } from 'lucide-react';
+import { useSearchParams, Link } from 'react-router-dom';
+import { ChartBar, ExternalLink, Filter, GitCompare, Info, Search, ShieldCheck, X, ChevronDown, Zap, ArrowRight } from 'lucide-react';
 import { clsx } from 'clsx';
-import { DATA_STORE, SCORE_KEYS, SCORE_LABELS } from '../data/ai-ecosystem';
+import { DATA_STORE, SCORE_KEYS, SCORE_LABELS, SCORE_METHODOLOGY } from '../data/ai-ecosystem';
 import type { AiModel, AiModelCategory, CostTier } from '../data/ai-ecosystem';
 import { RadarChart } from '../components/charts/RadarChart';
+import { BarCompareChart } from '../components/charts/BarCompareChart';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/Tabs';
+
+const COMPARE_COLORS = ['#4f46e5', '#059669', '#d97706', '#dc2626'] as const;
 
 const CATEGORY_LABELS: Record<AiModelCategory, string> = {
   frontier: '前沿通用',
@@ -33,14 +36,13 @@ function contextWindowTokens(model: AiModel) {
 }
 
 function AiModelRadarChart({ models }: { models: AiModel[] }) {
-  const colors = ['#4f46e5', '#059669', '#d97706', '#dc2626'];
   return (
     <RadarChart
       axisLabels={SCORE_KEYS.map((k) => SCORE_LABELS[k])}
       series={models.map((model, index) => ({
         id: model.id,
         name: model.name,
-        color: colors[index % colors.length],
+        color: COMPARE_COLORS[index % COMPARE_COLORS.length],
         values: SCORE_KEYS.map((k) => model.scores[k]),
       }))}
     />
@@ -250,13 +252,14 @@ export function AiEcosystemPage() {
 
   const [category, setCategory] = useState<AiModelCategory | 'all'>('all');
   const [chinaAvailability, setChinaAvailability] = useState<'all' | 'direct' | 'proxy' | 'local'>('all');
-  const [costTier, setCostTier] = useState<CostTier | 'all'>('all');
+  const [costTier, setCostTier] = useState<CostTier | 'all' | 'free'>('all');
   const [minScore, setMinScore] = useState(0);
   const [tag, setTag] = useState('all');
   const [sortBy, setSortBy] = useState<'score' | 'cost' | 'context' | 'china'>('score');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [filterOpen, setFilterOpen] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const vendorParam = searchParams.get('vendor');
 
   // 对比面板 Tab：scores / pricing / capability
   type CompareTab = 'scores' | 'pricing' | 'capability';
@@ -284,6 +287,7 @@ export function AiEcosystemPage() {
     const query = searchQuery.toLowerCase().trim();
     return DATA_STORE.models
       .filter((model) => {
+        if (vendorParam && model.vendor !== vendorParam) return false;
         if (!query) return true;
         return (
           model.name.toLowerCase().includes(query) ||
@@ -293,7 +297,11 @@ export function AiEcosystemPage() {
         );
       })
       .filter((model) => category === 'all' || model.category === category)
-      .filter((model) => costTier === 'all' || model.costTier === costTier)
+      .filter((model) => {
+        if (costTier === 'all') return true;
+        if (costTier === 'free') return model.pricing.freeTier != null;
+        return model.costTier === costTier;
+      })
       .filter((model) => tag === 'all' || model.tags.includes(tag))
       .filter((model) => averageScore(model) >= minScore)
       .filter((model) => {
@@ -308,7 +316,7 @@ export function AiEcosystemPage() {
         if (sortBy === 'context') return contextWindowTokens(b) - contextWindowTokens(a);
         return averageScore(b) - averageScore(a);
       });
-  }, [searchQuery, category, chinaAvailability, costTier, minScore, sortBy, tag]);
+  }, [searchQuery, category, chinaAvailability, costTier, minScore, sortBy, tag, vendorParam]);
 
   const selectedModels = DATA_STORE.models.filter((model) => selectedIds.includes(model.id));
 
@@ -416,10 +424,11 @@ export function AiEcosystemPage() {
               <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">成本</span>
               <select
                 value={costTier}
-                onChange={(e) => setCostTier(e.target.value as CostTier | 'all')}
+                onChange={(e) => setCostTier(e.target.value as CostTier | 'all' | 'free')}
                 className="w-full mt-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
               >
                 <option value="all">全部成本</option>
+                <option value="free">🆓 有免费层</option>
                 {Object.entries(COST_LABELS).map(([value, label]) => (
                   <option key={value} value={value}>{label}</option>
                 ))}
@@ -486,6 +495,19 @@ export function AiEcosystemPage() {
                 <span className="truncate">{filteredModels.length} / {DATA_STORE.models.length} 个模型</span>
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">最多选择 4 个进行对比</p>
+              {vendorParam && (
+                <button
+                  type="button"
+                  onClick={() => setSearchParams((prev) => {
+                    const next = new URLSearchParams(prev);
+                    next.delete('vendor');
+                    return next;
+                  }, { replace: true })}
+                  className="mt-2 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                >
+                  已筛选 {vendorParam}，点击清除
+                </button>
+              )}
             </div>
             <div className="flex gap-2 items-center">
               <select
@@ -527,55 +549,22 @@ export function AiEcosystemPage() {
             </div>
           )}
 
-          {/* Recommendations */}
-          <div>
-            <h2 className="mb-4 flex items-center gap-2 text-base font-bold text-slate-900 dark:text-slate-100">
-              <ShieldCheck size={17} className="text-emerald-500" />
-              推荐组合
-            </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {DATA_STORE.recommendations.map((rec) => (
-                <article key={rec.scene} className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 p-4 sm:p-5 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-slate-900/30 transition-shadow">
-                  <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-sm">{rec.scene}</h3>
-                  <dl className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
-                    <div className="rounded-lg bg-slate-50 dark:bg-slate-900/40 p-2.5">
-                      <dt className="text-slate-400 font-semibold mb-1">模型</dt>
-                      <dd className="text-slate-700 dark:text-slate-200 line-clamp-2">{rec.model}</dd>
-                    </div>
-                    <div className="rounded-lg bg-slate-50 dark:bg-slate-900/40 p-2.5">
-                      <dt className="text-slate-400 font-semibold mb-1">Agent</dt>
-                      <dd className="text-slate-700 dark:text-slate-200 line-clamp-2">{rec.agent}</dd>
-                    </div>
-                    <div className="rounded-lg bg-slate-50 dark:bg-slate-900/40 p-2.5">
-                      <dt className="text-slate-400 font-semibold mb-1">工具</dt>
-                      <dd className="text-slate-700 dark:text-slate-200 line-clamp-2">{rec.toolchain}</dd>
-                    </div>
-                  </dl>
-                  <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
-                    <div>
-                      <div className="font-semibold text-emerald-600 dark:text-emerald-300 mb-2">✓ 优点</div>
-                      <ul className="list-disc pl-4 space-y-0.5 text-slate-600 dark:text-slate-300">
-                        {rec.pros.slice(0, 2).map((item) => (
-                          <li key={item} className="line-clamp-2 text-[11px]">{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div>
-                      <div className="font-semibold text-amber-600 dark:text-amber-300 mb-2">✗ 限制</div>
-                      <ul className="list-disc pl-4 space-y-0.5 text-slate-600 dark:text-slate-300">
-                        {rec.cons.slice(0, 2).map((item) => (
-                          <li key={item} className="line-clamp-2 text-[11px]">{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                  <p className="mt-3 rounded-lg bg-red-50 dark:bg-red-950/30 px-3 py-2 text-xs text-red-700 dark:text-red-300 line-clamp-2">
-                    风险：{rec.risk}
-                  </p>
-                </article>
-              ))}
+          {/* Recommendations link card */}
+          <Link
+            to="/ai-recommendations"
+            className="group flex items-center justify-between rounded-2xl border border-emerald-200 dark:border-emerald-800/60 bg-emerald-50 dark:bg-emerald-950/30 px-5 py-4 hover:shadow-md transition-shadow"
+          >
+            <div className="flex items-center gap-3">
+              <ShieldCheck size={20} className="text-emerald-500 shrink-0" />
+              <div>
+                <div className="font-semibold text-slate-900 dark:text-slate-100 text-sm">推荐组合</div>
+                <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  {DATA_STORE.recommendations.length} 个场景推荐，含模型、Agent 与工具链搭配建议
+                </div>
+              </div>
             </div>
-          </div>
+            <ArrowRight size={16} className="text-emerald-500 group-hover:translate-x-1 transition-transform shrink-0" />
+          </Link>
         </section>
       </div>
 
@@ -621,6 +610,34 @@ export function AiEcosystemPage() {
 
                       {/* Scores tab */}
                       <TabsContent value="scores">
+                        {/* Bar compare chart */}
+                        <div className="mb-3 overflow-x-auto rounded-xl bg-slate-50 dark:bg-slate-800/40 p-3">
+                          <BarCompareChart
+                            dims={SCORE_KEYS.map((k) => ({ key: k, label: SCORE_LABELS[k] }))}
+                            series={selectedModels.map((model, i) => ({
+                              id: model.id,
+                              name: model.name,
+                              color: COMPARE_COLORS[i % COMPARE_COLORS.length],
+                              values: Object.fromEntries(SCORE_KEYS.map((k) => [k, model.scores[k]])),
+                            }))}
+                            width={480}
+                          />
+                          {/* Legend */}
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {selectedModels.map((model, i) => (
+                              <span key={model.id} className="flex items-center gap-1 text-[11px] text-slate-600 dark:text-slate-300">
+                                <span className="inline-block w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: COMPARE_COLORS[i % COMPARE_COLORS.length] }} />
+                                {model.name}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        {/* Methodology note */}
+                        <p className="mb-3 flex items-start gap-1.5 text-[11px] text-slate-400 dark:text-slate-500">
+                          <Info size={11} className="mt-0.5 shrink-0" />
+                          {SCORE_METHODOLOGY}
+                        </p>
+                        {/* Score detail table */}
                         <table className="min-w-full text-xs divide-y divide-slate-100 dark:divide-slate-700">
                           <thead>
                             <tr className="text-left text-slate-400 bg-slate-50 dark:bg-slate-800/50">
@@ -631,16 +648,36 @@ export function AiEcosystemPage() {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                            {SCORE_KEYS.map((key) => (
-                              <tr key={key} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                                <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">{SCORE_LABELS[key]}</td>
-                                {selectedModels.map((model) => (
-                                  <td key={model.id} className="px-3 py-2 text-slate-700 dark:text-slate-200">
-                                    <span className="font-semibold text-indigo-600 dark:text-indigo-300">{model.scores[key].toFixed(1)}</span>
-                                  </td>
-                                ))}
-                              </tr>
-                            ))}
+                            {SCORE_KEYS.map((key) => {
+                              const vals = selectedModels.map((m) => m.scores[key]);
+                              const max = Math.max(...vals);
+                              return (
+                                <tr key={key} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                                  <td className="px-3 py-2 font-semibold text-slate-600 dark:text-slate-300">{SCORE_LABELS[key]}</td>
+                                  {selectedModels.map((model) => (
+                                    <td key={model.id} className="px-3 py-2">
+                                      <span className={clsx(
+                                        'font-semibold',
+                                        model.scores[key] === max && vals.filter((v) => v === max).length === 1
+                                          ? 'text-emerald-600 dark:text-emerald-300'
+                                          : 'text-indigo-600 dark:text-indigo-300',
+                                      )}>
+                                        {model.scores[key].toFixed(1)}
+                                      </span>
+                                    </td>
+                                  ))}
+                                </tr>
+                              );
+                            })}
+                            <tr className="bg-slate-50 dark:bg-slate-800/30 font-bold">
+                              <td className="px-3 py-2 text-slate-700 dark:text-slate-200">综合</td>
+                              {selectedModels.map((model) => {
+                                const avg = SCORE_KEYS.reduce((s, k) => s + model.scores[k], 0) / SCORE_KEYS.length;
+                                return (
+                                  <td key={model.id} className="px-3 py-2 text-indigo-700 dark:text-indigo-200">{avg.toFixed(2)}</td>
+                                );
+                              })}
+                            </tr>
                           </tbody>
                         </table>
                       </TabsContent>

@@ -160,8 +160,6 @@ export function getToolProfilePreview(toolId: string): ToolProfilePreview {
     throw new Error(`Unknown tool profile: ${toolId}`);
   }
 
-  const isClaudeCode = tool.id === 'claude-code';
-
   return {
     tool,
     installation: getInstallationEntry(tool),
@@ -170,7 +168,7 @@ export function getToolProfilePreview(toolId: string): ToolProfilePreview {
     fitSummary: getFitSummary(tool),
     riskSummary: getRiskSummary(tool),
     sourceSummary: `${tool.source.label} · checked ${tool.source.checkedAt}`,
-    childPages: isClaudeCode ? getClaudeCodeChildPages() : [],
+    childPages: getToolChildPages(tool.id),
   };
 }
 
@@ -252,16 +250,41 @@ function getRiskSummary(tool: AiTool): string {
   return tool.cons[0] ?? '暂无已知重大风险，仍需按项目数据和合规要求复核。';
 }
 
-function getClaudeCodeChildPages(): ToolProfilePreview['childPages'] {
-  return [
-    { label: 'Overview', path: '/tools/claude-code' },
-    { label: 'Commands', path: '/tools/claude-code/commands' },
-    { label: 'CLI Flags', path: '/tools/claude-code/cli-flags' },
-    { label: 'Shortcuts', path: '/tools/claude-code/shortcuts' },
-    { label: 'Settings', path: '/tools/claude-code/settings' },
-    { label: 'Skills', path: '/tools/claude-code/skills' },
-    { label: 'Modes', path: '/tools/claude-code/modes' },
-    { label: 'Plugins', path: '/tools/claude-code/plugins' },
-    { label: 'Env Vars', path: '/tools/claude-code/env-vars' },
-  ];
+function getToolChildPages(toolId: string): ToolProfilePreview['childPages'] {
+  const pages: Record<string, ToolProfilePreview['childPages']> = {
+    'claude-code': [
+      { label: '初次使用', path: '/tools/claude-code/onboarding' },
+      { label: 'Claude 场景库', path: '/scenarios' },
+      { label: '速查表', path: '/cheatsheet' },
+      { label: 'Commands', path: '/slash-commands' },
+      { label: 'CLI Flags', path: '/cli-flags' },
+      { label: 'Shortcuts', path: '/shortcuts' },
+      { label: 'Settings', path: '/settings' },
+      { label: 'Skills', path: '/skills' },
+      { label: 'Modes', path: '/modes' },
+      { label: '最新特性', path: '/features' },
+      { label: 'Plugins', path: '/plugins' },
+      { label: 'Env Vars', path: '/env-vars' },
+    ],
+    opencode: [
+      { label: '安装与配置', path: '/tools/opencode/setup' },
+      { label: '模型接入', path: '/tools/opencode/models' },
+      { label: '工作流', path: '/tools/opencode/workflows' },
+      { label: '风险与适配', path: '/tools/opencode/risks' },
+    ],
+    'gemini-cli': [
+      { label: '认证与安装', path: '/tools/gemini-cli/setup' },
+      { label: 'Gemini 模型', path: '/tools/gemini-cli/models' },
+      { label: '长上下文工作流', path: '/tools/gemini-cli/workflows' },
+      { label: '访问与合规', path: '/tools/gemini-cli/risks' },
+    ],
+    'github-copilot-cli': [
+      { label: '安装与登录', path: '/tools/github-copilot-cli/setup' },
+      { label: '命令能力', path: '/tools/github-copilot-cli/commands' },
+      { label: 'GitHub 工作流', path: '/tools/github-copilot-cli/workflows' },
+      { label: '企业适配', path: '/tools/github-copilot-cli/enterprise' },
+    ],
+  };
+
+  return pages[toolId] ?? [];
 }

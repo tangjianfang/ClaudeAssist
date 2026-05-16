@@ -1,13 +1,17 @@
 import { Link } from 'react-router-dom';
+import { useMemo, useState } from 'react';
 import { ArrowRight, CircleAlert, CircleCheck, ExternalLink, Target } from 'lucide-react';
-import { getHydratedScenarioRecommendation } from '../../data/decision-scenarios';
+import { getDecisionScenarioIds, getHydratedScenarioRecommendation } from '../../data/decision-scenarios';
+import type { DecisionScenarioId } from '../../data/decision-scenarios';
 import { Panel } from '../ui/Panel';
 import { StatusBadge } from '../ui/StatusBadge';
 import { SourceLink } from '../ui/SourceLink';
 
-const recommendation = getHydratedScenarioRecommendation('china-low-cost-coding');
-
 export function DecisionWorkbench() {
+  const scenarioIds = useMemo(() => getDecisionScenarioIds(), []);
+  const [scenarioId, setScenarioId] = useState<DecisionScenarioId>('first-ai-coding-tool');
+  const recommendation = getHydratedScenarioRecommendation(scenarioId);
+
   return (
     <section className="space-y-4">
       <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
@@ -19,7 +23,7 @@ export function DecisionWorkbench() {
             从场景直接得到工具、模型与风险结论
           </h1>
           <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">
-            当前纵切先覆盖“{recommendation.title}”：不再让你从一堆卡片里猜，而是直接给出首选组合、备选组合、不要选的方案和来源依据。
+            先选场景，再看首选组合、备选组合、不要选的方案和来源依据。Claude Code 初学参考已经独立收束到工具 Profile，不再混在通用决策里。
           </p>
         </div>
         <Link
@@ -39,19 +43,35 @@ export function DecisionWorkbench() {
               先从使用约束出发，而不是从厂商列表出发。
             </p>
           </div>
-          <button className="w-full rounded-lg border border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/30 px-3 py-3 text-left">
-            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">
-              已选场景
-            </span>
-            <span className="mt-1 block text-sm font-bold text-slate-900 dark:text-slate-100">
-              {recommendation.shortTitle}
-            </span>
-            <span className="mt-1 block text-xs leading-5 text-slate-600 dark:text-slate-300">
-              {recommendation.userGoal}
-            </span>
-          </button>
+          <div className="space-y-2">
+            {scenarioIds.map((id) => {
+              const scenario = getHydratedScenarioRecommendation(id);
+              const selected = id === scenarioId;
+
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setScenarioId(id)}
+                  className={selected
+                    ? 'w-full rounded-lg border border-emerald-200 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/30 px-3 py-3 text-left'
+                    : 'w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-3 text-left hover:border-slate-300 dark:hover:border-slate-600'}
+                >
+                  <span className={selected ? 'text-xs font-semibold text-emerald-700 dark:text-emerald-300' : 'text-xs font-semibold text-slate-500 dark:text-slate-400'}>
+                    {selected ? '已选场景' : '可选场景'}
+                  </span>
+                  <span className="mt-1 block text-sm font-bold text-slate-900 dark:text-slate-100">
+                    {scenario.shortTitle}
+                  </span>
+                  <span className="mt-1 block text-xs leading-5 text-slate-600 dark:text-slate-300">
+                    {scenario.description}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
           <div className="rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2 text-xs leading-5 text-slate-500 dark:text-slate-400">
-            下一步会补齐企业安全、本地隐私、最快原型和多 Agent 工作流。当前先把一条真实决策链跑通。
+            {recommendation.userGoal}
           </div>
         </Panel>
 

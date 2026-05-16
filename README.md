@@ -1,18 +1,18 @@
-# ClaudeAssist
+# AINav
 
 **Claude Code 命令速查手册** · 面向新手和专家的快速参考指南
 
-[![Deploy](https://img.shields.io/github/actions/workflow/status/tangjianfang/ClaudeAssist/deploy.yml?style=flat-square)](https://github.com/tangjianfang/ClaudeAssist/actions)
+[![Deploy](https://img.shields.io/github/actions/workflow/status/tangjianfang/AINav/deploy.yml?style=flat-square)](https://github.com/tangjianfang/AINav/actions)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=flat-square)](LICENSE)
-[![Version](https://img.shields.io/badge/version-2.2.0-green.svg?style=flat-square)](https://github.com/tangjianfang/ClaudeAssist/releases)
+[![Version](https://img.shields.io/badge/version-2.2.0-green.svg?style=flat-square)](https://github.com/tangjianfang/AINav/releases)
 
-🌐 **在线访问**: [https://tangjianfang.github.io/ClaudeAssist/](https://tangjianfang.github.io/ClaudeAssist/)
+🌐 **在线访问**: [https://tangjianfang.github.io/AINav/](https://tangjianfang.github.io/AINav/)
 
 ---
 
 ## 📖 简介
 
-ClaudeAssist 是一个功能完整的 **Claude Code 命令速查网站**，提供所有斜杠命令、CLI 参数、键盘快捷键、设置选项、环境变量的 searchable 参考手册。
+AINav 是一个功能完整的 **Claude Code 命令速查网站**，提供所有斜杠命令、CLI 参数、键盘快捷键、设置选项、环境变量的 searchable 参考手册。
 
 ### ✨ 主要特性
 
@@ -30,14 +30,14 @@ ClaudeAssist 是一个功能完整的 **Claude Code 命令速查网站**，提�
 
 ### 在线使用
 
-直接访问部署好的网站：[https://tangjianfang.github.io/ClaudeAssist/](https://tangjianfang.github.io/ClaudeAssist/)
+直接访问部署好的网站：[https://tangjianfang.github.io/AINav/](https://tangjianfang.github.io/AINav/)
 
 ### 本地开发
 
 ```bash
 # 克隆仓库
-git clone https://github.com/tangjianfang/ClaudeAssist.git
-cd ClaudeAssist
+git clone https://github.com/tangjianfang/AINav.git
+cd AINav
 
 # 使用受支持的 Node.js LTS 版本
 # 22.13+ 或 24+
@@ -70,7 +70,7 @@ npm run preview
 ## 📁 项目结构
 
 ```
-ClaudeAssist/
+AINav/
 ├── src/
 │   ├── components/         # React 组件
 │   │   ├── Layout/         # 布局组件 (Sidebar, TopBar)
@@ -312,7 +312,7 @@ ClaudeAssist/
 
 ```bash
 # Fork 仓库
-git clone https://github.com/your-username/ClaudeAssist.git
+git clone https://github.com/your-username/AINav.git
 
 # 创建分支
 git checkout -b feature/your-feature
@@ -350,6 +350,6 @@ git push origin feature/your-feature
 
 **Made with ❤️ for the Claude Code community**
 
-[⭐ Star this repo](https://github.com/tangjianfang/ClaudeAssist) if you find it helpful!
+[⭐ Star this repo](https://github.com/tangjianfang/AINav) if you find it helpful!
 
 </div>

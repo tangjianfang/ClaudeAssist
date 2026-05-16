@@ -8,7 +8,7 @@ const buildDate = new Date().toISOString().slice(0, 10)
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/ClaudeAssist/',
+  base: '/AINav/',
   define: {
     __APP_VERSION__: JSON.stringify(packageJson.version),
     __APP_UPDATED_AT__: JSON.stringify(buildDate),

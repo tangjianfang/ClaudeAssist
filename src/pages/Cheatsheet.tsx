@@ -87,7 +87,7 @@ export function CheatsheetPage() {
       </div>
 
       <footer className="mt-12 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-400 print:block">
-        ClaudeAssist — {t.footer} — {new Date().toLocaleDateString()}
+        AINav — {t.footer} — {new Date().toLocaleDateString()}
       </footer>
     </div>
   );

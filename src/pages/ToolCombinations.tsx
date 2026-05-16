@@ -1,14 +1,183 @@
-import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Filter, Search, Zap, Target, TrendingUp, CircleAlert, CircleCheck, Clock } from 'lucide-react';
 import { DATA_STORE } from '../data/ai-ecosystem';
+import type { AiToolCombination } from '../data/ai-ecosystem';
 import { getToolByName } from '../data/tools/index';
 
+type ScenarioCategoryFilter = 'all' | 'startup' | 'enterprise' | 'privacy' | 'learning' | 'automation' | 'china' | 'local';
+type PriorityFilter = 'all' | 'speed' | 'quality' | 'cost' | 'privacy' | 'china' | 'enterprise' | 'agentic';
+type RiskTypeFilter = 'all' | 'privacy' | 'network' | 'cost' | 'security' | 'vendor' | 'no-risk';
+type SetupTimeFilter = 'all' | 'instant' | 'quick' | 'standard' | 'advanced';
+
+const scenarioCategoryOptions: Array<{ id: ScenarioCategoryFilter; label: string }> = [
+  { id: 'all', label: '全部场景' },
+  { id: 'startup', label: '初创/快速原型' },
+  { id: 'enterprise', label: '企业/金融/政府' },
+  { id: 'privacy', label: '隐私/敏感代码' },
+  { id: 'learning', label: '学习/个人成长' },
+  { id: 'automation', label: '自动化/Agent' },
+  { id: 'china', label: '国内可用/合规' },
+  { id: 'local', label: '本地/离线部署' },
+];
+
+const priorityOptions: Array<{ id: PriorityFilter; label: string }> = [
+  { id: 'all', label: '全部优先级' },
+  { id: 'speed', label: '速度优先' },
+  { id: 'quality', label: '质量/复杂重构' },
+  { id: 'cost', label: '成本优先' },
+  { id: 'privacy', label: '隐私优先' },
+  { id: 'china', label: '国内链路优先' },
+  { id: 'enterprise', label: '企业支持优先' },
+  { id: 'agentic', label: 'Agent 自主能力' },
+];
+
+const riskTypeOptions: Array<{ id: RiskTypeFilter; label: string }> = [
+  { id: 'all', label: '全部风险' },
+  { id: 'privacy', label: '隐私/数据风险' },
+  { id: 'network', label: '网络/国内可用性' },
+  { id: 'cost', label: '成本不可控' },
+  { id: 'security', label: '权限/安全风险' },
+  { id: 'vendor', label: '供应商/生态锁定' },
+  { id: 'no-risk', label: '低显性风险' },
+];
+
+const setupTimeOptions: Array<{ id: SetupTimeFilter; label: string }> = [
+  { id: 'all', label: '全部启动时间' },
+  { id: 'instant', label: '即开即用' },
+  { id: 'quick', label: '30 分钟内' },
+  { id: 'standard', label: '1 小时内' },
+  { id: 'advanced', label: '需要深度配置' },
+];
+
+function comboText(combo: AiToolCombination) {
+  return [
+    combo.name,
+    combo.scenario,
+    combo.model,
+    combo.tool,
+    combo.totalMonthlyCost,
+    combo.supportLevel,
+    combo.setupTime,
+    ...(combo.complementaryTools ?? []),
+    ...combo.pros,
+    ...combo.cons,
+    ...combo.bestFor,
+    ...combo.riskFactors,
+  ].join(' ').toLowerCase();
+}
+
+function includesAny(text: string, keywords: string[]) {
+  return keywords.some((keyword) => text.includes(keyword.toLowerCase()));
+}
+
+function matchesScenarioCategory(combo: AiToolCombination, filter: ScenarioCategoryFilter) {
+  if (filter === 'all') return true;
+  const text = comboText(combo);
+  const categoryKeywords: Record<Exclude<ScenarioCategoryFilter, 'all'>, string[]> = {
+    startup: ['初创', '敏捷', '快速原型', '原型', 'startup', 'crud'],
+    enterprise: ['企业', '金融', '政府', '军工', '医疗', '合规', '长期稳定'],
+    privacy: ['隐私', '敏感', '数据不出', '离线', '零数据', '安全'],
+    learning: ['学生', '学习', '学习者', '个人开发者', '开源贡献者'],
+    automation: ['自动化', 'agent', '自主', '多步骤', 'devops', '迁移'],
+    china: ['国内', '中国', '阿里云', 'qwen', 'deepseek', 'glm', '通义', '智谱', '零代理'],
+    local: ['本地', '离线', 'ollama', 'local', '自托管', '私有化'],
+  };
+  return includesAny(text, categoryKeywords[filter]);
+}
+
+function matchesPriority(combo: AiToolCombination, filter: PriorityFilter) {
+  if (filter === 'all') return true;
+  const text = comboText(combo);
+  const priorityKeywords: Record<Exclude<PriorityFilter, 'all'>, string[]> = {
+    speed: ['快速', '最快', '效率', 'fast', '5 分钟', '5 minutes'],
+    quality: ['质量', '复杂', '重构', '推理', '最高', '专业', '架构', '算法'],
+    cost: ['免费', '低成本', '性价比', '$0', '¥0', '预算', '成本低'],
+    privacy: ['隐私', '离线', '数据不出', '零数据', '本地'],
+    china: ['国内', '零代理', '阿里云', 'qwen', 'deepseek', 'glm', '通义', '智谱'],
+    enterprise: ['企业', '官方支持', '商业支持', 'sla', '合规', '采购'],
+    agentic: ['agent', '自主', '多步骤', '终端', '文件系统', '自动化'],
+  };
+  return includesAny(text, priorityKeywords[filter]);
+}
+
+function getModelProvider(combo: AiToolCombination) {
+  const model = combo.model.toLowerCase();
+  if (includesAny(model, ['claude', 'anthropic'])) return 'Anthropic Claude';
+  if (includesAny(model, ['gpt', 'openai'])) return 'OpenAI';
+  if (includesAny(model, ['qwen', '通义', '阿里'])) return 'Alibaba Qwen';
+  if (includesAny(model, ['deepseek'])) return 'DeepSeek';
+  if (includesAny(model, ['glm', '智谱', 'codegeex'])) return 'Zhipu GLM';
+  if (includesAny(model, ['kimi', 'moonshot'])) return 'Moonshot Kimi';
+  if (includesAny(model, ['gemini', 'google'])) return 'Google Gemini';
+  if (includesAny(model, ['local', 'ollama', 'starcoder', 'llama'])) return 'Local/Open Models';
+  return 'Other';
+}
+
+function getSetupCategory(combo: AiToolCombination): SetupTimeFilter {
+  const setup = combo.setupTime.toLowerCase();
+  if (includesAny(setup, ['0 分钟', '0 minutes'])) return 'instant';
+  if (includesAny(setup, ['2-3 hours', '2 hours', '3 hours'])) return 'advanced';
+  const number = Number(setup.match(/\d+/)?.[0] ?? Number.NaN);
+  if (Number.isNaN(number)) return 'standard';
+  if (setup.includes('hour') || setup.includes('小时')) return number <= 1 ? 'standard' : 'advanced';
+  if (number <= 5) return 'instant';
+  if (number <= 30) return 'quick';
+  if (number <= 60) return 'standard';
+  return 'advanced';
+}
+
+function matchesRiskType(combo: AiToolCombination, filter: RiskTypeFilter) {
+  if (filter === 'all') return true;
+  if (filter === 'no-risk') return combo.riskFactors.length === 0;
+  const text = combo.riskFactors.join(' ').toLowerCase();
+  const riskKeywords: Record<Exclude<RiskTypeFilter, 'all' | 'no-risk'>, string[]> = {
+    privacy: ['隐私', '数据', '上传', '出境'],
+    network: ['国内', '代理', '访问', '可用性', '网络'],
+    cost: ['成本', '费用', 'api', '预算', '配额'],
+    security: ['安全', '权限', '沙箱', '错误指令', '审查', '不可预测'],
+    vendor: ['供应商', '锁定', '生态', '政策', '运营', '依赖'],
+  };
+  return includesAny(text, riskKeywords[filter]);
+}
+
+function getSupportLabel(level: string) {
+  if (level === 'enterprise') return '企业级';
+  if (level === 'professional') return '专业支持';
+  if (level === 'community') return '社区支持';
+  return '有限支持';
+}
+
 export function ToolCombinationsPage() {
+  const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
+  const [toolFilter, setToolFilter] = useState(() => searchParams.get('tool') ?? 'all');
+  const [scenarioCategoryFilter, setScenarioCategoryFilter] = useState<ScenarioCategoryFilter>('all');
+  const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>('all');
+  const [modelProviderFilter, setModelProviderFilter] = useState('all');
   const [developmentSpeedFilter, setDevelopmentSpeedFilter] = useState<'all' | 'fast' | 'medium' | 'slow'>('all');
   const [learningCurveFilter, setLearningCurveFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
   const [costRangeFilter, setCostRangeFilter] = useState<'all' | 'free' | 'low' | 'medium' | 'high'>('all');
+  const [supportLevelFilter, setSupportLevelFilter] = useState('all');
+  const [riskTypeFilter, setRiskTypeFilter] = useState<RiskTypeFilter>('all');
+  const [setupTimeFilter, setSetupTimeFilter] = useState<SetupTimeFilter>('all');
+
+  useEffect(() => {
+    setToolFilter(searchParams.get('tool') ?? 'all');
+  }, [searchParams]);
+
+  const toolOptions = useMemo(
+    () => Array.from(new Set(DATA_STORE.toolCombinations.map((combo) => combo.tool))).sort(),
+    [],
+  );
+  const modelProviderOptions = useMemo(
+    () => Array.from(new Set(DATA_STORE.toolCombinations.map(getModelProvider))).sort(),
+    [],
+  );
+  const supportLevelOptions = useMemo(
+    () => Array.from(new Set(DATA_STORE.toolCombinations.map((combo) => combo.supportLevel))).sort(),
+    [],
+  );
 
   const filteredCombinations = useMemo(() => {
     let result = DATA_STORE.toolCombinations;
@@ -23,6 +192,26 @@ export function ToolCombinationsPage() {
         combo.tool.toLowerCase().includes(q) ||
         combo.bestFor.some(item => item.toLowerCase().includes(q))
       );
+    }
+
+    if (toolFilter !== 'all') {
+      const selectedTool = toolFilter.toLowerCase();
+      result = result.filter((combo) => {
+        const comboTool = combo.tool.toLowerCase();
+        return comboTool.includes(selectedTool) || selectedTool.includes(comboTool);
+      });
+    }
+
+    if (scenarioCategoryFilter !== 'all') {
+      result = result.filter((combo) => matchesScenarioCategory(combo, scenarioCategoryFilter));
+    }
+
+    if (priorityFilter !== 'all') {
+      result = result.filter((combo) => matchesPriority(combo, priorityFilter));
+    }
+
+    if (modelProviderFilter !== 'all') {
+      result = result.filter((combo) => getModelProvider(combo) === modelProviderFilter);
     }
 
     // 按开发速度
@@ -48,8 +237,20 @@ export function ToolCombinationsPage() {
       result = result.filter(combo => getCostCategory(combo.totalMonthlyCost) === costRangeFilter);
     }
 
+    if (supportLevelFilter !== 'all') {
+      result = result.filter((combo) => combo.supportLevel === supportLevelFilter);
+    }
+
+    if (riskTypeFilter !== 'all') {
+      result = result.filter((combo) => matchesRiskType(combo, riskTypeFilter));
+    }
+
+    if (setupTimeFilter !== 'all') {
+      result = result.filter((combo) => getSetupCategory(combo) === setupTimeFilter);
+    }
+
     return result;
-  }, [searchQuery, developmentSpeedFilter, learningCurveFilter, costRangeFilter]);
+  }, [searchQuery, toolFilter, scenarioCategoryFilter, priorityFilter, modelProviderFilter, developmentSpeedFilter, learningCurveFilter, costRangeFilter, supportLevelFilter, riskTypeFilter, setupTimeFilter]);
 
   const getSpeedIcon = (speed: string) => {
     switch (speed) {
@@ -116,7 +317,7 @@ export function ToolCombinationsPage() {
 
       {/* Filters */}
       <div className="mb-6 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 p-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
           {/* Search */}
           <div>
             <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1 mb-2">
@@ -130,6 +331,76 @@ export function ToolCombinationsPage() {
               placeholder="场景、模型、工具..."
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm placeholder:text-slate-400 focus:ring-2 focus:ring-amber-500 outline-none transition"
             />
+          </div>
+
+          {/* Tool */}
+          <div>
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1 mb-2">
+              <Target size={13} />
+              编码工具
+            </label>
+            <select
+              value={toolFilter}
+              onChange={(e) => setToolFilter(e.target.value)}
+              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition"
+            >
+              <option value="all">全部工具</option>
+              {toolOptions.map((tool) => (
+                <option key={tool} value={tool}>{tool}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Scenario Category */}
+          <div>
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1 mb-2">
+              <Target size={13} />
+              场景类型
+            </label>
+            <select
+              value={scenarioCategoryFilter}
+              onChange={(e) => setScenarioCategoryFilter(e.target.value as ScenarioCategoryFilter)}
+              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition"
+            >
+              {scenarioCategoryOptions.map((option) => (
+                <option key={option.id} value={option.id}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Priority */}
+          <div>
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1 mb-2">
+              <Filter size={13} />
+              决策优先级
+            </label>
+            <select
+              value={priorityFilter}
+              onChange={(e) => setPriorityFilter(e.target.value as PriorityFilter)}
+              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition"
+            >
+              {priorityOptions.map((option) => (
+                <option key={option.id} value={option.id}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Model Provider */}
+          <div>
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1 mb-2">
+              <Search size={13} />
+              模型厂商
+            </label>
+            <select
+              value={modelProviderFilter}
+              onChange={(e) => setModelProviderFilter(e.target.value)}
+              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition"
+            >
+              <option value="all">全部模型厂商</option>
+              {modelProviderOptions.map((provider) => (
+                <option key={provider} value={provider}>{provider}</option>
+              ))}
+            </select>
           </div>
 
           {/* Development Speed */}
@@ -186,6 +457,82 @@ export function ToolCombinationsPage() {
               <option value="high">高成本</option>
             </select>
           </div>
+
+          {/* Support Level */}
+          <div>
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1 mb-2">
+              <CircleCheck size={13} />
+              支持级别
+            </label>
+            <select
+              value={supportLevelFilter}
+              onChange={(e) => setSupportLevelFilter(e.target.value)}
+              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition"
+            >
+              <option value="all">全部支持</option>
+              {supportLevelOptions.map((level) => (
+                <option key={level} value={level}>{getSupportLabel(level)}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Risk Type */}
+          <div>
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1 mb-2">
+              <CircleAlert size={13} />
+              风险类型
+            </label>
+            <select
+              value={riskTypeFilter}
+              onChange={(e) => setRiskTypeFilter(e.target.value as RiskTypeFilter)}
+              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition"
+            >
+              {riskTypeOptions.map((option) => (
+                <option key={option.id} value={option.id}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Setup Time */}
+          <div>
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1 mb-2">
+              <Clock size={13} />
+              启动时间
+            </label>
+            <select
+              value={setupTimeFilter}
+              onChange={(e) => setSetupTimeFilter(e.target.value as SetupTimeFilter)}
+              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 outline-none transition"
+            >
+              {setupTimeOptions.map((option) => (
+                <option key={option.id} value={option.id}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4 dark:border-slate-700">
+          <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+            当前匹配 {filteredCombinations.length} / {DATA_STORE.toolCombinations.length} 个组合
+          </span>
+          <button
+            type="button"
+            onClick={() => {
+              setSearchQuery('');
+              setToolFilter('all');
+              setScenarioCategoryFilter('all');
+              setPriorityFilter('all');
+              setModelProviderFilter('all');
+              setDevelopmentSpeedFilter('all');
+              setLearningCurveFilter('all');
+              setCostRangeFilter('all');
+              setSupportLevelFilter('all');
+              setRiskTypeFilter('all');
+              setSetupTimeFilter('all');
+            }}
+            className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
+          >
+            重置筛选
+          </button>
         </div>
       </div>
 
@@ -327,7 +674,7 @@ export function ToolCombinationsPage() {
                 <Clock size={12} className="text-slate-500" />
                 <span className="text-slate-600 dark:text-slate-400">支持级别：</span>
                 <span className="font-semibold text-slate-900 dark:text-slate-100">
-                  {combo.supportLevel === 'enterprise' ? '企业级' : combo.supportLevel === 'community' ? '社区支持' : '有限支持'}
+                  {getSupportLabel(combo.supportLevel)}
                 </span>
               </div>
             </div>

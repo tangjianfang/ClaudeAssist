@@ -1,5 +1,5 @@
 export const en = {
-  appName: 'ClaudeAssist',
+  appName: 'AINav',
   tagline: 'Claude Code Command Reference',
   searchPlaceholder: 'Search commands, flags, shortcuts… (Ctrl+K)',
   searchLabel: 'Search',

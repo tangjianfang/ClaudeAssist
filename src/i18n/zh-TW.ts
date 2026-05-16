@@ -1,7 +1,7 @@
 import type { UIStrings } from './en';
 
 export const zhTW: UIStrings = {
-  appName: 'ClaudeAssist',
+  appName: 'AINav',
   tagline: 'Claude Code 指令速查手冊',
   searchPlaceholder: '搜尋指令、旗標、快捷鍵… (Ctrl+K)',
   searchLabel: '搜尋',

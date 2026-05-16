@@ -1,7 +1,7 @@
 import type { UIStrings } from './en';
 
 export const tr: UIStrings = {
-  appName: 'ClaudeAssist',
+  appName: 'AINav',
   tagline: 'Claude Code Komut Referansı',
   searchPlaceholder: 'Komut, bayrak, kısayol ara… (Ctrl+K)',
   searchLabel: 'Ara',

@@ -1,7 +1,7 @@
 import type { UIStrings } from './en';
 
 export const fr: UIStrings = {
-  appName: 'ClaudeAssist',
+  appName: 'AINav',
   tagline: 'Référence des commandes Claude Code',
   searchPlaceholder: 'Rechercher commandes, flags, raccourcis… (Ctrl+K)',
   searchLabel: 'Rechercher',

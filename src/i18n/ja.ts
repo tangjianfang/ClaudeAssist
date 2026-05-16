@@ -1,7 +1,7 @@
 import type { UIStrings } from './en';
 
 export const ja: UIStrings = {
-  appName: 'ClaudeAssist',
+  appName: 'AINav',
   tagline: 'Claude Code コマンドリファレンス',
   searchPlaceholder: 'コマンド、フラグ、ショートカットを検索… (Ctrl+K)',
   searchLabel: '検索',

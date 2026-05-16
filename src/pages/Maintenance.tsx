@@ -1,24 +1,24 @@
 import { Link } from 'react-router-dom';
-import { DatabaseZap, Puzzle, Sparkles, Star } from 'lucide-react';
+import { DatabaseZap, Puzzle, Star } from 'lucide-react';
 import { useLanguage } from '../i18n';
 
 const MAINTENANCE_LINKS = [
   {
     id: 'data-health',
-    Icon: Sparkles,
+    Icon: DatabaseZap,
     titleZh: '数据健康',
     titleEn: 'Data Health',
-    summaryZh: '检查功能、模型、工具和场景数据是否可追踪、可验证。',
-    summaryEn: 'Review whether feature, model, tool, and scenario data remains traceable and verifiable.',
-    path: '/features',
+    summaryZh: '浏览模型决策表，核查模型/工具数据来源、价格与能力字段的可追踪性。',
+    summaryEn: 'Browse the model decision table to verify source traceability for model, tool, and pricing fields.',
+    path: '/ai-ecosystem',
   },
   {
     id: 'source-review',
     Icon: Puzzle,
     titleZh: '来源核验',
     titleEn: 'Source Review',
-    summaryZh: '维护插件、来源和资料入口，减少过期信息进入决策结果。',
-    summaryEn: 'Maintain plugin, source, and reference entry points so stale information stays out of decisions.',
+    summaryZh: '浏览插件指南与官方扩展，核查入口可用性并减少过期信息影响决策。',
+    summaryEn: 'Browse the plugin guide and official extensions to verify availability and reduce stale data in decisions.',
     path: '/plugins',
   },
   {

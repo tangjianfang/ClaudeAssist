@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CircleAlert, CircleCheck, Filter, Search, Terminal } from 'lucide-react';
+import { ArrowRight, ChevronDown, ChevronUp, CircleAlert, CircleCheck, Filter, Search, Terminal } from 'lucide-react';
 import { clsx } from 'clsx';
 import { getToolProfilePreview, getToolWorkbenchCandidates } from '../data/tools/index';
 import type { ToolDecisionFit, ToolWorkbenchCandidate } from '../data/tools/index';
+import { getDecisionScenarioIds, getScenarioRecommendation } from '../data/decision-scenarios';
 import type { DecisionScenarioId } from '../data/decision-scenarios';
+import { DATA_STORE } from '../data/ai-ecosystem';
 import { Panel } from '../components/ui/Panel';
 import { SourceLink } from '../components/ui/SourceLink';
 import { StatusBadge } from '../components/ui/StatusBadge';
@@ -13,16 +15,11 @@ type ScenarioFilter = DecisionScenarioId | 'all';
 type ConstraintFilter = 'all' | 'china-accessible' | 'low-cost' | 'overseas-frontier';
 
 const scenarioOptions: Array<{ id: ScenarioFilter; label: string; description: string }> = [
-  {
-    id: 'china-low-cost-coding',
-    label: '国内可用 + 低成本',
-    description: '直接查看首选、备选和不推荐组合。',
-  },
-  {
-    id: 'all',
-    label: '全部工具 profile',
-    description: '浏览所有工具，但仍按决策摘要展示。',
-  },
+  ...getDecisionScenarioIds().map((id) => {
+    const scenario = getScenarioRecommendation(id);
+    return { id, label: scenario.shortTitle, description: scenario.description };
+  }),
+  { id: 'all', label: '全部工具 profile', description: '浏览所有工具，但仍按决策摘要展示。' },
 ];
 
 const constraintOptions: Array<{ id: ConstraintFilter; label: string }> = [
@@ -44,6 +41,7 @@ export function AiToolsPage() {
   const [constraint, setConstraint] = useState<ConstraintFilter>('all');
   const [query, setQuery] = useState('');
   const [selectedToolId, setSelectedToolId] = useState<string | null>(null);
+  const [childPagesExpanded, setChildPagesExpanded] = useState(true);
 
   const candidates = useMemo(() => getToolWorkbenchCandidates({
     scenarioId: scenario === 'all' ? undefined : scenario,
@@ -54,6 +52,16 @@ export function AiToolsPage() {
 
   const selectedCandidate = candidates.find((candidate) => candidate.tool.id === selectedToolId) ?? candidates[0];
   const preview = selectedCandidate ? getToolProfilePreview(selectedCandidate.tool.id) : null;
+  const selectedToolCombinations = useMemo(() => {
+    if (!preview) return [];
+    const toolName = preview.tool.name.toLowerCase();
+
+    return DATA_STORE.toolCombinations.filter((combo) => {
+      const comboTool = combo.tool.toLowerCase();
+      return comboTool.includes(toolName) || toolName.includes(comboTool);
+    });
+  }, [preview]);
+  const combinationToolFilter = selectedToolCombinations[0]?.tool ?? preview?.tool.name ?? '';
 
   return (
     <div className="px-3 sm:px-6 py-6 sm:py-8 max-w-screen-2xl mx-auto space-y-5">
@@ -196,6 +204,35 @@ export function AiToolsPage() {
             </div>
 
             <section>
+              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">能力评分</h3>
+              <div className="mt-2 space-y-1.5">
+                {(
+                  [
+                    { key: 'codeCompletion', label: '代码补全' },
+                    { key: 'codeGeneration', label: '代码生成' },
+                    { key: 'efficiency', label: '效率' },
+                    { key: 'accuracy', label: '精准度' },
+                    { key: 'contextAwareness', label: '上下文' },
+                  ] as const
+                ).map(({ key, label }) => {
+                  const score = preview.tool.scores[key];
+                  return (
+                    <div key={key} className="flex items-center gap-2">
+                      <span className="w-16 shrink-0 text-xs text-slate-500 dark:text-slate-400">{label}</span>
+                      <div className="flex-1 h-1.5 rounded-full bg-slate-100 dark:bg-slate-800">
+                        <div
+                          className="h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400"
+                          style={{ width: `${(score / 10) * 100}%` }}
+                        />
+                      </div>
+                      <span className="w-7 text-right text-xs font-bold text-slate-700 dark:text-slate-200">{score.toFixed(1)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section>
               <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">常用工作流</h3>
               <ul className="mt-2 space-y-2">
                 {preview.workflows.map((workflow) => (
@@ -214,15 +251,49 @@ export function AiToolsPage() {
 
             {preview.childPages.length > 0 && (
               <section>
-                <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Claude Code 子知识</h3>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {preview.childPages.map((page) => (
+                <button
+                  onClick={() => setChildPagesExpanded(!childPagesExpanded)}
+                  className="w-full flex items-center justify-between gap-2 text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-400 transition-colors"
+                >
+                  <span>工具子知识</span>
+                  {childPagesExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                </button>
+                {childPagesExpanded && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {preview.childPages.map((page) => (
+                      <Link
+                        key={page.path}
+                        to={page.path}
+                        className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-400 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-500"
+                      >
+                        {page.label}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
+
+            {selectedToolCombinations.length > 0 && (
+              <section>
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">组合方案</h3>
+                  <Link
+                    to={`/tool-combinations?tool=${encodeURIComponent(combinationToolFilter)}`}
+                    className="text-xs font-semibold text-indigo-600 hover:underline dark:text-indigo-300"
+                  >
+                    查看完整
+                  </Link>
+                </div>
+                <div className="mt-2 space-y-2">
+                  {selectedToolCombinations.slice(0, 3).map((combo) => (
                     <Link
-                      key={page.path}
-                      to={page.path}
-                      className="rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-600 hover:border-slate-400 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-500"
+                      key={combo.id}
+                      to={`/tool-combinations?tool=${encodeURIComponent(combinationToolFilter)}`}
+                      className="block rounded-lg border border-slate-200 px-3 py-2 hover:border-slate-400 dark:border-slate-700 dark:hover:border-slate-500"
                     >
-                      {page.label}
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-100 line-clamp-1">{combo.name}</p>
+                      <p className="mt-0.5 text-[11px] text-slate-500 dark:text-slate-400 line-clamp-2">{combo.scenario}</p>
                     </Link>
                   ))}
                 </div>
