@@ -8,93 +8,93 @@
 export const VENDOR_LOGOS: Record<string, { url: string; alt: string }> = {
   // AI Model Vendors
   OpenAI: {
-    url: '/logos/openai.svg',
+    url: '/ClaudeAssist/logos/openai.svg',
     alt: 'OpenAI Logo',
   },
   Anthropic: {
-    url: '/logos/anthropic.svg',
+    url: '/ClaudeAssist/logos/anthropic.svg',
     alt: 'Anthropic Logo',
   },
   'Google DeepMind': {
-    url: '/logos/google.svg',
+    url: '/ClaudeAssist/logos/google.svg',
     alt: 'Google DeepMind Logo',
   },
   DeepSeek: {
-    url: '/logos/deepseek.svg',
+    url: '/ClaudeAssist/logos/deepseek.svg',
     alt: 'DeepSeek Logo',
   },
   'Alibaba Cloud': {
-    url: '/logos/alibaba.svg',
+    url: '/ClaudeAssist/logos/alibaba.svg',
     alt: 'Alibaba Cloud Logo',
   },
 
   // AI Tool Vendors
   GitHub: {
-    url: '/logos/github.svg',
+    url: '/ClaudeAssist/logos/github.svg',
     alt: 'GitHub Logo',
   },
   'GitHub/OpenAI': {
-    url: '/logos/github.svg',
+    url: '/ClaudeAssist/logos/github.svg',
     alt: 'GitHub Logo',
   },
   Cursor: {
-    url: '/logos/cursor.svg',
+    url: '/ClaudeAssist/logos/cursor.svg',
     alt: 'Cursor IDE Logo',
   },
   'JetBrains': {
-    url: '/logos/jetbrains.svg',
+    url: '/ClaudeAssist/logos/jetbrains.svg',
     alt: 'JetBrains Logo',
   },
   Tabnine: {
-    url: '/logos/tabnine.svg',
+    url: '/ClaudeAssist/logos/tabnine.svg',
     alt: 'Tabnine Logo',
   },
   Amazon: {
-    url: '/logos/amazon.svg',
+    url: '/ClaudeAssist/logos/amazon.svg',
     alt: 'Amazon Logo',
   },
   Codeium: {
-    url: '/logos/codeium.svg',
+    url: '/ClaudeAssist/logos/codeium.svg',
     alt: 'Codeium Logo',
   },
   Alibaba: {
-    url: '/logos/alibaba.svg',
+    url: '/ClaudeAssist/logos/alibaba.svg',
     alt: 'Alibaba Logo',
   },
   Baidu: {
-    url: '/logos/baidu.svg',
+    url: '/ClaudeAssist/logos/baidu.svg',
     alt: 'Baidu Logo',
   },
   'Mozilla / OpenWeb': {
-    url: '/logos/mozilla.svg',
+    url: '/ClaudeAssist/logos/mozilla.svg',
     alt: 'Mozilla Logo',
   },
   'Hugging Face': {
-    url: '/logos/huggingface.svg',
+    url: '/ClaudeAssist/logos/huggingface.svg',
     alt: 'Hugging Face Logo',
   },
   Continue: {
-    url: '/logos/continue.svg',
+    url: '/ClaudeAssist/logos/continue.svg',
     alt: 'Continue Logo',
   },
   Aider: {
-    url: '/logos/github.svg',
+    url: '/ClaudeAssist/logos/github.svg',
     alt: 'Aider Logo',
   },
   'Void': {
-    url: '/logos/github.svg',
+    url: '/ClaudeAssist/logos/github.svg',
     alt: 'Void Editor Logo',
   },
   'Codex': {
-    url: '/logos/openai.svg',
+    url: '/ClaudeAssist/logos/openai.svg',
     alt: 'Codex Logo',
   },
   'Factory': {
-    url: '/logos/github.svg',
+    url: '/ClaudeAssist/logos/github.svg',
     alt: 'Factory Droid Logo',
   },
   'Gemini': {
-    url: '/logos/google.svg',
+    url: '/ClaudeAssist/logos/google.svg',
     alt: 'Gemini Logo',
   },
 };

@@ -1,3 +1,4 @@
+import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { clsx } from 'clsx';
@@ -56,7 +57,8 @@ function NavItemLink({
 }) {
   const iconSize = depth === 0 ? 18 : 15;
   const hasChildren = Boolean(item.children?.length);
-  const hasLogo = Boolean(item.logo);
+  const [logoFailed, setLogoFailed] = React.useState(false);
+  const shouldShowLogo = item.logo && !logoFailed;
 
   return (
     <NavLink
@@ -66,12 +68,12 @@ function NavItemLink({
       onClick={onClose}
     >
       <span className={clsx('shrink-0', depth === 0 ? 'opacity-75' : 'opacity-60')}>
-        {hasLogo ? (
+        {shouldShowLogo ? (
           <img
             src={item.logo}
             alt={label}
             className="w-[18px] h-[18px] rounded object-contain"
-            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            onError={() => setLogoFailed(true)}
           />
         ) : (
           <item.Icon size={iconSize} />
