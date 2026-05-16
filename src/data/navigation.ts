@@ -33,6 +33,8 @@ export interface NavItem {
   path: string;
   /** Lucide 图标 */
   Icon: LucideIcon;
+  /** 可选的 logo URL（用于工具/模型菜单项）；若提供则优先显示 */
+  logo?: string;
   /** 中文标签（回退显示）；优先从 i18n 取 */
   labelZh: string;
   /** 英文标签 */
@@ -104,6 +106,7 @@ export const NAV_GROUPS: NavGroup[] = [
             id: 'claude-code',
             path: '/tools/claude-code',
             Icon: Code,
+            logo: '/logos/anthropic.svg',
             labelZh: 'Claude Code',
             labelEn: 'Claude Code',
             children: [
@@ -117,9 +120,9 @@ export const NAV_GROUPS: NavGroup[] = [
               { id: 'claude-code-env-vars', path: '/tools/claude-code/env-vars', Icon: Variable, labelZh: 'Env Vars', labelEn: 'Env Vars' },
             ],
           },
-          { id: 'opencode', path: '/tools/opencode', Icon: Terminal, labelZh: 'OpenCode', labelEn: 'OpenCode' },
-          { id: 'gemini-cli', path: '/tools/gemini-cli', Icon: Sparkles, labelZh: 'Gemini CLI', labelEn: 'Gemini CLI' },
-          { id: 'github-copilot-cli', path: '/tools/github-copilot-cli', Icon: Slash, labelZh: 'GitHub Copilot CLI', labelEn: 'GitHub Copilot CLI' },
+          { id: 'opencode', path: '/tools/opencode', Icon: Terminal, logo: '/logos/google.svg', labelZh: 'OpenCode', labelEn: 'OpenCode' },
+          { id: 'gemini-cli', path: '/tools/gemini-cli', Icon: Sparkles, logo: '/logos/google.svg', labelZh: 'Gemini CLI', labelEn: 'Gemini CLI' },
+          { id: 'github-copilot-cli', path: '/tools/github-copilot-cli', Icon: Slash, logo: '/logos/github.svg', labelZh: 'GitHub Copilot CLI', labelEn: 'GitHub Copilot CLI' },
         ],
       },
     ],

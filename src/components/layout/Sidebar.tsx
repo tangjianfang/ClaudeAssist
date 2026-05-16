@@ -56,6 +56,7 @@ function NavItemLink({
 }) {
   const iconSize = depth === 0 ? 18 : 15;
   const hasChildren = Boolean(item.children?.length);
+  const hasLogo = Boolean(item.logo);
 
   return (
     <NavLink
@@ -65,7 +66,16 @@ function NavItemLink({
       onClick={onClose}
     >
       <span className={clsx('shrink-0', depth === 0 ? 'opacity-75' : 'opacity-60')}>
-        <item.Icon size={iconSize} />
+        {hasLogo ? (
+          <img
+            src={item.logo}
+            alt={label}
+            className="w-[18px] h-[18px] rounded object-contain"
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+          />
+        ) : (
+          <item.Icon size={iconSize} />
+        )}
       </span>
       <span className="truncate">{label}</span>
       {badgeVal !== null && (

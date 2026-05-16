@@ -1,100 +1,100 @@
 /**
  * src/data/vendor-logos.ts
  * ─────────────────────────────────────────────────────────────────
- * 厂商 logo 映射表
- * 优先级：官方 CDN > Simple Icons > Google Favicon API
+ * 厂商 logo 映射表 - 本地缓存版本
+ * 所有 logo 存储在 public/logos/ 目录中
  */
 
 export const VENDOR_LOGOS: Record<string, { url: string; alt: string }> = {
   // AI Model Vendors
   OpenAI: {
-    url: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/openai.svg',
+    url: '/logos/openai.svg',
     alt: 'OpenAI Logo',
   },
   Anthropic: {
-    url: 'https://upload.wikimedia.org/wikipedia/commons/8/8c/Anthropic_company_logo.png',
+    url: '/logos/anthropic.svg',
     alt: 'Anthropic Logo',
   },
   'Google DeepMind': {
-    url: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/google.svg',
+    url: '/logos/google.svg',
     alt: 'Google DeepMind Logo',
   },
   DeepSeek: {
-    url: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/deepseek.svg',
+    url: '/logos/deepseek.svg',
     alt: 'DeepSeek Logo',
   },
   'Alibaba Cloud': {
-    url: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/alibaba.svg',
+    url: '/logos/alibaba.svg',
     alt: 'Alibaba Cloud Logo',
   },
 
   // AI Tool Vendors
   GitHub: {
-    url: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/github.svg',
+    url: '/logos/github.svg',
     alt: 'GitHub Logo',
   },
   'GitHub/OpenAI': {
-    url: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/github.svg',
+    url: '/logos/github.svg',
     alt: 'GitHub Logo',
   },
   Cursor: {
-    url: 'https://www.cursor.com/favicon.ico',
+    url: '/logos/cursor.svg',
     alt: 'Cursor IDE Logo',
   },
   'JetBrains': {
-    url: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/jetbrains.svg',
+    url: '/logos/jetbrains.svg',
     alt: 'JetBrains Logo',
   },
   Tabnine: {
-    url: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/tabnine.svg',
+    url: '/logos/tabnine.svg',
     alt: 'Tabnine Logo',
   },
   Amazon: {
-    url: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/amazon.svg',
+    url: '/logos/amazon.svg',
     alt: 'Amazon Logo',
   },
   Codeium: {
-    url: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/codeium.svg',
+    url: '/logos/codeium.svg',
     alt: 'Codeium Logo',
   },
   Alibaba: {
-    url: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/alibaba.svg',
+    url: '/logos/alibaba.svg',
     alt: 'Alibaba Logo',
   },
   Baidu: {
-    url: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/baidu.svg',
+    url: '/logos/baidu.svg',
     alt: 'Baidu Logo',
   },
   'Mozilla / OpenWeb': {
-    url: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/mozilla.svg',
+    url: '/logos/mozilla.svg',
     alt: 'Mozilla Logo',
   },
   'Hugging Face': {
-    url: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/huggingface.svg',
+    url: '/logos/huggingface.svg',
     alt: 'Hugging Face Logo',
   },
   Continue: {
-    url: 'https://continue.dev/favicon.ico',
+    url: '/logos/continue.svg',
     alt: 'Continue Logo',
   },
   Aider: {
-    url: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/github.svg',
+    url: '/logos/github.svg',
     alt: 'Aider Logo',
   },
   'Void': {
-    url: 'https://www.voideditor.dev/favicon.ico',
+    url: '/logos/github.svg',
     alt: 'Void Editor Logo',
   },
   'Codex': {
-    url: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/openai.svg',
+    url: '/logos/openai.svg',
     alt: 'Codex Logo',
   },
   'Factory': {
-    url: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/factory.svg',
+    url: '/logos/github.svg',
     alt: 'Factory Droid Logo',
   },
   'Gemini': {
-    url: 'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/google.svg',
+    url: '/logos/google.svg',
     alt: 'Gemini Logo',
   },
 };
