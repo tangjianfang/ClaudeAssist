@@ -5,7 +5,7 @@ import { useState, useRef, useEffect } from 'react';
 import { clsx } from 'clsx';
 import { QRCodeSVG } from 'qrcode.react';
 
-const SITE_URL = 'https://tangjianfang.github.io/AINav/';
+const SITE_URL = 'https://tangjianfang.github.io/ClaudeAssist/';
 
 const LANG_OPTIONS: Array<{ value: Language; label: string; short: string }> = [
   { value: 'en',    label: 'English',              short: 'EN' },
@@ -63,7 +63,7 @@ export function TopBar({ query, onQueryChange, darkMode, onToggleDark, onMenuOpe
           className="flex items-center gap-2 shrink-0 font-bold text-slate-900 dark:text-white"
         >
           <span className="text-lg">🤖</span>
-          <span className="hidden sm:block text-sm font-semibold">AINav</span>
+          <span className="hidden sm:block text-sm font-semibold">ClaudeAssist</span>
         </a>
 
         {/* Hamburger (mobile only) */}

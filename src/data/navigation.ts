@@ -106,7 +106,7 @@ export const NAV_GROUPS: NavGroup[] = [
             id: 'claude-code',
             path: '/tools/claude-code',
             Icon: Code,
-            logo: '/AINav/logos/claude.svg',
+            logo: `${import.meta.env.BASE_URL}logos/claude.svg`,
             labelZh: 'Claude Code',
             labelEn: 'Claude Code',
             children: [
@@ -177,7 +177,7 @@ export const NAV_GROUPS: NavGroup[] = [
             id: 'gemini-cli',
             path: '/tools/gemini-cli',
             Icon: Sparkles,
-            logo: '/AINav/logos/googlegemini.svg',
+            logo: `${import.meta.env.BASE_URL}logos/googlegemini.svg`,
             labelZh: 'Gemini CLI',
             labelEn: 'Gemini CLI',
             children: [
@@ -191,7 +191,7 @@ export const NAV_GROUPS: NavGroup[] = [
             id: 'github-copilot-cli',
             path: '/tools/github-copilot-cli',
             Icon: Slash,
-            logo: '/AINav/logos/githubcopilot.svg',
+            logo: `${import.meta.env.BASE_URL}logos/githubcopilot.svg`,
             labelZh: 'GitHub Copilot CLI',
             labelEn: 'GitHub Copilot CLI',
             children: [
@@ -205,7 +205,7 @@ export const NAV_GROUPS: NavGroup[] = [
             id: 'codex-cli',
             path: '/tools/codex-cli',
             Icon: Terminal,
-            logo: '/AINav/logos/openai.svg',
+            logo: `${import.meta.env.BASE_URL}logos/openai.svg`,
             labelZh: 'Codex CLI',
             labelEn: 'Codex CLI',
             children: [
@@ -254,7 +254,7 @@ export const NAV_GROUPS: NavGroup[] = [
             id: 'models-anthropic',
             path: '/ai-ecosystem?vendor=Anthropic',
             Icon: BrainCircuit,
-            logo: '/AINav/logos/claude.svg',
+            logo: `${import.meta.env.BASE_URL}logos/claude.svg`,
             labelZh: 'Anthropic Claude',
             labelEn: 'Anthropic Claude',
             children: [
@@ -267,7 +267,7 @@ export const NAV_GROUPS: NavGroup[] = [
             id: 'models-google',
             path: '/ai-ecosystem?vendor=Google+DeepMind',
             Icon: BrainCircuit,
-            logo: '/AINav/logos/googlegemini.svg',
+            logo: `${import.meta.env.BASE_URL}logos/googlegemini.svg`,
             labelZh: 'Google DeepMind',
             labelEn: 'Google DeepMind',
             children: [
@@ -294,7 +294,7 @@ export const NAV_GROUPS: NavGroup[] = [
             id: 'models-qwen',
             path: '/ai-ecosystem?vendor=Alibaba+Cloud',
             Icon: BrainCircuit,
-            logo: '/AINav/logos/alibaba.svg',
+            logo: `${import.meta.env.BASE_URL}logos/alibaba.svg`,
             labelZh: '通义千问',
             labelEn: 'Tongyi Qwen',
             children: [
@@ -317,7 +317,7 @@ export const NAV_GROUPS: NavGroup[] = [
             id: 'models-xai',
             path: '/ai-ecosystem?vendor=SpaceXAI+%28%E5%8E%9F+xAI%29',
             Icon: BrainCircuit,
-            logo: '/AINav/logos/xai.svg',
+            logo: `${import.meta.env.BASE_URL}logos/xai.svg`,
             labelZh: 'xAI / Grok',
             labelEn: 'xAI / Grok',
             children: [
@@ -328,7 +328,7 @@ export const NAV_GROUPS: NavGroup[] = [
             id: 'models-xiaomi',
             path: '/ai-ecosystem?vendor=Xiaomi',
             Icon: BrainCircuit,
-            logo: '/AINav/logos/xiaomi.svg',
+            logo: `${import.meta.env.BASE_URL}logos/xiaomi.svg`,
             labelZh: '小米 MiMo',
             labelEn: 'Xiaomi MiMo',
             children: [
