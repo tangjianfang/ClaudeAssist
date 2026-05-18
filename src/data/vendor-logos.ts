@@ -8,101 +8,101 @@
 export const VENDOR_LOGOS: Record<string, { url: string; alt: string }> = {
   // AI Model Vendors
   OpenAI: {
-    url: '/AINav/logos/openai.svg',
+    url: `${import.meta.env.BASE_URL}logos/openai.svg`,
     alt: 'OpenAI Logo',
   },
   Anthropic: {
-    url: '/AINav/logos/anthropic.svg',
+    url: `${import.meta.env.BASE_URL}logos/anthropic.svg`,
     alt: 'Anthropic Logo',
   },
   'Google DeepMind': {
-    url: '/AINav/logos/google.svg',
+    url: `${import.meta.env.BASE_URL}logos/google.svg`,
     alt: 'Google DeepMind Logo',
   },
   DeepSeek: {
-    url: '/AINav/logos/deepseek.svg',
+    url: `${import.meta.env.BASE_URL}logos/deepseek.svg`,
     alt: 'DeepSeek Logo',
   },
   'Alibaba Cloud': {
-    url: '/AINav/logos/alibaba.svg',
+    url: `${import.meta.env.BASE_URL}logos/alibaba.svg`,
     alt: 'Alibaba Cloud Logo',
   },
   'SpaceXAI (原 xAI)': {
-    url: '/AINav/logos/xai.svg',
+    url: `${import.meta.env.BASE_URL}logos/xai.svg`,
     alt: 'xAI / SpaceXAI Logo',
   },
   Xiaomi: {
-    url: '/AINav/logos/xiaomi.svg',
+    url: `${import.meta.env.BASE_URL}logos/xiaomi.svg`,
     alt: 'Xiaomi Logo',
   },
 
   // AI Tool Vendors
   GitHub: {
-    url: '/AINav/logos/github.svg',
+    url: `${import.meta.env.BASE_URL}logos/github.svg`,
     alt: 'GitHub Logo',
   },
   'GitHub/OpenAI': {
-    url: '/AINav/logos/github.svg',
+    url: `${import.meta.env.BASE_URL}logos/github.svg`,
     alt: 'GitHub Logo',
   },
   Cursor: {
-    url: '/AINav/logos/cursor.svg',
+    url: `${import.meta.env.BASE_URL}logos/cursor.svg`,
     alt: 'Cursor IDE Logo',
   },
   'JetBrains': {
-    url: '/AINav/logos/jetbrains.svg',
+    url: `${import.meta.env.BASE_URL}logos/jetbrains.svg`,
     alt: 'JetBrains Logo',
   },
   Tabnine: {
-    url: '/AINav/logos/tabnine.svg',
+    url: `${import.meta.env.BASE_URL}logos/tabnine.svg`,
     alt: 'Tabnine Logo',
   },
   Amazon: {
-    url: '/AINav/logos/amazon.svg',
+    url: `${import.meta.env.BASE_URL}logos/amazon.svg`,
     alt: 'Amazon Logo',
   },
   Codeium: {
-    url: '/AINav/logos/codeium.svg',
+    url: `${import.meta.env.BASE_URL}logos/codeium.svg`,
     alt: 'Codeium Logo',
   },
   Alibaba: {
-    url: '/AINav/logos/alibaba.svg',
+    url: `${import.meta.env.BASE_URL}logos/alibaba.svg`,
     alt: 'Alibaba Logo',
   },
   Baidu: {
-    url: '/AINav/logos/baidu.svg',
+    url: `${import.meta.env.BASE_URL}logos/baidu.svg`,
     alt: 'Baidu Logo',
   },
   'Mozilla / OpenWeb': {
-    url: '/AINav/logos/mozilla.svg',
+    url: `${import.meta.env.BASE_URL}logos/mozilla.svg`,
     alt: 'Mozilla Logo',
   },
   'Hugging Face': {
-    url: '/AINav/logos/huggingface.svg',
+    url: `${import.meta.env.BASE_URL}logos/huggingface.svg`,
     alt: 'Hugging Face Logo',
   },
   Continue: {
-    url: '/AINav/logos/continue.svg',
+    url: `${import.meta.env.BASE_URL}logos/continue.svg`,
     alt: 'Continue Logo',
   },
   Aider: {
-    url: '/AINav/logos/github.svg',
+    url: `${import.meta.env.BASE_URL}logos/github.svg`,
     alt: 'Aider Logo',
   },
   'Void': {
-    url: '/AINav/logos/github.svg',
+    url: `${import.meta.env.BASE_URL}logos/github.svg`,
     alt: 'Void Editor Logo',
   },
   'Codex': {
-    url: '/AINav/logos/openai.svg',
+    url: `${import.meta.env.BASE_URL}logos/openai.svg`,
     alt: 'Codex Logo',
   },
   'Factory': {
-    url: '/AINav/logos/github.svg',
+    url: `${import.meta.env.BASE_URL}logos/github.svg`,
     alt: 'Factory Droid Logo',
   },
   'Gemini': {
-    url: '/AINav/logos/google.svg',
+    url: `${import.meta.env.BASE_URL}logos/google.svg`,
     alt: 'Gemini Logo',
   },
 };
@@ -115,26 +115,26 @@ export const VENDOR_LOGOS: Record<string, { url: string; alt: string }> = {
 export const TOOL_LOGOS: Record<string, { url: string; alt: string }> = {
   // Claude Code 使用 Claude 品牌 logo（不同于 Anthropic 通用 logo）
   'claude-code': {
-    url: '/AINav/logos/claude.svg',
+    url: `${import.meta.env.BASE_URL}logos/claude.svg`,
     alt: 'Claude Code Logo',
   },
   // GitHub Copilot 使用 Copilot 专属 logo（不同于 GitHub Octocat）
   'github-copilot-individual': {
-    url: '/AINav/logos/githubcopilot.svg',
+    url: `${import.meta.env.BASE_URL}logos/githubcopilot.svg`,
     alt: 'GitHub Copilot Logo',
   },
   'github-copilot-cli': {
-    url: '/AINav/logos/githubcopilot.svg',
+    url: `${import.meta.env.BASE_URL}logos/githubcopilot.svg`,
     alt: 'GitHub Copilot Logo',
   },
   // Gemini CLI 使用 Gemini 专属 logo（不同于 Google 通用 logo）
   'gemini-cli': {
-    url: '/AINav/logos/googlegemini.svg',
+    url: `${import.meta.env.BASE_URL}logos/googlegemini.svg`,
     alt: 'Gemini CLI Logo',
   },
   // OpenAI Codex CLI 使用 OpenAI logo
   'codex-cli': {
-    url: '/AINav/logos/openai.svg',
+    url: `${import.meta.env.BASE_URL}logos/openai.svg`,
     alt: 'OpenAI Codex CLI Logo',
   },
 };

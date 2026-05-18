@@ -1,18 +1,18 @@
-# AINav
+# ClaudeAssist
 
-**Claude Code 命令速查手册** · 面向新手和专家的快速参考指南
+**AI 编程工具决策工作台 + Claude Code 命令速查手册** · 面向新手和专家的快速参考指南
 
-[![Deploy](https://img.shields.io/github/actions/workflow/status/tangjianfang/AINav/deploy.yml?style=flat-square)](https://github.com/tangjianfang/AINav/actions)
+[![Deploy](https://img.shields.io/github/actions/workflow/status/tangjianfang/ClaudeAssist/deploy.yml?style=flat-square)](https://github.com/tangjianfang/ClaudeAssist/actions)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg?style=flat-square)](LICENSE)
-[![Version](https://img.shields.io/badge/version-2.2.0-green.svg?style=flat-square)](https://github.com/tangjianfang/AINav/releases)
+[![Version](https://img.shields.io/badge/version-2.2.1-green.svg?style=flat-square)](https://github.com/tangjianfang/ClaudeAssist/releases)
 
-🌐 **在线访问**: [https://tangjianfang.github.io/AINav/](https://tangjianfang.github.io/AINav/)
+🌐 **在线访问**: [https://tangjianfang.github.io/ClaudeAssist/](https://tangjianfang.github.io/ClaudeAssist/)
 
 ---
 
 ## 📖 简介
 
-AINav 是一个功能完整的 **Claude Code 命令速查网站**，提供所有斜杠命令、CLI 参数、键盘快捷键、设置选项、环境变量的 searchable 参考手册。
+ClaudeAssist 是一个功能完整的 **AI 编程工具决策工作台与 Claude Code 命令速查网站**，提供工具/模型对比、组合推荐，以及斜杠命令、CLI 参数、键盘快捷键、设置选项、环境变量的可搜索参考手册。
 
 ### ✨ 主要特性
 
@@ -30,14 +30,14 @@ AINav 是一个功能完整的 **Claude Code 命令速查网站**，提供所有
 
 ### 在线使用
 
-直接访问部署好的网站：[https://tangjianfang.github.io/AINav/](https://tangjianfang.github.io/AINav/)
+直接访问部署好的网站：[https://tangjianfang.github.io/ClaudeAssist/](https://tangjianfang.github.io/ClaudeAssist/)
 
 ### 本地开发
 
 ```bash
 # 克隆仓库
-git clone https://github.com/tangjianfang/AINav.git
-cd AINav
+git clone https://github.com/tangjianfang/ClaudeAssist.git
+cd ClaudeAssist
 
 # 使用受支持的 Node.js LTS 版本
 # 22.13+ 或 24+
@@ -70,7 +70,7 @@ npm run preview
 ## 📁 项目结构
 
 ```
-AINav/
+ClaudeAssist/
 ├── src/
 │   ├── components/         # React 组件
 │   │   ├── Layout/         # 布局组件 (Sidebar, TopBar)
@@ -181,6 +181,11 @@ AINav/
 ---
 
 ## 📝 更新日志
+
+### v2.2.1 (2026-05-18)
+
+- 🔧 修复 GitHub Pages 在线访问路径，站点部署到 `https://tangjianfang.github.io/ClaudeAssist/`
+- 📝 更新 README 中的仓库地址、在线访问地址和项目说明
 
 ### v2.2.0 (2026-04-22)
 
@@ -312,7 +317,7 @@ AINav/
 
 ```bash
 # Fork 仓库
-git clone https://github.com/your-username/AINav.git
+git clone https://github.com/your-username/ClaudeAssist.git
 
 # 创建分支
 git checkout -b feature/your-feature
@@ -350,6 +355,6 @@ git push origin feature/your-feature
 
 **Made with ❤️ for the Claude Code community**
 
-[⭐ Star this repo](https://github.com/tangjianfang/AINav) if you find it helpful!
+[⭐ Star this repo](https://github.com/tangjianfang/ClaudeAssist) if you find it helpful!
 
 </div>

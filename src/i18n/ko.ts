@@ -1,7 +1,7 @@
 import type { UIStrings } from './en';
 
 export const ko: UIStrings = {
-  appName: 'AINav',
+  appName: 'ClaudeAssist',
   tagline: 'Claude Code 명령어 레퍼런스',
   searchPlaceholder: '명령어, 플래그, 단축키 검색… (Ctrl+K)',
   searchLabel: '검색',

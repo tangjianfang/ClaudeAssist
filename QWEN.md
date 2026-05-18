@@ -1,8 +1,8 @@
-# AINav 项目上下文
+# ClaudeAssist 项目上下文
 
 ## 项目概述
 
-**AINav** 是一个 Claude Code 命令快速参考网站，提供所有斜杠命令、CLI 标志、键盘快捷键、设置和模式的可搜索参考。
+**ClaudeAssist** 是一个 AI 编程工具决策工作台与 Claude Code 命令快速参考网站，提供所有斜杠命令、CLI 标志、键盘快捷键、设置和模式的可搜索参考。
 
 ### 主要特性
 - 🔍 **完全可搜索** - 快速查找任何 Claude Code 命令
@@ -22,7 +22,7 @@
 ## 目录结构
 
 ```
-AINav/
+ClaudeAssist/
 ├── index.html          # 主入口 HTML 文件
 ├── favicon.svg         # 网站图标 (机器人 emoji)
 ├── .nojekyll           # GitHub Pages 配置 (禁用 Jekyll)
@@ -52,7 +52,7 @@ AINav/
 
 ### 部署方式
 项目通过 **GitHub Pages** 部署：
-- 部署目录：`/AINav/`
+- 部署目录：`/ClaudeAssist/`
 - 通过 `.nojekyll` 文件禁用 Jekyll 处理
 
 ### 本地预览
@@ -69,7 +69,7 @@ npx serve .
 php -S localhost:8080
 ```
 
-然后访问 `http://localhost:8080/AINav/`
+然后访问 `http://localhost:8080/ClaudeAssist/`
 
 ## 开发约定
 
@@ -91,7 +91,7 @@ php -S localhost:8080
 ## 元数据与 SEO
 
 项目包含完整的 Open Graph 元数据：
-- `og:title`: AINav — Claude Code Command Reference
+- `og:title`: ClaudeAssist — AI Coding Tool Decision Workbench
 - `og:description`: The fastest way to find any Claude Code command
 - `og:type`: website
 
